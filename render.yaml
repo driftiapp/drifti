@@ -1,0 +1,78 @@
+services:
+  # Backend Service
+  - type: web
+    name: drifti-backend
+    env: node
+    region: ohio
+    plan: starter
+    buildCommand: cd backend && npm install && npm run build
+    startCommand: cd backend && npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: MONGODB_URI
+        value: mongodb+srv://drifti_admin:Mangosshow2025%40%40@cluster0.a8nbe.mongodb.net/drifti?retryWrites=true&w=majority&authSource=admin
+      - key: JWT_SECRET
+        value: drifti_jwt_secret_key_2024
+      - key: SMTP_HOST
+        value: smtp.gmail.com
+      - key: SMTP_PORT
+        value: 587
+      - key: SMTP_USER
+        value: your_email@gmail.com
+      - key: SMTP_PASS
+        value: your_app_specific_password
+      - key: FRONTEND_URL
+        value: https://drifti-frontend.onrender.com
+      - key: FIREBASE_PROJECT_ID
+        value: drifti-58b5b
+      - key: FIREBASE_PRIVATE_KEY
+        value: "-----BEGIN PRIVATE KEY-----\nyJWTf0dRR3U6y63yPgE2nHiKamf2\n-----END PRIVATE KEY-----"
+      - key: FIREBASE_CLIENT_EMAIL
+        value: firebase-adminsdk-fbsvc@drifti-58b5b.iam.gserviceaccount.com
+      - key: FIREBASE_API_KEY
+        value: AIzaSyA_YX244PTxsjLsDnKJHH_TbfmtQ6bFAgw
+      - key: FIREBASE_AUTH_DOMAIN
+        value: drifti-58b5b.firebaseapp.com
+      - key: FIREBASE_DATABASE_URL
+        value: https://drifti-58b5b-default-rtdb.firebaseio.com
+      - key: FIREBASE_STORAGE_BUCKET
+        value: drifti-58b5b.firebasestorage.app
+      - key: FIREBASE_MESSAGING_SENDER_ID
+        value: 936049949853
+      - key: FIREBASE_APP_ID
+        value: 1:936049949853:web:421e5ac06c51b65591a874
+      - key: FIREBASE_MEASUREMENT_ID
+        value: G-FQ5PQH7W9Y
+    healthCheckPath: /health
+    autoDeploy: true
+
+  # Frontend Service
+  - type: web
+    name: drifti-frontend
+    env: node
+    buildCommand: cd frontend && npm install && npm run build
+    startCommand: cd frontend && npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: NEXT_PUBLIC_API_URL
+        value: https://drifti-backend.onrender.com
+      - key: NEXT_PUBLIC_FIREBASE_API_KEY
+        value: AIzaSyA_YX244PTxsjLsDnKJHH_TbfmtQ6bFAgw
+      - key: NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN
+        value: drifti-58b5b.firebaseapp.com
+      - key: NEXT_PUBLIC_FIREBASE_DATABASE_URL
+        value: https://drifti-58b5b-default-rtdb.firebaseio.com
+      - key: NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET
+        value: drifti-58b5b.firebasestorage.app
+      - key: NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID
+        value: 936049949853
+      - key: NEXT_PUBLIC_FIREBASE_APP_ID
+        value: 1:936049949853:web:421e5ac06c51b65591a874
+      - key: NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID
+        value: G-FQ5PQH7W9Y
+    healthCheckPath: /api/health
+    autoDeploy: true 

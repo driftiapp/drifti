@@ -1,0 +1,15 @@
+{
+  "projects": {
+    "default": "drifti-58b5b"
+  },
+  "targets": {
+    "drifti-58b5b": {
+      "hosting": {
+        "drifti-backend": [
+          "drifti-backend"
+        ]
+      }
+    }
+  },
+  "etags": {}
+}
