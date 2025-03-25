@@ -51,11 +51,4 @@ services:
       - key: NEXT_PUBLIC_FIREBASE_APP_ID
         sync: false
     healthCheckPath: /api/health
-    autoDeploy: true
-
-NEXT_PUBLIC_FIREBASE_API_KEY="your-api-key-here"
-NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN="drifti-58b5b-d1303.firebaseapp.com"
-NEXT_PUBLIC_FIREBASE_PROJECT_ID="drifti-58b5b-d1303"
-NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET="drifti-58b5b-d1303.appspot.com"
-NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID="your-sender-id-here"
-NEXT_PUBLIC_FIREBASE_APP_ID="your-app-id-here" 
+    autoDeploy: true 
