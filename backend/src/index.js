@@ -1,8 +1,10 @@
 const express = require('express');
 const cors = require('cors');
 const { connectDB, sequelize } = require('./config/database');
+const { initializeFirebase } = require('./config/firebase');
 const User = require('./models/User');
 const metricsRoutes = require('./routes/metrics');
+const testRoutes = require('./routes/test');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -10,6 +12,9 @@ const PORT = process.env.PORT || 5000;
 // Middleware
 app.use(cors());
 app.use(express.json());
+
+// Initialize Firebase Admin
+initializeFirebase();
 
 // Connect to TimescaleDB
 connectDB();
@@ -23,6 +28,7 @@ sequelize.sync({ alter: false }).then(() => {
 
 // Routes
 app.use('/api/metrics', metricsRoutes);
+app.use('/api/test', testRoutes);
 
 // Health check endpoint
 app.get('/health', async (req, res) => {
