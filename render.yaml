@@ -3,8 +3,9 @@ services:
   - type: web
     name: drifti-backend
     env: node
-    nodeVersion: 18.17.0
-    buildCommand: cd backend && npm ci
+    region: ohio
+    plan: starter
+    buildCommand: cd backend && npm install && npm run build
     startCommand: cd backend && npm start
     envVars:
       - key: NODE_ENV
@@ -15,46 +16,65 @@ services:
         sync: false
       - key: JWT_SECRET
         sync: false
+      - key: SMTP_HOST
+        sync: false
+      - key: SMTP_PORT
+        sync: false
+      - key: SMTP_USER
+        sync: false
+      - key: SMTP_PASS
+        sync: false
+      - key: FRONTEND_URL
+        value: https://drifti-frontend.onrender.com
       - key: FIREBASE_PROJECT_ID
         sync: false
       - key: FIREBASE_PRIVATE_KEY
         sync: false
       - key: FIREBASE_CLIENT_EMAIL
         sync: false
+      - key: FIREBASE_API_KEY
+        sync: false
+      - key: FIREBASE_AUTH_DOMAIN
+        sync: false
+      - key: FIREBASE_DATABASE_URL
+        sync: false
+      - key: FIREBASE_STORAGE_BUCKET
+        sync: false
+      - key: FIREBASE_MESSAGING_SENDER_ID
+        sync: false
+      - key: FIREBASE_APP_ID
+        sync: false
+      - key: FIREBASE_MEASUREMENT_ID
+        sync: false
       - key: TIMESCALE_URL
         sync: false
     healthCheckPath: /health
     autoDeploy: true
-    disk:
-      name: data
-      mountPath: /data
-      sizeGB: 1
 
   # Frontend Service
   - type: web
     name: drifti-frontend
     env: node
-    nodeVersion: 18.17.0
-    buildCommand: cd frontend && npm ci && npm run build
+    buildCommand: cd frontend && npm install && npm run build
     startCommand: cd frontend && npm start
     envVars:
       - key: NODE_ENV
         value: production
-      - key: PORT
-        value: 3000
       - key: NEXT_PUBLIC_API_URL
         value: https://drifti-backend.onrender.com
       - key: NEXT_PUBLIC_FIREBASE_API_KEY
         sync: false
       - key: NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN
         sync: false
-      - key: NEXT_PUBLIC_FIREBASE_PROJECT_ID
+      - key: NEXT_PUBLIC_FIREBASE_DATABASE_URL
         sync: false
       - key: NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET
         sync: false
       - key: NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID
         sync: false
       - key: NEXT_PUBLIC_FIREBASE_APP_ID
+        sync: false
+      - key: NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID
         sync: false
     healthCheckPath: /api/health
     autoDeploy: true 
