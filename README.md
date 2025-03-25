@@ -1,130 +1,97 @@
-# Drifti - Modern Ride-Sharing Platform
+# Drifti - Social Media Analytics Platform
 
-A modern ride-sharing platform built with Next.js, Express, MongoDB, and Firebase.
+A modern social media analytics platform built with Next.js, Express, and TimescaleDB.
 
 ## Project Structure
 
 ```
 drifti/
-├── frontend/          # Next.js frontend application
-├── backend/          # Express.js backend server
-└── README.md         # Project documentation
+├── backend/                 # Backend service
+│   ├── src/
+│   │   ├── config/         # Configuration files
+│   │   │   ├── database.js # Database configuration
+│   │   │   └── firebase.js # Firebase configuration
+│   │   ├── models/         # Database models
+│   │   ├── routes/         # API routes
+│   │   └── index.js        # Main application file
+│   ├── package.json        # Backend dependencies
+│   └── .env               # Backend environment variables
+│
+├── frontend/               # Frontend service
+│   ├── src/
+│   │   ├── components/    # React components
+│   │   ├── pages/        # Next.js pages
+│   │   └── styles/       # CSS styles
+│   ├── package.json      # Frontend dependencies
+│   └── .env.local       # Frontend environment variables
+│
+└── render.yaml           # Render deployment configuration
 ```
 
-## Features
+## Environment Variables
 
-- Real-time ride booking and tracking
-- Secure payment processing
-- User authentication with Firebase
-- MongoDB database integration
-- Modern, responsive UI with TailwindCSS
-- TypeScript for type safety
-- RESTful API architecture
+### Backend (.env)
+```
+PORT=5000
+JWT_SECRET=your_jwt_secret
+FIREBASE_PROJECT_ID=your_firebase_project_id
+FIREBASE_PRIVATE_KEY=your_firebase_private_key
+FIREBASE_CLIENT_EMAIL=your_firebase_client_email
+TIMESCALE_URL=your_timescale_connection_string
+```
 
-## Tech Stack
-
-- **Frontend:**
-  - Next.js 14
-  - React 18
-  - TypeScript
-  - TailwindCSS
-  - Firebase Authentication
-  - Framer Motion
-
-- **Backend:**
-  - Express.js
-  - TypeScript
-  - MongoDB
-  - Firebase Admin SDK
-  - JWT Authentication
-
-## Getting Started
-
-### Prerequisites
-
-- Node.js >= 18.0.0
-- MongoDB Atlas account
-- Firebase project
-- Render account (for deployment)
-
-### Local Development
-
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/yourusername/drifti.git
-   cd drifti
-   ```
-
-2. Install dependencies:
-   ```bash
-   # Install frontend dependencies
-   cd frontend
-   npm install
-
-   # Install backend dependencies
-   cd ../backend
-   npm install
-   ```
-
-3. Set up environment variables:
-   - Create `.env` files in both frontend and backend directories
-   - Copy the example environment variables and fill in your values
-
-4. Start the development servers:
-   ```bash
-   # Start backend server
-   cd backend
-   npm run dev
-
-   # Start frontend server (in a new terminal)
-   cd frontend
-   npm run dev
-   ```
+### Frontend (.env.local)
+```
+NEXT_PUBLIC_API_URL=https://drifti-backend.onrender.com
+NEXT_PUBLIC_FIREBASE_API_KEY=your_firebase_api_key
+NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your_firebase_auth_domain
+NEXT_PUBLIC_FIREBASE_PROJECT_ID=your_firebase_project_id
+NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=your_firebase_storage_bucket
+NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=your_firebase_messaging_sender_id
+NEXT_PUBLIC_FIREBASE_APP_ID=your_firebase_app_id
+```
 
 ## Deployment
 
-### Backend Deployment on Render
+### Backend Service
+- Build Command: `cd backend && npm ci`
+- Start Command: `cd backend && npm start`
+- Health Check: `/health`
 
-1. Create a new Web Service on Render
-2. Connect your GitHub repository
-3. Configure the following:
-   - Build Command: `npm install && npm run build`
-   - Start Command: `npm start`
-   - Environment Variables:
-     ```
-     MONGODB_URI=your_mongodb_uri
-     JWT_SECRET=your_jwt_secret
-     FIREBASE_PROJECT_ID=your_firebase_project_id
-     FIREBASE_PRIVATE_KEY=your_firebase_private_key
-     FIREBASE_CLIENT_EMAIL=your_firebase_client_email
-     ```
+### Frontend Service
+- Build Command: `cd frontend && npm ci && npm run build`
+- Start Command: `cd frontend && npm start`
+- Health Check: `/api/health`
 
-### Frontend Deployment on Render
+## Development
 
-1. Create a new Static Site on Render
-2. Connect your GitHub repository
-3. Configure the following:
-   - Build Command: `npm install && npm run build`
-   - Publish Directory: `out`
-   - Environment Variables:
-     ```
-     NEXT_PUBLIC_API_URL=your_backend_url
-     NEXT_PUBLIC_FIREBASE_API_KEY=your_firebase_api_key
-     NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your_firebase_auth_domain
-     NEXT_PUBLIC_FIREBASE_PROJECT_ID=your_firebase_project_id
-     NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=your_firebase_storage_bucket
-     NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=your_firebase_messaging_sender_id
-     NEXT_PUBLIC_FIREBASE_APP_ID=your_firebase_app_id
-     ```
+1. Clone the repository
+2. Install dependencies:
+   ```bash
+   # Backend
+   cd backend
+   npm install
+   
+   # Frontend
+   cd frontend
+   npm install
+   ```
+3. Set up environment variables
+4. Start development servers:
+   ```bash
+   # Backend
+   cd backend
+   npm run dev
+   
+   # Frontend
+   cd frontend
+   npm run dev
+   ```
 
-## Contributing
-
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add some amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
-## License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+## Features
+- Real-time social media analytics
+- User authentication with Firebase
+- TimescaleDB for time-series data
+- Modern React components
+- Responsive design
+- API health monitoring
