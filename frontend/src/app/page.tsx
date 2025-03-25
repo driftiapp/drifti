@@ -4,6 +4,16 @@ import { motion } from 'framer-motion';
 import { ArrowRightIcon } from '@heroicons/react/24/outline';
 import { useAuth } from '@/contexts/AuthContext';
 import SignIn from '@/components/auth/SignIn';
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'Drifti - Book Your Ride Instantly | Modern Ride-Sharing Platform',
+  description: 'Welcome to Drifti! Book reliable rides instantly, track your driver in real-time, and enjoy secure payments. Your trusted ride-sharing platform.',
+  openGraph: {
+    title: 'Drifti - Book Your Ride Instantly | Modern Ride-Sharing Platform',
+    description: 'Welcome to Drifti! Book reliable rides instantly, track your driver in real-time, and enjoy secure payments. Your trusted ride-sharing platform.',
+  },
+};
 
 export default function Home() {
   const { user, loading } = useAuth();

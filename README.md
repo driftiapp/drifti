@@ -1,62 +1,74 @@
-# Drifti - Modern Ride-Sharing Application
+# Drifti - Modern Ride-Sharing Platform
 
-Drifti is a modern ride-sharing application built with Next.js, Node.js, and MongoDB. The application provides a seamless experience for users to book rides and for drivers to manage their trips.
+A modern ride-sharing platform built with Next.js, Express, MongoDB, and Firebase.
 
 ## Project Structure
 
 ```
 drifti/
 ├── frontend/          # Next.js frontend application
-├── backend/          # Node.js backend API
-├── public/           # Static assets
-└── render.yaml       # Render deployment configuration
+├── backend/          # Express.js backend server
+└── README.md         # Project documentation
 ```
 
 ## Features
 
+- Real-time ride booking and tracking
+- Secure payment processing
 - User authentication with Firebase
-- Real-time ride booking
-- Trip management
-- Payment integration
-- Responsive design
-- Modern UI/UX
+- MongoDB database integration
+- Modern, responsive UI with TailwindCSS
+- TypeScript for type safety
+- RESTful API architecture
 
 ## Tech Stack
 
-- Frontend:
+- **Frontend:**
   - Next.js 14
+  - React 18
   - TypeScript
-  - Tailwind CSS
+  - TailwindCSS
   - Firebase Authentication
+  - Framer Motion
 
-- Backend:
-  - Node.js
-  - Express
+- **Backend:**
+  - Express.js
+  - TypeScript
   - MongoDB
+  - Firebase Admin SDK
   - JWT Authentication
 
 ## Getting Started
 
+### Prerequisites
+
+- Node.js >= 18.0.0
+- MongoDB Atlas account
+- Firebase project
+- Render account (for deployment)
+
+### Local Development
+
 1. Clone the repository:
    ```bash
-   git clone https://github.com/driftiapp/drifti.git
+   git clone https://github.com/yourusername/drifti.git
    cd drifti
    ```
 
 2. Install dependencies:
    ```bash
-   # Install backend dependencies
-   cd backend
+   # Install frontend dependencies
+   cd frontend
    npm install
 
-   # Install frontend dependencies
-   cd ../frontend
+   # Install backend dependencies
+   cd ../backend
    npm install
    ```
 
 3. Set up environment variables:
-   - Copy `.env.example` to `.env` in both frontend and backend directories
-   - Update the variables with your configuration
+   - Create `.env` files in both frontend and backend directories
+   - Copy the example environment variables and fill in your values
 
 4. Start the development servers:
    ```bash
@@ -64,16 +76,46 @@ drifti/
    cd backend
    npm run dev
 
-   # Start frontend server
+   # Start frontend server (in a new terminal)
    cd frontend
    npm run dev
    ```
 
 ## Deployment
 
-The application is deployed on:
-- Frontend: Firebase Hosting
-- Backend: Render
+### Backend Deployment on Render
+
+1. Create a new Web Service on Render
+2. Connect your GitHub repository
+3. Configure the following:
+   - Build Command: `npm install && npm run build`
+   - Start Command: `npm start`
+   - Environment Variables:
+     ```
+     MONGODB_URI=your_mongodb_uri
+     JWT_SECRET=your_jwt_secret
+     FIREBASE_PROJECT_ID=your_firebase_project_id
+     FIREBASE_PRIVATE_KEY=your_firebase_private_key
+     FIREBASE_CLIENT_EMAIL=your_firebase_client_email
+     ```
+
+### Frontend Deployment on Render
+
+1. Create a new Static Site on Render
+2. Connect your GitHub repository
+3. Configure the following:
+   - Build Command: `npm install && npm run build`
+   - Publish Directory: `out`
+   - Environment Variables:
+     ```
+     NEXT_PUBLIC_API_URL=your_backend_url
+     NEXT_PUBLIC_FIREBASE_API_KEY=your_firebase_api_key
+     NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your_firebase_auth_domain
+     NEXT_PUBLIC_FIREBASE_PROJECT_ID=your_firebase_project_id
+     NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=your_firebase_storage_bucket
+     NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=your_firebase_messaging_sender_id
+     NEXT_PUBLIC_FIREBASE_APP_ID=your_firebase_app_id
+     ```
 
 ## Contributing
 
