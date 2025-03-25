@@ -17,7 +17,11 @@ router.get('/post/:postId', async (req, res) => {
                     total_views,
                     total_likes,
                     total_comments,
-                    total_shares
+                    total_shares,
+                    VARIANCE(total_views) OVER (ORDER BY bucket ROWS BETWEEN 23 PRECEDING AND CURRENT ROW) as views_variance,
+                    VARIANCE(total_likes) OVER (ORDER BY bucket ROWS BETWEEN 23 PRECEDING AND CURRENT ROW) as likes_variance,
+                    VARIANCE(total_comments) OVER (ORDER BY bucket ROWS BETWEEN 23 PRECEDING AND CURRENT ROW) as comments_variance,
+                    VARIANCE(total_shares) OVER (ORDER BY bucket ROWS BETWEEN 23 PRECEDING AND CURRENT ROW) as shares_variance
                 FROM post_metrics_hourly
                 WHERE post_id = $1
                 ORDER BY bucket DESC
@@ -36,7 +40,11 @@ router.get('/post/:postId', async (req, res) => {
                     total_views,
                     total_likes,
                     total_comments,
-                    total_shares
+                    total_shares,
+                    VARIANCE(total_views) OVER (ORDER BY bucket ROWS BETWEEN 29 PRECEDING AND CURRENT ROW) as views_variance,
+                    VARIANCE(total_likes) OVER (ORDER BY bucket ROWS BETWEEN 29 PRECEDING AND CURRENT ROW) as likes_variance,
+                    VARIANCE(total_comments) OVER (ORDER BY bucket ROWS BETWEEN 29 PRECEDING AND CURRENT ROW) as comments_variance,
+                    VARIANCE(total_shares) OVER (ORDER BY bucket ROWS BETWEEN 29 PRECEDING AND CURRENT ROW) as shares_variance
                 FROM post_metrics_daily
                 WHERE post_id = $1
                 ORDER BY bucket DESC
@@ -55,7 +63,11 @@ router.get('/post/:postId', async (req, res) => {
                     SUM(views) as total_views,
                     SUM(likes) as total_likes,
                     SUM(comments) as total_comments,
-                    SUM(shares) as total_shares
+                    SUM(shares) as total_shares,
+                    VARIANCE(SUM(views)) OVER (ORDER BY time_bucket($1, time) ROWS BETWEEN 23 PRECEDING AND CURRENT ROW) as views_variance,
+                    VARIANCE(SUM(likes)) OVER (ORDER BY time_bucket($1, time) ROWS BETWEEN 23 PRECEDING AND CURRENT ROW) as likes_variance,
+                    VARIANCE(SUM(comments)) OVER (ORDER BY time_bucket($1, time) ROWS BETWEEN 23 PRECEDING AND CURRENT ROW) as comments_variance,
+                    VARIANCE(SUM(shares)) OVER (ORDER BY time_bucket($1, time) ROWS BETWEEN 23 PRECEDING AND CURRENT ROW) as shares_variance
                 FROM post_metrics
                 WHERE post_id = $2
                 GROUP BY bucket
@@ -88,7 +100,11 @@ router.get('/user/:userId', async (req, res) => {
                     SUM(total_views) as total_views,
                     SUM(total_likes) as total_likes,
                     SUM(total_comments) as total_comments,
-                    SUM(total_shares) as total_shares
+                    SUM(total_shares) as total_shares,
+                    VARIANCE(SUM(total_views)) OVER (ORDER BY bucket ROWS BETWEEN 23 PRECEDING AND CURRENT ROW) as views_variance,
+                    VARIANCE(SUM(total_likes)) OVER (ORDER BY bucket ROWS BETWEEN 23 PRECEDING AND CURRENT ROW) as likes_variance,
+                    VARIANCE(SUM(total_comments)) OVER (ORDER BY bucket ROWS BETWEEN 23 PRECEDING AND CURRENT ROW) as comments_variance,
+                    VARIANCE(SUM(total_shares)) OVER (ORDER BY bucket ROWS BETWEEN 23 PRECEDING AND CURRENT ROW) as shares_variance
                 FROM post_metrics_hourly
                 WHERE user_id = $1
                 GROUP BY bucket
@@ -109,7 +125,11 @@ router.get('/user/:userId', async (req, res) => {
                     SUM(total_views) as total_views,
                     SUM(total_likes) as total_likes,
                     SUM(total_comments) as total_comments,
-                    SUM(total_shares) as total_shares
+                    SUM(total_shares) as total_shares,
+                    VARIANCE(SUM(total_views)) OVER (ORDER BY bucket ROWS BETWEEN 29 PRECEDING AND CURRENT ROW) as views_variance,
+                    VARIANCE(SUM(total_likes)) OVER (ORDER BY bucket ROWS BETWEEN 29 PRECEDING AND CURRENT ROW) as likes_variance,
+                    VARIANCE(SUM(total_comments)) OVER (ORDER BY bucket ROWS BETWEEN 29 PRECEDING AND CURRENT ROW) as comments_variance,
+                    VARIANCE(SUM(total_shares)) OVER (ORDER BY bucket ROWS BETWEEN 29 PRECEDING AND CURRENT ROW) as shares_variance
                 FROM post_metrics_daily
                 WHERE user_id = $1
                 GROUP BY bucket
@@ -130,7 +150,11 @@ router.get('/user/:userId', async (req, res) => {
                     SUM(views) as total_views,
                     SUM(likes) as total_likes,
                     SUM(comments) as total_comments,
-                    SUM(shares) as total_shares
+                    SUM(shares) as total_shares,
+                    VARIANCE(SUM(views)) OVER (ORDER BY time_bucket($1, time) ROWS BETWEEN 23 PRECEDING AND CURRENT ROW) as views_variance,
+                    VARIANCE(SUM(likes)) OVER (ORDER BY time_bucket($1, time) ROWS BETWEEN 23 PRECEDING AND CURRENT ROW) as likes_variance,
+                    VARIANCE(SUM(comments)) OVER (ORDER BY time_bucket($1, time) ROWS BETWEEN 23 PRECEDING AND CURRENT ROW) as comments_variance,
+                    VARIANCE(SUM(shares)) OVER (ORDER BY time_bucket($1, time) ROWS BETWEEN 23 PRECEDING AND CURRENT ROW) as shares_variance
                 FROM post_metrics
                 WHERE user_id = $2
                 GROUP BY bucket
@@ -188,7 +212,8 @@ router.get('/trending', async (req, res) => {
                     SUM(total_likes) as total_likes,
                     SUM(total_comments) as total_comments,
                     SUM(total_shares) as total_shares,
-                    SUM(total_views + total_likes * 2 + total_comments * 3 + total_shares * 4) as engagement_score
+                    SUM(total_views + total_likes * 2 + total_comments * 3 + total_shares * 4) as engagement_score,
+                    VARIANCE(total_views + total_likes * 2 + total_comments * 3 + total_shares * 4) as engagement_variance
                 FROM post_metrics_hourly
                 WHERE bucket > NOW() - $1::interval
                 GROUP BY post_id
@@ -209,7 +234,8 @@ router.get('/trending', async (req, res) => {
                     SUM(total_likes) as total_likes,
                     SUM(total_comments) as total_comments,
                     SUM(total_shares) as total_shares,
-                    SUM(total_views + total_likes * 2 + total_comments * 3 + total_shares * 4) as engagement_score
+                    SUM(total_views + total_likes * 2 + total_comments * 3 + total_shares * 4) as engagement_score,
+                    VARIANCE(total_views + total_likes * 2 + total_comments * 3 + total_shares * 4) as engagement_variance
                 FROM post_metrics_daily
                 WHERE bucket > NOW() - $1::interval
                 GROUP BY post_id
@@ -230,7 +256,8 @@ router.get('/trending', async (req, res) => {
                     SUM(likes) as total_likes,
                     SUM(comments) as total_comments,
                     SUM(shares) as total_shares,
-                    SUM(views + likes * 2 + comments * 3 + shares * 4) as engagement_score
+                    SUM(views + likes * 2 + comments * 3 + shares * 4) as engagement_score,
+                    VARIANCE(views + likes * 2 + comments * 3 + shares * 4) as engagement_variance
                 FROM post_metrics
                 WHERE time > NOW() - $1::interval
                 GROUP BY post_id

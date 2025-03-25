@@ -3,9 +3,13 @@
   "version": "1.0.0",
   "description": "Backend for Drifti application",
   "main": "src/index.js",
+  "engines": {
+    "node": ">=18.17.0"
+  },
   "scripts": {
     "start": "node src/index.js",
-    "dev": "nodemon src/index.js"
+    "dev": "nodemon src/index.js",
+    "build": "echo 'No build step required'"
   },
   "dependencies": {
     "express": "^4.18.2",
@@ -15,7 +19,8 @@
     "cors": "^2.8.5",
     "jsonwebtoken": "^9.0.2",
     "bcryptjs": "^2.4.3",
-    "firebase-admin": "^11.11.1"
+    "firebase-admin": "^11.11.1",
+    "pg-hstore": "^2.3.4"
   },
   "devDependencies": {
     "nodemon": "^3.0.2"
