@@ -3,48 +3,21 @@ services:
   - type: web
     name: drifti-backend
     env: node
-    region: ohio
-    plan: starter
-    buildCommand: cd backend && npm install && npm run build
+    nodeVersion: 18.17.0
+    buildCommand: cd backend && npm ci
     startCommand: cd backend && npm start
     envVars:
       - key: NODE_ENV
         value: production
       - key: PORT
         value: 3001
-      - key: MONGODB_URI
-        sync: false
       - key: JWT_SECRET
         sync: false
-      - key: SMTP_HOST
-        sync: false
-      - key: SMTP_PORT
-        sync: false
-      - key: SMTP_USER
-        sync: false
-      - key: SMTP_PASS
-        sync: false
-      - key: FRONTEND_URL
-        value: https://drifti-frontend.onrender.com
       - key: FIREBASE_PROJECT_ID
         sync: false
       - key: FIREBASE_PRIVATE_KEY
         sync: false
       - key: FIREBASE_CLIENT_EMAIL
-        sync: false
-      - key: FIREBASE_API_KEY
-        sync: false
-      - key: FIREBASE_AUTH_DOMAIN
-        sync: false
-      - key: FIREBASE_DATABASE_URL
-        sync: false
-      - key: FIREBASE_STORAGE_BUCKET
-        sync: false
-      - key: FIREBASE_MESSAGING_SENDER_ID
-        sync: false
-      - key: FIREBASE_APP_ID
-        sync: false
-      - key: FIREBASE_MEASUREMENT_ID
         sync: false
       - key: TIMESCALE_URL
         sync: false
@@ -55,18 +28,21 @@ services:
   - type: web
     name: drifti-frontend
     env: node
-    buildCommand: cd frontend && npm install && npm run build
+    nodeVersion: 18.17.0
+    buildCommand: cd frontend && npm ci && npm run build
     startCommand: cd frontend && npm start
     envVars:
       - key: NODE_ENV
         value: production
+      - key: PORT
+        value: 3000
       - key: NEXT_PUBLIC_API_URL
         value: https://drifti-backend.onrender.com
       - key: NEXT_PUBLIC_FIREBASE_API_KEY
         sync: false
       - key: NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN
         sync: false
-      - key: NEXT_PUBLIC_FIREBASE_DATABASE_URL
+      - key: NEXT_PUBLIC_FIREBASE_PROJECT_ID
         sync: false
       - key: NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET
         sync: false
@@ -74,7 +50,12 @@ services:
         sync: false
       - key: NEXT_PUBLIC_FIREBASE_APP_ID
         sync: false
-      - key: NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID
-        sync: false
     healthCheckPath: /api/health
-    autoDeploy: true 
+    autoDeploy: true
+
+NEXT_PUBLIC_FIREBASE_API_KEY="your-api-key-here"
+NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN="drifti-58b5b-d1303.firebaseapp.com"
+NEXT_PUBLIC_FIREBASE_PROJECT_ID="drifti-58b5b-d1303"
+NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET="drifti-58b5b-d1303.appspot.com"
+NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID="your-sender-id-here"
+NEXT_PUBLIC_FIREBASE_APP_ID="your-app-id-here" 
