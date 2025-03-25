@@ -38,6 +38,12 @@ Thumbs.db
 .firebase/
 firebase-debug.log
 
+# Temporary directories
+drifti-frontend-deploy/
+drifti-frontend-new/
+frontend-new/
+New folder/
+
 # Logs
 logs
 *.log
@@ -45,10 +51,6 @@ logs
 # Environment Variables
 .env.*
 !.env.example
-
-# Logs
-logs
-*.log
 
 # IDE
 .idea/
