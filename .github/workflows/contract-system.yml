@@ -1,0 +1,134 @@
+name: Contract System CI/CD
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'contracts/**'
+      - 'config/**'
+      - 'templates/**'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'contracts/**'
+      - 'config/**'
+      - 'templates/**'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          cache: 'npm'
+      
+      - name: Install Hardhat and dependencies
+        run: |
+          npm install --save-dev hardhat @openzeppelin/contracts @nomiclabs/hardhat-ethers ethers
+          npm install --save-dev @nomiclabs/hardhat-waffle ethereum-waffle chai
+          npm install --save-dev @typechain/hardhat typechain @typechain/ethers-v5
+      
+      - name: Compile smart contracts
+        run: npx hardhat compile
+      
+      - name: Run smart contract tests
+        run: npx hardhat test
+      
+      - name: Run contract system tests
+        run: |
+          npm install
+          npm run test:contracts
+        env:
+          DOCUSIGN_INTEGRATION_KEY: ${{ secrets.DOCUSIGN_INTEGRATION_KEY }}
+          DOCUSIGN_USER_ID: ${{ secrets.DOCUSIGN_USER_ID }}
+          DOCUSIGN_ACCOUNT_ID: ${{ secrets.DOCUSIGN_ACCOUNT_ID }}
+          ETHEREUM_PRIVATE_KEY: ${{ secrets.ETHEREUM_PRIVATE_KEY }}
+          INFURA_PROJECT_ID: ${{ secrets.INFURA_PROJECT_ID }}
+
+  security-scan:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Run Slither
+        uses: crytic/slither-action@v0.3.0
+        with:
+          target: 'contracts/'
+          slither-args: '--exclude naming-convention,external-function,low-level-calls'
+      
+      - name: Run MythX analysis
+        uses: MythXIO/mythx-action@v1
+        with:
+          api-key: ${{ secrets.MYTHX_API_KEY }}
+          contracts: 'contracts/'
+          mode: 'standard'
+
+  deploy-staging:
+    needs: [test, security-scan]
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    environment: staging
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          cache: 'npm'
+      
+      - name: Deploy to staging
+        run: |
+          npm install
+          npx hardhat run scripts/deploy.js --network rinkeby
+        env:
+          INFURA_PROJECT_ID: ${{ secrets.INFURA_PROJECT_ID }}
+          ETHEREUM_PRIVATE_KEY: ${{ secrets.ETHEREUM_PRIVATE_KEY }}
+      
+      - name: Update contract addresses
+        run: |
+          node scripts/update-contract-addresses.js
+        env:
+          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+
+  deploy-production:
+    needs: deploy-staging
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          cache: 'npm'
+      
+      - name: Deploy to production
+        run: |
+          npm install
+          npx hardhat run scripts/deploy.js --network mainnet
+        env:
+          INFURA_PROJECT_ID: ${{ secrets.INFURA_PROJECT_ID }}
+          ETHEREUM_PRIVATE_KEY: ${{ secrets.ETHEREUM_PRIVATE_KEY }}
+      
+      - name: Update contract addresses
+        run: |
+          node scripts/update-contract-addresses.js
+        env:
+          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+      
+      - name: Notify deployment
+        uses: 8398a7/action-slack@v3
+        with:
+          status: ${{ job.status }}
+          fields: repo,message,commit,author,action,eventName,ref,workflow,job,took
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        if: always() 

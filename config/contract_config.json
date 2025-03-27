@@ -1,0 +1,170 @@
+{
+    "storage": {
+        "basePath": "contracts",
+        "businessFolder": "businesses",
+        "driverFolder": "drivers",
+        "backupFolder": "backups",
+        "blockchainEnabled": true,
+        "encryptionEnabled": true
+    },
+    "templates": {
+        "storeOwner": {
+            "path": "templates/store_owner_contract.docx",
+            "requiredFields": [
+                "BusinessName",
+                "OwnerName",
+                "BusinessAddress",
+                "BusinessType",
+                "TaxId",
+                "LicenseNumber",
+                "InsurancePolicy",
+                "BankingInfo",
+                "ServiceTypes",
+                "OperatingHours"
+            ],
+            "expirationDays": 365,
+            "aiFeatures": {
+                "marketAnalysis": true,
+                "pricingSuggestions": true,
+                "productDescriptions": true
+            }
+        },
+        "driver": {
+            "path": "templates/driver_contract.docx",
+            "requiredFields": [
+                "FullName",
+                "DriversLicense",
+                "VehicleInfo",
+                "InsuranceNumber",
+                "ServiceAreas",
+                "BackgroundCheck",
+                "VehicleRegistration",
+                "BankingInfo",
+                "AvailableHours",
+                "PreferredServices"
+            ],
+            "expirationDays": 180,
+            "aiFeatures": {
+                "routeOptimization": true,
+                "earningsPredictions": true,
+                "performanceAnalytics": true
+            }
+        }
+    },
+    "notifications": {
+        "email": {
+            "enabled": true,
+            "templates": {
+                "contractReady": {
+                    "subject": "Your Drifti Contract is Ready for Signature",
+                    "template": "templates/email/contract_ready.html"
+                },
+                "contractSigned": {
+                    "subject": "Contract Successfully Signed",
+                    "template": "templates/email/contract_signed.html"
+                },
+                "contractExpiring": {
+                    "subject": "Your Drifti Contract is Expiring Soon",
+                    "template": "templates/email/contract_expiring.html"
+                },
+                "contractRejected": {
+                    "subject": "Contract Application Status Update",
+                    "template": "templates/email/contract_rejected.html"
+                }
+            }
+        },
+        "sms": {
+            "enabled": true,
+            "templates": {
+                "contractReady": "Your Drifti contract is ready for signature. Please check your email for the signing link.",
+                "contractSigned": "Thank you for signing your Drifti contract. Welcome aboard!",
+                "contractExpiring": "Your Drifti contract expires in {days} days. Please check your email for renewal information.",
+                "contractRejected": "Your Drifti application requires attention. Please check your email for details."
+            }
+        },
+        "slack": {
+            "enabled": true,
+            "channel": "#contract-alerts",
+            "mentions": ["@legal", "@operations"]
+        },
+        "teams": {
+            "enabled": true,
+            "channel": "Contract Management"
+        }
+    },
+    "security": {
+        "requireMFA": true,
+        "allowedFileTypes": [".pdf", ".docx", ".jpg", ".png"],
+        "maxFileSize": 10485760,
+        "retentionPeriod": 730,
+        "encryption": {
+            "enabled": true,
+            "algorithm": "AES-256-GCM",
+            "keyRotationDays": 90
+        },
+        "blockchain": {
+            "enabled": true,
+            "network": "Ethereum",
+            "smartContracts": true
+        },
+        "ipRestrictions": {
+            "enabled": true,
+            "allowedCountries": ["US", "CA"],
+            "vpnBlocked": true
+        },
+        "auditLog": {
+            "enabled": true,
+            "retentionDays": 365
+        }
+    },
+    "validation": {
+        "businessLicense": {
+            "required": true,
+            "expirationWarningDays": [30, 14, 7, 3, 1],
+            "aiVerification": true,
+            "blockchainVerification": true
+        },
+        "driversLicense": {
+            "required": true,
+            "expirationWarningDays": [30, 14, 7, 3, 1],
+            "aiVerification": true,
+            "backgroundCheck": {
+                "required": true,
+                "provider": "Checkr",
+                "frequency": "annual"
+            }
+        },
+        "insurance": {
+            "required": true,
+            "minimumCoverage": 1000000,
+            "expirationWarningDays": [30, 14, 7, 3, 1],
+            "aiVerification": true,
+            "requiredTypes": [
+                "General Liability",
+                "Auto Insurance",
+                "Workers Compensation"
+            ]
+        },
+        "bankingInfo": {
+            "required": true,
+            "verificationMethod": "microDeposits",
+            "allowedAccountTypes": ["checking", "savings"],
+            "instantVerification": true
+        }
+    },
+    "aiIntegration": {
+        "enabled": true,
+        "features": {
+            "documentVerification": true,
+            "fraudDetection": true,
+            "riskAssessment": true,
+            "marketAnalysis": true,
+            "pricingOptimization": true
+        },
+        "models": {
+            "documentProcessing": "GPT-4-Vision",
+            "textAnalysis": "GPT-4",
+            "fraudDetection": "Custom-ML-Model"
+        }
+    }
+} 

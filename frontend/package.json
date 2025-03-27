@@ -1,29 +1,137 @@
 {
-  "name": "drifti-frontend",
+  "name": "driftix-frontend",
   "version": "1.0.0",
   "private": true,
   "engines": {
     "node": ">=18.17.0"
   },
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev -p 3001",
     "build": "next build",
+    "build:analyze": "ANALYZE=true next build",
+    "build:prod": "NODE_ENV=production next build",
     "start": "next start",
-    "lint": "next lint"
+    "start:prod": "NODE_ENV=production next start",
+    "lint": "next lint",
+    "export": "next build && next export",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "type-check": "tsc --noEmit",
+    "type-check:watch": "tsc --noEmit --watch",
+    "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\"",
+    "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,md}\"",
+    "lint:fix": "eslint --fix \"**/*.{ts,tsx}\"",
+    "prepare": "husky install",
+    "analyze": "ANALYZE=true next build",
+    "clean": "rm -rf .next out",
+    "clean:all": "rm -rf .next out node_modules/.cache",
+    "monitor": "node scripts/performance-monitor.js",
+    "monitor:watch": "nodemon scripts/performance-monitor.js",
+    "monitor:ci": "cross-env CI=true node scripts/performance-monitor.js",
+    "build:automated": "node scripts/build-automation.js",
+    "build:ci": "cross-env CI=true node scripts/build-automation.js",
+    "security:check": "node scripts/build-automation.js --security-only",
+    "performance:check": "node scripts/performance-monitor.js"
   },
   "dependencies": {
-    "next": "^14.0.4",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "firebase": "^10.7.1",
-    "axios": "^1.6.2",
     "@chakra-ui/react": "^2.8.2",
-    "@emotion/react": "^11.11.1",
+    "@emotion/react": "^11.11.3",
     "@emotion/styled": "^11.11.0",
-    "framer-motion": "^10.16.16"
+    "@heroicons/react": "^2.1.1",
+    "assert": "^2.1.0",
+    "axios": "^1.6.7",
+    "browserify-zlib": "^0.2.0",
+    "chart.js": "^4.4.1",
+    "crypto-browserify": "^3.12.1",
+    "date-fns": "^3.3.1",
+    "dayjs": "^1.11.10",
+    "firebase": "^10.8.0",
+    "framer-motion": "^11.0.3",
+    "https-browserify": "^1.0.0",
+    "leaflet": "^1.9.4",
+    "next": "14.1.0",
+    "os-browserify": "^0.3.0",
+    "path-browserify": "^1.0.1",
+    "process": "^0.11.10",
+    "react": "^18.2.0",
+    "react-chartjs-2": "^5.2.0",
+    "react-dom": "^18.2.0",
+    "react-leaflet": "^4.2.1",
+    "react-router-dom": "^6.22.1",
+    "stream-browserify": "^3.0.0",
+    "stream-http": "^3.2.0",
+    "undici": "^5.28.2",
+    "url": "^0.11.4",
+    "@types/node": "^20.11.24",
+    "@types/react": "^18.2.61",
+    "@types/react-dom": "^18.2.19",
+    "typescript": "^5.3.3",
+    "@typescript-eslint/eslint-plugin": "^7.1.0",
+    "@typescript-eslint/parser": "^7.1.0",
+    "react-scripts": "5.0.1",
+    "web-vitals": "^2.1.4"
   },
   "devDependencies": {
-    "eslint": "^8.55.0",
-    "eslint-config-next": "^14.0.4"
+    "@tailwindcss/forms": "^0.5.7",
+    "@tailwindcss/typography": "^0.5.10",
+    "@testing-library/jest-dom": "^6.4.2",
+    "@testing-library/react": "^14.2.1",
+    "@testing-library/user-event": "^14.5.2",
+    "@types/jest": "^29.5.12",
+    "@types/leaflet": "^1.9.8",
+    "autoprefixer": "^10.4.21",
+    "eslint": "^8.56.0",
+    "eslint-config-next": "14.1.0",
+    "jest": "^29.7.0",
+    "jest-environment-jsdom": "^29.7.0",
+    "postcss": "^8.5.3",
+    "prettier": "^3.2.5",
+    "prettier-plugin-tailwindcss": "^0.5.11",
+    "tailwindcss": "^3.4.17",
+    "husky": "^8.0.3",
+    "lint-staged": "^15.2.0",
+    "@next/bundle-analyzer": "^14.1.0",
+    "cssnano": "^6.0.3",
+    "cross-env": "^7.0.3",
+    "postcss-import": "^16.0.1",
+    "postcss-preset-env": "^9.3.0",
+    "source-map-explorer": "^2.5.3",
+    "lighthouse": "^10.4.0",
+    "chrome-launcher": "^10.1.0",
+    "nodemon": "^3.0.2",
+    "@owasp/zap2docker-stable": "^2.14.0",
+    "zap-cli": "^0.1.0"
+  },
+  "eslintConfig": {
+    "extends": [
+      "react-app",
+      "react-app/jest"
+    ]
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx}": [
+      "eslint --fix",
+      "prettier --write",
+      "tsc --noEmit"
+    ]
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged",
+      "pre-push": "npm run build:automated"
+    }
   }
 }

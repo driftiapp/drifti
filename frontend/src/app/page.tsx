@@ -1,19 +1,12 @@
 'use client';
 
-import { motion } from 'framer-motion';
+import { motion, HTMLMotionProps } from 'framer-motion';
 import { ArrowRightIcon } from '@heroicons/react/24/outline';
 import { useAuth } from '@/contexts/AuthContext';
 import SignIn from '@/components/auth/SignIn';
-import type { Metadata } from 'next';
 
-export const metadata: Metadata = {
-  title: 'Drifti - Book Your Ride Instantly | Modern Ride-Sharing Platform',
-  description: 'Welcome to Drifti! Book reliable rides instantly, track your driver in real-time, and enjoy secure payments. Your trusted ride-sharing platform.',
-  openGraph: {
-    title: 'Drifti - Book Your Ride Instantly | Modern Ride-Sharing Platform',
-    description: 'Welcome to Drifti! Book reliable rides instantly, track your driver in real-time, and enjoy secure payments. Your trusted ride-sharing platform.',
-  },
-};
+const MotionDiv = motion.div as React.ComponentType<HTMLMotionProps<"div">>;
+const MotionA = motion.a as React.ComponentType<HTMLMotionProps<"a">>;
 
 export default function Home() {
   const { user, loading } = useAuth();
@@ -39,7 +32,7 @@ export default function Home() {
 
       {/* Hero section */}
       <div className="mx-auto max-w-7xl px-6 py-24 sm:py-32 lg:px-8">
-        <motion.div
+        <MotionDiv
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
@@ -52,7 +45,7 @@ export default function Home() {
             Ready to start your journey? Book a ride or check your trip history.
           </p>
           <div className="mt-10 flex items-center justify-center gap-x-6">
-            <motion.a
+            <MotionA
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               href="/book"
@@ -60,20 +53,20 @@ export default function Home() {
             >
               Book a Ride
               <ArrowRightIcon className="ml-2 -mr-1 h-5 w-5 inline-block" />
-            </motion.a>
-            <motion.a
+            </MotionA>
+            <MotionA
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               href="/trips"
               className="text-sm font-semibold leading-6 text-gray-900"
             >
               View Trips <span aria-hidden="true">→</span>
-            </motion.a>
+            </MotionA>
           </div>
-        </motion.div>
+        </MotionDiv>
 
         {/* Feature section */}
-        <motion.div
+        <MotionDiv
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.2 }}
@@ -81,7 +74,7 @@ export default function Home() {
         >
           <dl className="grid max-w-xl grid-cols-1 gap-x-8 gap-y-16 lg:max-w-none lg:grid-cols-3">
             {features.map((feature) => (
-              <motion.div
+              <MotionDiv
                 key={feature.name}
                 whileHover={{ scale: 1.05 }}
                 className="flex flex-col"
@@ -92,10 +85,10 @@ export default function Home() {
                 <dd className="mt-4 flex flex-auto flex-col text-base leading-7 text-gray-600">
                   <p className="flex-auto">{feature.description}</p>
                 </dd>
-              </motion.div>
+              </MotionDiv>
             ))}
           </dl>
-        </motion.div>
+        </MotionDiv>
       </div>
     </div>
   );

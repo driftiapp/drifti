@@ -7,8 +7,8 @@ import Navigation from "@/components/Navigation";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Drifti - Your Ride, Your Way | Modern Ride-Sharing Platform",
-  description: "Book reliable rides instantly with Drifti. Real-time tracking, secure payments, and 24/7 support. The modern ride-sharing platform connecting riders with trusted drivers.",
+  title: "Drifti - Book Your Ride Instantly | Modern Ride-Sharing Platform",
+  description: "Welcome to Drifti! Book reliable rides instantly, track your driver in real-time, and enjoy secure payments. Your trusted ride-sharing platform.",
   keywords: "ride sharing, taxi service, car service, transportation, booking app, real-time tracking, secure payments, 24/7 support, reliable drivers, modern taxi, on-demand rides",
   authors: [{ name: "Drifti Team" }],
   creator: "Drifti",
@@ -27,8 +27,8 @@ export const metadata: Metadata = {
     locale: 'en_US',
     url: 'https://drifti.vercel.app',
     siteName: 'Drifti',
-    title: 'Drifti - Your Ride, Your Way | Modern Ride-Sharing Platform',
-    description: 'Book reliable rides instantly with Drifti. Real-time tracking, secure payments, and 24/7 support. The modern ride-sharing platform connecting riders with trusted drivers.',
+    title: 'Drifti - Book Your Ride Instantly | Modern Ride-Sharing Platform',
+    description: 'Welcome to Drifti! Book reliable rides instantly, track your driver in real-time, and enjoy secure payments. Your trusted ride-sharing platform.',
     images: [
       {
         url: '/og-image.jpg',
@@ -40,8 +40,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Drifti - Your Ride, Your Way | Modern Ride-Sharing Platform',
-    description: 'Book reliable rides instantly with Drifti. Real-time tracking, secure payments, and 24/7 support.',
+    title: 'Drifti - Book Your Ride Instantly | Modern Ride-Sharing Platform',
+    description: 'Welcome to Drifti! Book reliable rides instantly, track your driver in real-time, and enjoy secure payments.',
     images: ['/og-image.jpg'],
     creator: '@drifti',
   },

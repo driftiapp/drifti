@@ -1,0 +1,39 @@
+name: Auto Issue Creation
+
+on:
+  workflow_run:
+    workflows: ["CI"]
+    types:
+      - completed
+    branches:
+      - main
+
+jobs:
+  create-issue:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'failure' }}
+    
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          
+      - name: Create Issue
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const workflowRun = context.payload.workflow_run;
+            const conclusion = workflowRun.conclusion;
+            const headCommit = workflowRun.head_commit;
+            
+            if (conclusion === 'failure') {
+              const issue = await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title: `[Auto-Issue] CI Pipeline Failed - ${headCommit.message}`,
+                body: `## CI Pipeline Failure\n\nThe CI pipeline failed during execution. Here are the details:\n\n### Commit Information\n- Message: ${headCommit.message}\n- Author: ${headCommit.author.name}\n- Date: ${headCommit.timestamp}\n\n### Workflow Details\n- Workflow: ${workflowRun.name}\n- Run ID: ${workflowRun.id}\n- Conclusion: ${conclusion}\n\n### Action Required\nPlease check the following:\n1. Review the [workflow run logs](${workflowRun.html_url})\n2. Fix any failing tests\n3. Address any build errors\n4. Resolve any deployment issues\n\n### Additional Information\n- Branch: ${workflowRun.head_branch}\n- Event: ${workflowRun.event}\n- Triggered by: ${workflowRun.triggering_actor.login}`,
+                labels: ['ci-failure', 'auto-issue']
+              });
+              
+              console.log(`Created issue #${issue.data.number}`);
+            } 

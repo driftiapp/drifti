@@ -29,8 +29,8 @@ services:
     name: drifti-frontend
     env: node
     nodeVersion: 18.17.0
-    buildCommand: cd frontend && npm ci && npm run build
-    startCommand: cd frontend && npm start
+    buildCommand: cd frontend && npm ci && npm run build && npm run export
+    startCommand: cd frontend && npx serve out
     envVars:
       - key: NODE_ENV
         value: production
@@ -51,4 +51,14 @@ services:
       - key: NEXT_PUBLIC_FIREBASE_APP_ID
         sync: false
     healthCheckPath: /api/health
-    autoDeploy: true 
+    autoDeploy: true
+    headers:
+      - path: /*
+        name: Cache-Control
+        value: public, max-age=0, must-revalidate
+      - path: /_next/static/*
+        name: Cache-Control
+        value: public, max-age=31536000, immutable
+      - path: /static/*
+        name: Cache-Control
+        value: public, max-age=31536000, immutable 

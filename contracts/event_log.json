@@ -1,0 +1,172 @@
+[
+  {
+    "Category": "ContractManagement",
+    "Event": {
+      "ContractId": "19edbd56-45ed-417f-b49d-8b20bba4fc76",
+      "EventType": "Generated",
+      "Message": "Contract generated with template: StoreOwner",
+      "Timestamp": "2025-03-26T00:25:50.8674085-04:00"
+    },
+    "Timestamp": "2025-03-26T00:25:50.8870634-04:00"
+  },
+  {
+    "Event": {
+      "EventType": "Generated",
+      "Timestamp": "2025-03-26T00:28:13.6325114-04:00",
+      "ContractId": "bc6e225b-4e92-44c2-949d-afc3d399ad0c",
+      "Message": "Contract generated with template: StoreOwner"
+    },
+    "Timestamp": "2025-03-26T00:28:13.6562553-04:00",
+    "Category": "ContractManagement"
+  },
+  {
+    "Event": {
+      "EventType": "DocumentQueued",
+      "Timestamp": "2025-03-26T00:28:13.6931372-04:00",
+      "ContractId": "bc6e225b-4e92-44c2-949d-afc3d399ad0c",
+      "Message": "Document queued for processing: BusinessLicense"
+    },
+    "Timestamp": "2025-03-26T00:28:13.693238-04:00",
+    "Category": "ContractManagement"
+  },
+  {
+    "Event": {
+      "EventType": "Generated",
+      "Timestamp": "2025-03-26T00:28:13.7031737-04:00",
+      "ContractId": "c7d22a35-0eb6-48ab-8de1-06227cb81875",
+      "Message": "Contract generated with template: Driver"
+    },
+    "Timestamp": "2025-03-26T00:28:13.7032627-04:00",
+    "Category": "ContractManagement"
+  },
+  {
+    "Event": {
+      "EventType": "DocumentQueued",
+      "Timestamp": "2025-03-26T00:28:13.7325696-04:00",
+      "ContractId": "c7d22a35-0eb6-48ab-8de1-06227cb81875",
+      "Message": "Document queued for processing: DriversLicense"
+    },
+    "Timestamp": "2025-03-26T00:28:13.7326593-04:00",
+    "Category": "ContractManagement"
+  },
+  {
+    "Event": {
+      "EventType": "DocumentQueued",
+      "Timestamp": "2025-03-26T00:28:13.7420633-04:00",
+      "ContractId": "c7d22a35-0eb6-48ab-8de1-06227cb81875",
+      "Message": "Document queued for processing: Insurance"
+    },
+    "Timestamp": "2025-03-26T00:28:13.7421522-04:00",
+    "Category": "ContractManagement"
+  },
+  {
+    "Event": {
+      "EventType": "DocumentProcessed",
+      "Timestamp": "2025-03-26T00:28:13.7952303-04:00",
+      "ContractId": "bc6e225b-4e92-44c2-949d-afc3d399ad0c",
+      "Message": "Document processed successfully: BusinessLicense"
+    },
+    "Timestamp": "2025-03-26T00:28:13.7953477-04:00",
+    "Category": "ContractManagement"
+  },
+  {
+    "Event": {
+      "EventType": "DocumentProcessed",
+      "Timestamp": "2025-03-26T00:28:13.8161342-04:00",
+      "ContractId": "c7d22a35-0eb6-48ab-8de1-06227cb81875",
+      "Message": "Document processed successfully: DriversLicense"
+    },
+    "Timestamp": "2025-03-26T00:28:13.8162189-04:00",
+    "Category": "ContractManagement"
+  },
+  {
+    "Event": {
+      "EventType": "DocumentProcessed",
+      "Timestamp": "2025-03-26T00:28:13.8365148-04:00",
+      "ContractId": "c7d22a35-0eb6-48ab-8de1-06227cb81875",
+      "Message": "Document processed successfully: Insurance"
+    },
+    "Timestamp": "2025-03-26T00:28:13.8366037-04:00",
+    "Category": "ContractManagement"
+  },
+  {
+    "Event": {
+      "EventType": "SigningInitiated",
+      "Timestamp": "2025-03-26T00:28:13.9164159-04:00",
+      "ContractId": "bc6e225b-4e92-44c2-949d-afc3d399ad0c",
+      "Message": "Contract signing initiated for 2 signers"
+    },
+    "Timestamp": "2025-03-26T00:28:13.916531-04:00",
+    "Category": "ContractManagement"
+  },
+  {
+    "Event": {
+      "EventType": "SignatureProcessed",
+      "Timestamp": "2025-03-26T00:28:13.9692615-04:00",
+      "ContractId": "bc6e225b-4e92-44c2-949d-afc3d399ad0c",
+      "Message": "Signature processed for john.smith@test.com"
+    },
+    "Timestamp": "2025-03-26T00:28:13.9693821-04:00",
+    "Category": "ContractManagement"
+  },
+  {
+    "Event": {
+      "EventType": "ContractSigned",
+      "Timestamp": "2025-03-26T00:28:13.9868084-04:00",
+      "ContractId": "bc6e225b-4e92-44c2-949d-afc3d399ad0c",
+      "Message": "All signatures collected"
+    },
+    "Timestamp": "2025-03-26T00:28:13.9869368-04:00",
+    "Category": "ContractManagement"
+  },
+  {
+    "Event": {
+      "EventType": "SignatureProcessed",
+      "Timestamp": "2025-03-26T00:28:14.0302023-04:00",
+      "ContractId": "bc6e225b-4e92-44c2-949d-afc3d399ad0c",
+      "Message": "Signature processed for legal@drifti.com"
+    },
+    "Timestamp": "2025-03-26T00:28:14.0304223-04:00",
+    "Category": "ContractManagement"
+  },
+  {
+    "Event": {
+      "EventType": "SigningInitiated",
+      "Timestamp": "2025-03-26T00:28:14.0747343-04:00",
+      "ContractId": "c7d22a35-0eb6-48ab-8de1-06227cb81875",
+      "Message": "Contract signing initiated for 2 signers"
+    },
+    "Timestamp": "2025-03-26T00:28:14.0748637-04:00",
+    "Category": "ContractManagement"
+  },
+  {
+    "Event": {
+      "EventType": "SignatureProcessed",
+      "Timestamp": "2025-03-26T00:28:14.0814137-04:00",
+      "ContractId": "c7d22a35-0eb6-48ab-8de1-06227cb81875",
+      "Message": "Signature processed for jane.doe@test.com"
+    },
+    "Timestamp": "2025-03-26T00:28:14.0815016-04:00",
+    "Category": "ContractManagement"
+  },
+  {
+    "Event": {
+      "EventType": "ContractSigned",
+      "Timestamp": "2025-03-26T00:28:14.0927915-04:00",
+      "ContractId": "c7d22a35-0eb6-48ab-8de1-06227cb81875",
+      "Message": "All signatures collected"
+    },
+    "Timestamp": "2025-03-26T00:28:14.0928773-04:00",
+    "Category": "ContractManagement"
+  },
+  {
+    "Event": {
+      "EventType": "SignatureProcessed",
+      "Timestamp": "2025-03-26T00:28:14.1221937-04:00",
+      "ContractId": "c7d22a35-0eb6-48ab-8de1-06227cb81875",
+      "Message": "Signature processed for operations@drifti.com"
+    },
+    "Timestamp": "2025-03-26T00:28:14.1223216-04:00",
+    "Category": "ContractManagement"
+  }
+]

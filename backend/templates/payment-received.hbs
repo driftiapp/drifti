@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .section {
+            margin-bottom: 25px;
+        }
+        .section-title {
+            font-size: 1.2em;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .details {
+            background-color: #f9f9f9;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        .button {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            font-size: 0.9em;
+            color: #666;
+        }
+        .social-links {
+            margin: 20px 0;
+        }
+        .social-links a {
+            margin: 0 10px;
+            color: #007bff;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Payment Received! 💸🚀</h1>
+    </div>
+
+    <p>Dear {{businessName}},</p>
+
+    <p>Great news! You have received a new payment from Drifti. Below are the payment details:</p>
+
+    <div class="section">
+        <div class="section-title">💳 Payment Details:</div>
+        <div class="details">
+            <p>Service: {{service}}</p>
+            <p>Business Name: {{businessName}}</p>
+            <p>Transaction ID: #{{transactionId}}</p>
+            <p>Total Amount Received: ${{amount}}</p>
+            <p>Payment Status: {{paymentStatus}}</p>
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-title">💰 Smart Financial Insights</div>
+        <div class="details">
+            <p>📌 Track daily, weekly, and monthly earnings.</p>
+            <p>📌 Get insights on customer trends and best-selling services.</p>
+            <p>📌 Monitor refunds, chargebacks, and pending transactions.</p>
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-title">📩 Manage Your Payments</div>
+        <a href="{{website}}/business/payments" class="button">View Transaction History</a>
+    </div>
+
+    <div class="section">
+        <div class="section-title">📞 Need Help?</div>
+        <p>Payments & Billing: payment@driftiapp.com<br>
+        Business Support: {{supportEmail}}</p>
+    </div>
+
+    <div class="footer">
+        <div class="section-title">🚀 Drifti – The Future of Travel, Events & Entertainment!</div>
+        <div class="social-links">
+            <a href="https://facebook.com/driftiapp">Facebook</a>
+            <a href="https://instagram.com/driftiapp">Instagram</a>
+            <a href="https://twitter.com/driftiapp">Twitter</a>
+            <a href="https://linkedin.com/company/driftiapp">LinkedIn</a>
+        </div>
+        <p>💡 Crazy Idea: Want to maximize your profits? Our AI-powered analytics suggest best-selling items & demand trends to help grow your business! 🚀💰</p>
+    </div>
+</body>
+</html> 

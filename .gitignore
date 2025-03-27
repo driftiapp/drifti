@@ -5,6 +5,8 @@ node_modules/
 
 # Testing
 coverage/
+test/
+tests/
 
 # Next.js
 .next/
@@ -12,7 +14,11 @@ out/
 build/
 dist/
 
-# Environment variables
+# Production
+build/
+dist/
+
+# Environment files
 .env
 .env.local
 .env.development.local
@@ -35,19 +41,40 @@ yarn-error.log*
 Thumbs.db
 
 # Firebase
-firebase-debug.log
 .firebase/
+firebase-debug.log
 firebase-debug.*.log
+serviceAccountKey.json
 
-# Database
-*.sqlite
-*.sqlite3
+# MongoDB
+data/
+*.mongodb
 
-# Build
-dist/
-build/
-.next/
-out/
+# Logs
+logs/
+*.log
+
+# Temporary files
+*.tmp
+*.temp
+.cache/
+
+# Build artifacts
+*.tsbuildinfo
+
+# Java JDK
+java-1.8.0-openjdk-*/
+
+# Security reports and configs
+security_reports/
+security_config/
+security_visualizations/
+
+# Deployment
+deployment/
+
+# Local development
+*.local
 
 # Misc
 .DS_Store
@@ -58,10 +85,6 @@ drifti-frontend-deploy/
 drifti-frontend-new/
 frontend-new/
 New folder/
-
-# Logs
-logs
-*.log
 
 # Environment Variables
 .env.*
@@ -80,31 +103,74 @@ logs
 # Debug
 debug.log
 
-# Temporary files
-*.tmp
-.temp/
-
 # Deployment
 .vercel
 .netlify
 
 # Build artifacts
-*.tsbuildinfo
-
-# Cache
-.cache/
-.npm/
-
-# Yarn
-.yarn/*
-!.yarn/patches
-!.yarn/plugins
-!.yarn/releases
-!.yarn/sdks
-!.yarn/versions
-
-# Misc
 *.bak
 *.orig
 .git-old/
-*~ 
+*~
+
+# IDE files
+.idea/
+.vscode/
+*.iml
+*.iws
+*.ipr
+
+# Java
+target/
+!.mvn/wrapper/maven-wrapper.jar
+*.class
+*.jar
+*.war
+*.ear
+*.logs
+*.log
+
+# Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# Environment variables and secrets
+.env
+.env.*
+!.env.example
+jwt_secret.txt
+*.pem
+*.key
+*.p12
+*.jks
+
+# Build files
+dist/
+build/
+out/
+.next/
+coverage/
+
+# Firebase
+.firebaserc
+firebase.json
+
+# OS files
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+
+# Temporary files
+*.bak
+*.backup
+
+# Testing
+.nyc_output/
+
+# Misc
+.vercel
+.env*.local 

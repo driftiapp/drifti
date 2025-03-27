@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .section {
+            margin-bottom: 25px;
+        }
+        .section-title {
+            font-size: 1.2em;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .details {
+            background-color: #f9f9f9;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        .button {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            font-size: 0.9em;
+            color: #666;
+        }
+        .social-links {
+            margin: 20px 0;
+        }
+        .social-links a {
+            margin: 0 10px;
+            color: #007bff;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Your Reservation is Confirmed! 🚀✨</h1>
+    </div>
+
+    <p>Dear {{customerName}},</p>
+
+    <p>Thank you for booking with Drifti! Your reservation is now confirmed. Below are your booking details:</p>
+
+    <div class="section">
+        <div class="section-title">📍 Reservation Details:</div>
+        <div class="details">
+            <p>Service: {{service}}</p>
+            <p>Location: {{location}}</p>
+            <p>Date: {{date}}</p>
+            <p>Booking Reference: #{{bookingId}}</p>
+            <p>Total Amount Paid: ${{amount}}</p>
+            <p>Payment Status: {{paymentStatus}}</p>
+        </div>
+    </div>
+
+    {{#if perks}}
+    <div class="section">
+        <div class="section-title">🎁 Exclusive Perks Just for You!</div>
+        <div class="details">
+            {{{perks}}}
+        </div>
+    </div>
+    {{/if}}
+
+    {{#if corporateBenefits}}
+    <div class="section">
+        <div class="section-title">📊 Corporate Account Benefits</div>
+        <div class="details">
+            {{{corporateBenefits}}}
+        </div>
+    </div>
+    {{/if}}
+
+    <div class="section">
+        <div class="section-title">📢 Business Owner Notification</div>
+        <p>The {{businessName}} has been instantly notified about your reservation. Expect a smooth and premium experience!</p>
+    </div>
+
+    <div class="section">
+        <div class="section-title">📩 Manage Your Reservation</div>
+        <a href="{{website}}/reservations/{{bookingId}}" class="button">View Reservation Details</a>
+    </div>
+
+    <div class="section">
+        <div class="section-title">📞 Need Help?</div>
+        <p>General Inquiries: info@driftiapp.com<br>
+        Reservations: reservation@driftiapp.com<br>
+        Carrier Inquiries: carrier@driftiapp.com<br>
+        Sign In Issues: accountsignin@driftiapp.com<br>
+        Customer Support: {{supportEmail}}</p>
+    </div>
+
+    <div class="footer">
+        <div class="section-title">🚀 Drifti – The Future of Travel, Events & Entertainment!</div>
+        <div class="social-links">
+            <a href="https://facebook.com/driftiapp">Facebook</a>
+            <a href="https://instagram.com/driftiapp">Instagram</a>
+            <a href="https://twitter.com/driftiapp">Twitter</a>
+            <a href="https://linkedin.com/company/driftiapp">LinkedIn</a>
+        </div>
+        <p>💡 Crazy Idea: Want a last-minute upgrade or luxury add-ons? Our AI suggests real-time exclusive offers! 🔥😎</p>
+    </div>
+</body>
+</html> 
