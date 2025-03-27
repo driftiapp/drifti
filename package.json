@@ -1,57 +1,59 @@
 {
-  "name": "driftix",
+  "name": "drifti",
   "version": "1.0.0",
-  "description": "DriftiX - Your Ultimate Transportation Platform",
-  "main": "server.js",
+  "description": "Modern ride-sharing platform",
   "scripts": {
-    "start": "node server.js",
-    "dev": "concurrently \"npm run dev:frontend\" \"npm run dev:backend\"",
-    "dev:frontend": "cd frontend && npm run dev",
-    "dev:backend": "cd backend && npm run dev",
-    "build": "npm run build:frontend && npm run build:backend",
-    "build:frontend": "cd frontend && npm run build",
-    "build:backend": "cd backend && npm run build",
-    "test": "npm run test:frontend && npm run test:backend",
-    "test:frontend": "cd frontend && npm test",
-    "test:backend": "cd backend && npm test",
-    "lint": "npm run lint:frontend && npm run lint:backend",
-    "lint:frontend": "cd frontend && npm run lint",
-    "lint:backend": "cd backend && npm run lint",
-    "repair": "node scripts/self-repair.js",
-    "autofix": "node scripts/auto-fix.js",
-    "create-issue": "node scripts/create-issue.js",
+    "dev": "concurrently \"cd backend && npm run dev\" \"cd frontend && npm run dev\"",
+    "build": "concurrently \"cd backend && npm run build\" \"cd frontend && npm run build\"",
+    "start": "concurrently \"cd backend && npm start\" \"cd frontend && npm start\"",
+    "test": "concurrently \"cd backend && npm test\" \"cd frontend && npm test\"",
+    "lint": "concurrently \"cd backend && npm run lint\" \"cd frontend && npm run lint\"",
+    "format": "prettier --write \"**/*.{js,jsx,ts,tsx,json,css,scss,md}\"",
     "prepare": "husky install",
-    "verify:deployment": "node scripts/verify-deployment.js",
-    "verify:deployment:ci": "cross-env CI=true node scripts/verify-deployment.js",
-    "deploy": "npm run build:automated && npm run verify:deployment",
-    "deploy:safe": "node scripts/deploy-rollback.js",
-    "deploy:rollback": "node scripts/deploy-rollback.js --rollback",
-    "deploy:verify": "node scripts/verify-deployment.js",
-    "deploy:cleanup": "node scripts/deploy-rollback.js --cleanup",
+    "deploy": "npm run build && npm run deploy:render && npm run deploy:firebase",
+    "deploy:safe": "npm run verify:deploy && npm run deploy",
+    "deploy:render": "node scripts/deploy-render.js",
+    "deploy:firebase": "node scripts/deploy-firebase.js",
+    "verify:deploy": "node scripts/verify-deployment.js",
     "verify:render": "node scripts/verify-render-firebase.js",
     "verify:firebase": "node scripts/verify-render-firebase.js --firebase-only",
-    "verify:deploy": "npm run verify:render && npm run verify:firebase"
+    "analyze": "ANALYZE=true npm run build",
+    "security:audit": "npm audit && npm run security:scan",
+    "security:scan": "node scripts/security-audit.js",
+    "security:monitor": "node scripts/security-monitor.js",
+    "performance:monitor": "node scripts/performance-monitor.js",
+    "backup": "node scripts/backup.js",
+    "restore": "node scripts/restore.js"
   },
   "dependencies": {
-    "@octokit/rest": "^20.0.2",
     "axios": "^1.6.7",
     "firebase-admin": "^12.0.0",
-    "ioredis": "^5.3.2",
-    "mongoose": "^8.1.1",
-    "openai": "^4.28.0"
+    "mongodb": "^6.3.0",
+    "next": "^14.1.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
   },
   "devDependencies": {
+    "@next/bundle-analyzer": "^14.1.0",
+    "@types/node": "^20.11.19",
+    "@types/react": "^18.2.57",
+    "@types/react-dom": "^18.2.19",
     "concurrently": "^8.2.2",
     "husky": "^9.0.11",
-    "lint-staged": "^15.2.2"
-  },
-  "engines": {
-    "node": ">=14.0.0"
+    "lint-staged": "^15.2.2",
+    "prettier": "^3.2.5",
+    "typescript": "^5.3.3"
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [
       "eslint --fix",
       "prettier --write"
+    ],
+    "*.{json,css,scss,md}": [
+      "prettier --write"
     ]
+  },
+  "engines": {
+    "node": ">=18.0.0"
   }
 }

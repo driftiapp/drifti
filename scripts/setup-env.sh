@@ -126,6 +126,12 @@ security:
     - uses: actions/checkout@v2
     - name: Security Scan
       run: pwsh scripts/security-monitor.ps1 -Mode ci
+  permissions:
+    contents: write
+    deployments: write
+    issues: write
+    pull-requests: write
+    statuses: write
 
 # With custom alert handling
 $dashboard.SetAlertCallback({
@@ -164,4 +170,19 @@ echo "RENDER_API_KEY: rnd_qmlbV08y7FZX1IEmS8V2YvkybC3K"
 echo "RENDER_BACKEND_SERVICE_ID: srv-cvh80kogph6c73fj7bpg"
 echo "RENDER_FRONTEND_SERVICE_ID: srv-cvh6rpin91rc73au56d0"
 echo "FIREBASE_TOKEN: 1//052YFeeo2pL2KCgYIARAAGAUSNwF-L9Ir1Hjn1NHBwzJ0Yo2floG3xSeHLu2cA29zQp0K632-vdjyJKn-ApUG9jEhO6qLTQmq pE8"
-echo "NEXT_PUBLIC_FIREBASE_API_KEY: AIzaSyA_YX244PTxsjLsDnKJHH_TbfmtQ6bFAgw" 
+echo "NEXT_PUBLIC_FIREBASE_API_KEY: AIzaSyA_YX244PTxsjLsDnKJHH_TbfmtQ6bFAgw"
+
+# Deploy with verification
+npm run deploy:safe
+
+# Check performance
+npm run performance:monitor
+
+# Security audit
+npm run security:audit
+
+# Bundle analysis
+npm run analyze
+
+# Verify deployment
+npm run verify:deploy 
