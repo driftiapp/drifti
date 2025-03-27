@@ -1,126 +1,133 @@
-# Drifti - AI-Powered Deposit & Sales Report System
+# Drifti - Modern Ride-Sharing Platform
 
-## Overview
-Drifti is a comprehensive system for managing deposits and sales reports with AI-powered analytics.
+A modern ride-sharing platform built with Next.js, Express, MongoDB, and Firebase.
+
+## Project Structure
+
+```
+drifti/
+├── frontend/          # Next.js frontend application
+├── backend/          # Express.js backend server
+└── README.md         # Project documentation
+```
+
+## Features
+
+* Real-time ride booking and tracking
+* Secure payment processing
+* User authentication with Firebase
+* MongoDB database integration
+* Modern, responsive UI with TailwindCSS
+* TypeScript for type safety
+* RESTful API architecture
+* Automated deployment with GitHub Actions
 
 ## Tech Stack
-- Frontend: Next.js, React, TypeScript
-- Backend: Node.js, Express
-- Database: MongoDB
-- Authentication: Firebase
-- Deployment: Render, Firebase Hosting
 
-## Prerequisites
-- Node.js 18.17.0 or higher
-- MongoDB
-- Firebase account
-- Render account
+* **Frontend:**  
+   * Next.js 14  
+   * React 18  
+   * TypeScript  
+   * TailwindCSS  
+   * Firebase Authentication  
+   * Framer Motion
+* **Backend:**  
+   * Express.js  
+   * TypeScript  
+   * MongoDB  
+   * Firebase Admin SDK  
+   * JWT Authentication
 
-## Local Development
-1. Clone the repository:
-```bash
-git clone https://github.com/yourusername/drifti.git
+## Getting Started
+
+### Prerequisites
+
+* Node.js >= 18.0.0
+* MongoDB Atlas account
+* Firebase project
+* Render account (for deployment)
+
+### Local Development
+
+1. Clone the repository:  
+git clone https://github.com/yourusername/drifti.git  
 cd drifti
-```
-
-2. Install dependencies:
-```bash
-# Install backend dependencies
-cd backend
+2. Install dependencies:  
+# Install frontend dependencies  
+cd frontend  
+npm install  
+# Install backend dependencies  
+cd ../backend  
 npm install
-
-# Install frontend dependencies
-cd ../frontend
-npm install
-```
-
-3. Set up environment variables:
-- Copy `.env.example` to `.env` in both frontend and backend directories
-- Fill in the required environment variables
-
-4. Start development servers:
-```bash
-# From the root directory
+3. Set up environment variables:  
+   * Create `.env` files in both frontend and backend directories  
+   * Copy the example environment variables and fill in your values
+4. Start the development servers:  
+# Start backend server  
+cd backend  
+npm run dev  
+# Start frontend server (in a new terminal)  
+cd frontend  
 npm run dev
-```
 
 ## Deployment
 
-### 1. Backend Deployment (Render)
+### Automated Deployment with GitHub Actions
+
+The project uses GitHub Actions for automated deployment to Render and Firebase:
+
+1. Push to the `main` branch
+2. GitHub Actions will:
+   - Build the frontend and backend
+   - Deploy the backend to Render
+   - Deploy the frontend to Firebase
+   - Run health checks
+   - Notify on success/failure
+
+### Manual Deployment
+
+#### Backend Deployment on Render
+
 1. Create a new Web Service on Render
 2. Connect your GitHub repository
-3. Set the following:
-   - Build Command: `cd backend && npm ci`
-   - Start Command: `cd backend && npm start`
-   - Environment Variables: (see backend env vars in docs)
+3. Configure the following:  
+   * Build Command: `npm install && npm run build`  
+   * Start Command: `npm start`  
+   * Environment Variables:  
+   ```  
+   MONGODB_URI=your_mongodb_uri  
+   JWT_SECRET=your_jwt_secret  
+   FIREBASE_PROJECT_ID=your_firebase_project_id  
+   FIREBASE_PRIVATE_KEY=your_firebase_private_key  
+   FIREBASE_CLIENT_EMAIL=your_firebase_client_email  
+   ```
 
-### 2. Frontend Deployment (Render)
-1. Create a new Web Service on Render
+#### Frontend Deployment on Render
+
+1. Create a new Static Site on Render
 2. Connect your GitHub repository
-3. Set the following:
-   - Build Command: `cd frontend && npm ci && npm run build && npm run export`
-   - Start Command: `cd frontend && npx serve out`
-   - Environment Variables: (see frontend env vars in docs)
-
-### 3. Firebase Deployment
-1. Install Firebase CLI:
-```bash
-npm install -g firebase-tools
-```
-
-2. Login to Firebase:
-```bash
-firebase login
-```
-
-3. Initialize Firebase:
-```bash
-cd frontend
-firebase init
-```
-
-4. Deploy to Firebase:
-```bash
-firebase deploy
-```
-
-## Environment Variables
-
-### Backend (.env)
-```
-NODE_ENV=production
-PORT=5000
-MONGODB_URI=your_mongodb_uri
-JWT_SECRET=your_jwt_secret
-FIREBASE_PROJECT_ID=your_firebase_project_id
-FIREBASE_PRIVATE_KEY=your_firebase_private_key
-FIREBASE_CLIENT_EMAIL=your_firebase_client_email
-```
-
-### Frontend (.env)
-```
-NEXT_PUBLIC_API_URL=your_backend_url
-NEXT_PUBLIC_FIREBASE_API_KEY=your_firebase_api_key
-NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your_firebase_auth_domain
-NEXT_PUBLIC_FIREBASE_PROJECT_ID=your_firebase_project_id
-NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=your_firebase_storage_bucket
-NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=your_firebase_messaging_sender_id
-NEXT_PUBLIC_FIREBASE_APP_ID=your_firebase_app_id
-```
-
-## Available Scripts
-- `npm run dev`: Start development servers
-- `npm run build`: Build both frontend and backend
-- `npm run deploy`: Deploy to Render and Firebase
-- `npm run verify:deploy`: Verify deployment status
-- `npm run deploy:rollback`: Rollback deployment if needed
+3. Configure the following:  
+   * Build Command: `npm install && npm run build`  
+   * Publish Directory: `out`  
+   * Environment Variables:  
+   ```  
+   NEXT_PUBLIC_API_URL=your_backend_url  
+   NEXT_PUBLIC_FIREBASE_API_KEY=your_firebase_api_key  
+   NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your_firebase_auth_domain  
+   NEXT_PUBLIC_FIREBASE_PROJECT_ID=your_firebase_project_id  
+   NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=your_firebase_storage_bucket  
+   NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=your_firebase_messaging_sender_id  
+   NEXT_PUBLIC_FIREBASE_APP_ID=your_firebase_app_id  
+   ```
 
 ## Contributing
+
 1. Fork the repository
-2. Create your feature branch
-3. Commit your changes
-4. Push to the branch
-5. Create a new Pull Request
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
 ## License
-This project is licensed under the MIT License.
+
+This project is licensed under the MIT License - see the LICENSE file for details.
