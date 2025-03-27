@@ -55,7 +55,7 @@ const connectDB = async (retries = 5, interval = 5000) => {
     
     console.log('Database Indexes Created Successfully');
     
-  } catch (error) {
+    } catch (error) {
     console.error(`MongoDB Connection Error: ${error.message}`);
     trackError(error, { action: 'connectDB' });
     

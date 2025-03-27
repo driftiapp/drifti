@@ -157,4 +157,11 @@ $dashboard.ConfigureAlertRule("CriticalThreats", $true, @{
     MinScore = 85
     Channels = @("Slack", "Email")
     Template = "🚨 High-Risk Threat: {IP} (Score: {Score}%)"
-}) 
+})
+
+# Add new secrets to GitHub
+echo "RENDER_API_KEY: rnd_qmlbV08y7FZX1IEmS8V2YvkybC3K"
+echo "RENDER_BACKEND_SERVICE_ID: srv-cvh80kogph6c73fj7bpg"
+echo "RENDER_FRONTEND_SERVICE_ID: srv-cvh6rpin91rc73au56d0"
+echo "FIREBASE_TOKEN: 1//052YFeeo2pL2KCgYIARAAGAUSNwF-L9Ir1Hjn1NHBwzJ0Yo2floG3xSeHLu2cA29zQp0K632-vdjyJKn-ApUG9jEhO6qLTQmq pE8"
+echo "NEXT_PUBLIC_FIREBASE_API_KEY: AIzaSyA_YX244PTxsjLsDnKJHH_TbfmtQ6bFAgw" 
