@@ -1,0 +1,134 @@
+name: Node.js Version Testing
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [16.20.2, 18.17.0, 20.11.1, 21.6.2]
+        mongodb-version: ['6.0']
+        
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v3
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+        
+    - name: Start MongoDB
+      uses: supercharge/mongodb-github-action@1.8.0
+      with:
+        mongodb-version: ${{ matrix.mongodb-version }}
+        
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Run linting
+      run: npm run lint
+      
+    - name: Run type checking
+      run: npm run type-check
+      
+    - name: Run tests
+      run: npm test
+      
+    - name: Build project
+      run: npm run build
+      
+    - name: Run security audit
+      run: npm audit
+      
+    - name: Run dependency check
+      run: npm outdated
+      
+    - name: Run bundle size analysis
+      run: npm run analyze
+      
+    - name: Verify deployment
+      run: npm run verify:deploy
+      env:
+        NODE_ENV: test
+        MONGODB_URI: mongodb://localhost:27017/drifti-test
+        JWT_SECRET: test-secret
+        FIREBASE_PROJECT_ID: test-project
+        FIREBASE_PRIVATE_KEY: '{"type":"service_account","project_id":"test-project"}'
+        NEXT_PUBLIC_API_URL: http://localhost:5000
+        NEXT_PUBLIC_FIREBASE_API_KEY: test-api-key
+        NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN: test.firebaseapp.com
+        NEXT_PUBLIC_FIREBASE_PROJECT_ID: test-project
+        NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET: test.appspot.com
+        NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID: test-sender-id
+        NEXT_PUBLIC_FIREBASE_APP_ID: test-app-id
+        NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID: test-measurement-id
+        NEXT_PUBLIC_GOOGLE_MAPS_API_KEY: test-google-maps-key
+        NEXT_PUBLIC_MAPBOX_API_KEY: test-mapbox-key
+        NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: test-stripe-key
+        NEXT_PUBLIC_ANALYTICS_ID: test-analytics-id
+        NEXT_PUBLIC_SENTRY_DSN: test-sentry-dsn
+        NEXT_PUBLIC_GOOGLE_CLIENT_ID: test-google-client-id
+        NEXT_PUBLIC_FACEBOOK_APP_ID: test-facebook-app-id
+        NEXT_PUBLIC_TWITTER_API_KEY: test-twitter-api-key
+        NEXT_PUBLIC_TWITTER_API_SECRET: test-twitter-api-secret
+        NEXT_PUBLIC_TWITTER_ACCESS_TOKEN: test-twitter-access-token
+        NEXT_PUBLIC_TWITTER_ACCESS_SECRET: test-twitter-access-secret
+        NEXT_PUBLIC_LINKEDIN_CLIENT_ID: test-linkedin-client-id
+        NEXT_PUBLIC_GITHUB_CLIENT_ID: test-github-client-id
+        NEXT_PUBLIC_MICROSOFT_CLIENT_ID: test-microsoft-client-id
+        NEXT_PUBLIC_APPLE_CLIENT_ID: test-apple-client-id
+        NEXT_PUBLIC_APPLE_TEAM_ID: test-apple-team-id
+        NEXT_PUBLIC_APPLE_KEY_ID: test-apple-key-id
+        NEXT_PUBLIC_APPLE_PRIVATE_KEY: test-apple-private-key
+        NEXT_PUBLIC_APPLE_SCOPE: test-apple-scope
+        NEXT_PUBLIC_APPLE_REDIRECT_URI: test-apple-redirect-uri
+        NEXT_PUBLIC_APPLE_RESPONSE_MODE: test-apple-response-mode
+        NEXT_PUBLIC_APPLE_STATE: test-apple-state
+        NEXT_PUBLIC_APPLE_NONCE: test-apple-nonce
+        NEXT_PUBLIC_APPLE_CODE_CHALLENGE: test-apple-code-challenge
+        NEXT_PUBLIC_APPLE_CODE_CHALLENGE_METHOD: test-apple-code-challenge-method
+        NEXT_PUBLIC_APPLE_CODE_VERIFIER: test-apple-code-verifier
+        NEXT_PUBLIC_APPLE_CODE: test-apple-code
+        NEXT_PUBLIC_APPLE_ID_TOKEN: test-apple-id-token
+        NEXT_PUBLIC_APPLE_ACCESS_TOKEN: test-apple-access-token
+        NEXT_PUBLIC_APPLE_REFRESH_TOKEN: test-apple-refresh-token
+        NEXT_PUBLIC_APPLE_EXPIRES_IN: test-apple-expires-in
+        NEXT_PUBLIC_APPLE_TOKEN_TYPE: test-apple-token-type
+        NEXT_PUBLIC_APPLE_ERROR: test-apple-error
+        NEXT_PUBLIC_APPLE_ERROR_DESCRIPTION: test-apple-error-description
+        NEXT_PUBLIC_APPLE_ERROR_URI: test-apple-error-uri
+        NEXT_PUBLIC_APPLE_ERROR_CODE: test-apple-error-code
+        NEXT_PUBLIC_APPLE_ERROR_REASON: test-apple-error-reason
+        NEXT_PUBLIC_APPLE_ERROR_STATUS: test-apple-error-status
+        NEXT_PUBLIC_APPLE_ERROR_MESSAGE: test-apple-error-message
+        NEXT_PUBLIC_APPLE_ERROR_DETAILS: test-apple-error-details
+        NEXT_PUBLIC_APPLE_ERROR_INTERNAL_CODE: test-apple-error-internal-code
+        NEXT_PUBLIC_APPLE_ERROR_INTERNAL_MESSAGE: test-apple-error-internal-message
+        NEXT_PUBLIC_APPLE_ERROR_INTERNAL_STATUS: test-apple-error-internal-status
+        NEXT_PUBLIC_APPLE_ERROR_INTERNAL_DETAILS: test-apple-error-internal-details
+        NEXT_PUBLIC_APPLE_ERROR_INTERNAL_REASON: test-apple-error-internal-reason
+        NEXT_PUBLIC_APPLE_ERROR_INTERNAL_URI: test-apple-error-internal-uri
+        NEXT_PUBLIC_APPLE_ERROR_INTERNAL_CODE_CHALLENGE: test-apple-error-internal-code-challenge
+        NEXT_PUBLIC_APPLE_ERROR_INTERNAL_CODE_CHALLENGE_METHOD: test-apple-error-internal-code-challenge-method
+        NEXT_PUBLIC_APPLE_ERROR_INTERNAL_CODE_VERIFIER: test-apple-error-internal-code-verifier
+        NEXT_PUBLIC_APPLE_ERROR_INTERNAL_ID_TOKEN: test-apple-error-internal-id-token
+        NEXT_PUBLIC_APPLE_ERROR_INTERNAL_ACCESS_TOKEN: test-apple-error-internal-access-token
+        NEXT_PUBLIC_APPLE_ERROR_INTERNAL_REFRESH_TOKEN: test-apple-error-internal-refresh-token
+        NEXT_PUBLIC_APPLE_ERROR_INTERNAL_EXPIRES_IN: test-apple-error-internal-expires-in
+        NEXT_PUBLIC_APPLE_ERROR_INTERNAL_TOKEN_TYPE: test-apple-error-internal-token-type
+        NEXT_PUBLIC_APPLE_ERROR_INTERNAL_SCOPE: test-apple-error-internal-scope
+        NEXT_PUBLIC_APPLE_ERROR_INTERNAL_ERROR: test-apple-error-internal-error
+        NEXT_PUBLIC_APPLE_ERROR_INTERNAL_ERROR_DESCRIPTION: test-apple-error-internal-error-description
+        NEXT_PUBLIC_APPLE_ERROR_INTERNAL_ERROR_URI: test-apple-error-internal-error-uri
+        NEXT_PUBLIC_APPLE_ERROR_INTERNAL_ERROR_CODE: test-apple-error-internal-error-code
+        NEXT_PUBLIC_APPLE_ERROR_INTERNAL_ERROR_REASON: test-apple-error-internal-error-reason
+        NEXT_PUBLIC_APPLE_ERROR_INTERNAL_ERROR_STATUS: test-apple-error-internal-error-status
+        NEXT_PUBLIC_APPLE_ERROR_INTERNAL_ERROR_MESSAGE: test-apple-error-internal-error-message
+        NEXT_PUBLIC_APPLE_ERROR_INTERNAL_ERROR_DETAILS: test-apple-error-internal-error-details
+ 
