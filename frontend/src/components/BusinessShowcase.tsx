@@ -6,26 +6,21 @@ import {
   Typography,
   Button,
   Chip,
-  Grid,
   IconButton,
   Collapse,
   Tooltip,
-  Fade,
-  useTheme,
-  useMediaQuery
+  Fade
 } from '@mui/material';
-import {
-  ExpandMore as ExpandMoreIcon,
-  LocalOffer as OfferIcon,
-  Verified as VerifiedIcon,
-  EmojiEvents as TrophyIcon,
-  Star as StarIcon,
-  Casino as CasinoIcon,
-  Science as LabIcon,
-  Psychology as AIIcon,
-  LocalShipping as DeliveryIcon,
-  Speed as SpeedIcon
-} from '@mui/icons-material';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import LocalOfferIcon from '@mui/icons-material/LocalOffer';
+import VerifiedIcon from '@mui/icons-material/Verified';
+import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
+import StarIcon from '@mui/icons-material/Star';
+import CasinoIcon from '@mui/icons-material/Casino';
+import ScienceIcon from '@mui/icons-material/Science';
+import PsychologyIcon from '@mui/icons-material/Psychology';
+import LocalShippingIcon from '@mui/icons-material/LocalShipping';
+import SpeedIcon from '@mui/icons-material/Speed';
 import { styled } from '@mui/material/styles';
 
 // Styled components
@@ -68,7 +63,6 @@ interface ShowcaseFeature {
 }
 
 interface BusinessShowcaseProps {
-  businessType: string;
   name: string;
   price: number;
   description: string;
@@ -92,7 +86,6 @@ interface BusinessShowcaseProps {
 }
 
 const BusinessShowcase: React.FC<BusinessShowcaseProps> = ({
-  businessType,
   name,
   price,
   description,
@@ -102,8 +95,6 @@ const BusinessShowcase: React.FC<BusinessShowcaseProps> = ({
   rewards
 }) => {
   const [expanded, setExpanded] = useState(false);
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
   const handleExpandClick = () => {
     setExpanded(!expanded);
@@ -112,17 +103,17 @@ const BusinessShowcase: React.FC<BusinessShowcaseProps> = ({
   const getFeatureIcon = (type: string): React.ReactElement => {
     switch (type) {
       case 'surprise':
-        return <OfferIcon />;
+        return <LocalOfferIcon />;
       case 'game_changer':
-        return <TrophyIcon />;
+        return <EmojiEventsIcon />;
       case 'vip':
         return <StarIcon />;
       case 'verification':
         return <VerifiedIcon />;
       case 'ai':
-        return <AIIcon />;
+        return <PsychologyIcon />;
       default:
-        return <OfferIcon />;
+        return <LocalOfferIcon />;
     }
   };
 
@@ -130,9 +121,9 @@ const BusinessShowcase: React.FC<BusinessShowcaseProps> = ({
     <Fade in timeout={1000}>
       <StyledCard>
         <CardContent>
-          <Grid container spacing={2}>
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
             {/* Header Section */}
-            <Grid item xs={12}>
+            <Box>
               <Box display="flex" justifyContent="space-between" alignItems="center">
                 <Typography variant="h5" component="h2" gutterBottom>
                   {name}
@@ -141,17 +132,17 @@ const BusinessShowcase: React.FC<BusinessShowcaseProps> = ({
                   ${price}
                 </Typography>
               </Box>
-            </Grid>
+            </Box>
 
             {/* Description */}
-            <Grid item xs={12}>
+            <Box>
               <Typography variant="body1" color="textSecondary">
                 {description}
               </Typography>
-            </Grid>
+            </Box>
 
             {/* Features */}
-            <Grid item xs={12}>
+            <Box>
               <Box display="flex" flexWrap="wrap" gap={1}>
                 {features.map((feature, index) => {
                   const icon = feature.icon || getFeatureIcon(feature.type);
@@ -166,22 +157,22 @@ const BusinessShowcase: React.FC<BusinessShowcaseProps> = ({
                   );
                 })}
               </Box>
-            </Grid>
+            </Box>
 
             {/* Verification Badge */}
             {verification?.required && (
-              <Grid item xs={12}>
+              <Box>
                 <Box display="flex" alignItems="center" gap={1}>
-                  <LabIcon color="primary" />
+                  <ScienceIcon color="primary" />
                   <Typography variant="body2" color="primary">
                     {verification.description}
                   </Typography>
                 </Box>
-              </Grid>
+              </Box>
             )}
 
             {/* Expand Button */}
-            <Grid item xs={12}>
+            <Box>
               <Box display="flex" justifyContent="center">
                 <ExpandMore
                   expand={expanded}
@@ -192,17 +183,17 @@ const BusinessShowcase: React.FC<BusinessShowcaseProps> = ({
                   <ExpandMoreIcon />
                 </ExpandMore>
               </Box>
-            </Grid>
-          </Grid>
+            </Box>
+          </Box>
         </CardContent>
 
         {/* Expanded Content */}
         <Collapse in={expanded} timeout="auto" unmountOnExit>
           <CardContent>
-            <Grid container spacing={2}>
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
               {/* AI Features */}
               {aiFeatures && aiFeatures.length > 0 && (
-                <Grid item xs={12}>
+                <Box>
                   <Typography variant="subtitle1" gutterBottom>
                     AI-Powered Features
                   </Typography>
@@ -210,7 +201,7 @@ const BusinessShowcase: React.FC<BusinessShowcaseProps> = ({
                     {aiFeatures.map((feature, index) => (
                       <Tooltip key={index} title={feature.description}>
                         <Chip
-                          icon={<AIIcon />}
+                          icon={<PsychologyIcon />}
                           label={feature.name}
                           color="secondary"
                           size="small"
@@ -218,42 +209,42 @@ const BusinessShowcase: React.FC<BusinessShowcaseProps> = ({
                       </Tooltip>
                     ))}
                   </Box>
-                </Grid>
+                </Box>
               )}
 
               {/* Rewards */}
               {rewards && (
-                <Grid item xs={12}>
+                <Box>
                   <Typography variant="subtitle1" gutterBottom>
                     Rewards Program
                   </Typography>
                   <Box display="flex" alignItems="center" gap={1}>
                     {rewards.type === 'spin_wheel' && <CasinoIcon color="secondary" />}
                     {rewards.type === 'vip_club' && <StarIcon color="secondary" />}
-                    {rewards.type === 'mystery_bonus' && <OfferIcon color="secondary" />}
+                    {rewards.type === 'mystery_bonus' && <LocalOfferIcon color="secondary" />}
                     {rewards.type === 'cashback' && <SpeedIcon color="secondary" />}
                     <Typography variant="body2">
                       {rewards.description}
                     </Typography>
                   </Box>
-                </Grid>
+                </Box>
               )}
 
               {/* Action Button */}
-              <Grid item xs={12}>
+              <Box>
                 <Box display="flex" justifyContent="center">
                   <Button
                     variant="contained"
                     color="primary"
                     size="large"
                     fullWidth
-                    endIcon={<DeliveryIcon />}
+                    endIcon={<LocalShippingIcon />}
                   >
                     Get Started
                   </Button>
                 </Box>
-              </Grid>
-            </Grid>
+              </Box>
+            </Box>
           </CardContent>
         </Collapse>
       </StyledCard>

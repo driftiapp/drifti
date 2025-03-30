@@ -1,110 +1,197 @@
 'use client';
 
-import { motion, HTMLMotionProps } from 'framer-motion';
-import { ArrowRightIcon } from '@heroicons/react/24/outline';
-import { useAuth } from '@/contexts/AuthContext';
-import SignIn from '@/components/auth/SignIn';
+import { useEffect } from 'react';
+import Link from 'next/link';
+import mapboxgl from 'mapbox-gl';
+import 'mapbox-gl/dist/mapbox-gl.css';
+import {
+  Box,
+  Container,
+  Typography,
+  Button,
+  Fade,
+} from '@mui/material';
+import LocalTaxiIcon from '@mui/icons-material/LocalTaxi';
+import RestaurantIcon from '@mui/icons-material/Restaurant';
+import LocalBarIcon from '@mui/icons-material/LocalBar';
+import LocalShippingIcon from '@mui/icons-material/LocalShipping';
+import HotelIcon from '@mui/icons-material/Hotel';
+import SpeedIcon from '@mui/icons-material/Speed';
+import TrackChangesIcon from '@mui/icons-material/TrackChanges';
+import AppsIcon from '@mui/icons-material/Apps';
+import WorkOutlineIcon from '@mui/icons-material/WorkOutline';
 
-const MotionDiv = motion.div as React.ComponentType<HTMLMotionProps<"div">>;
-const MotionA = motion.a as React.ComponentType<HTMLMotionProps<"a">>;
+// Initialize Mapbox
+mapboxgl.accessToken = process.env['NEXT_PUBLIC_MAPBOX_TOKEN'] || '';
 
 export default function Home() {
-  const { user, loading } = useAuth();
+  // Initialize map when component mounts
+  useEffect(() => {
+    const map = new mapboxgl.Map({
+      container: 'map',
+      style: 'mapbox://styles/mapbox/streets-v11',
+      center: [-74.5, 40],
+      zoom: 9,
+    });
 
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
-      </div>
-    );
-  }
+    return () => map.remove();
+  }, []);
 
-  if (!user) {
-    return <SignIn />;
-  }
+  const services = [
+    { icon: <LocalTaxiIcon />, title: 'Ride-Share', description: 'Book a ride instantly' },
+    { icon: <RestaurantIcon />, title: 'Food Delivery', description: 'Order from top restaurants' },
+    { icon: <LocalBarIcon />, title: 'Liquor Delivery', description: 'Age-verified alcohol delivery' },
+    { icon: <LocalShippingIcon />, title: 'Courier Service', description: 'Fast package delivery' },
+    { icon: <HotelIcon />, title: 'Hotel & Event Booking', description: 'Reserve hotels, tickets, & events' },
+  ];
+
+  const features = [
+    { icon: <SpeedIcon />, title: 'AI-Powered', description: 'Smart ride & delivery optimization' },
+    { icon: <TrackChangesIcon />, title: 'Real-Time Tracking', description: 'Monitor your orders live' },
+    { icon: <AppsIcon />, title: 'Multi-Service', description: 'All services in one platform' },
+    { icon: <WorkOutlineIcon />, title: 'Earn with Drifti', description: 'Drive, deliver, or run a business' },
+  ];
 
   return (
-    <div className="relative isolate">
-      {/* Background gradient */}
-      <div className="absolute inset-x-0 -top-40 -z-10 transform-gpu overflow-hidden blur-3xl sm:-top-80">
-        <div className="relative left-[calc(50%-11rem)] aspect-[1155/678] w-[36.125rem] -translate-x-1/2 rotate-[30deg] bg-gradient-to-tr from-[#1a73e8] to-[#9089fc] opacity-30 sm:left-[calc(50%-30rem)] sm:w-[72.1875rem]" />
-      </div>
+    <Box sx={{ overflow: 'hidden' }}>
+      {/* Hero Section */}
+      <Box
+        sx={{
+          position: 'relative',
+          height: '100vh',
+          display: 'flex',
+          alignItems: 'center',
+          background: 'linear-gradient(135deg, #1a237e 0%, #0d47a1 100%)',
+          color: 'white',
+        }}
+      >
+        <Container maxWidth="lg">
+          <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' }, gap: 4, alignItems: 'center' }}>
+            <Box>
+              <Fade in timeout={1000}>
+                <Box>
+                  <Typography variant="h1" sx={{ 
+                    fontSize: { xs: '2.5rem', md: '4rem' },
+                    fontWeight: 'bold',
+                    mb: 2 
+                  }}>
+                    The Future of Ride-Share & Delivery
+                  </Typography>
+                  <Typography variant="h5" sx={{ mb: 4, opacity: 0.9 }}>
+                    Powered by AI for faster, smarter service
+                  </Typography>
+                  <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
+                    <Button
+                      variant="contained"
+                      size="large"
+                      color="secondary"
+                      component={Link}
+                      href="/book-ride"
+                    >
+                      Book a Ride
+                    </Button>
+                    <Button
+                      variant="outlined"
+                      size="large"
+                      color="inherit"
+                      component={Link}
+                      href="/signup"
+                    >
+                      Sign Up
+                    </Button>
+                  </Box>
+                </Box>
+              </Fade>
+            </Box>
+            <Box sx={{ height: '100%', minHeight: 400, display: { xs: 'none', md: 'block' } }}>
+              <div id="map" style={{ width: '100%', height: '100%', borderRadius: '12px' }} />
+            </Box>
+          </Box>
+        </Container>
+      </Box>
 
-      {/* Hero section */}
-      <div className="mx-auto max-w-7xl px-6 py-24 sm:py-32 lg:px-8">
-        <MotionDiv
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="mx-auto max-w-2xl text-center"
-        >
-          <h1 className="text-4xl font-bold tracking-tight text-gray-900 sm:text-6xl">
-            Welcome back, {user.displayName || 'Rider'}!
-          </h1>
-          <p className="mt-6 text-lg leading-8 text-gray-600">
-            Ready to start your journey? Book a ride or check your trip history.
-          </p>
-          <div className="mt-10 flex items-center justify-center gap-x-6">
-            <MotionA
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              href="/book"
-              className="rounded-md bg-blue-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
-            >
-              Book a Ride
-              <ArrowRightIcon className="ml-2 -mr-1 h-5 w-5 inline-block" />
-            </MotionA>
-            <MotionA
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              href="/trips"
-              className="text-sm font-semibold leading-6 text-gray-900"
-            >
-              View Trips <span aria-hidden="true">→</span>
-            </MotionA>
-          </div>
-        </MotionDiv>
-
-        {/* Feature section */}
-        <MotionDiv
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.2 }}
-          className="mx-auto mt-16 max-w-2xl sm:mt-20 lg:mt-24 lg:max-w-none"
-        >
-          <dl className="grid max-w-xl grid-cols-1 gap-x-8 gap-y-16 lg:max-w-none lg:grid-cols-3">
-            {features.map((feature) => (
-              <MotionDiv
-                key={feature.name}
-                whileHover={{ scale: 1.05 }}
-                className="flex flex-col"
-              >
-                <dt className="flex items-center gap-x-3 text-base font-semibold leading-7 text-gray-900">
-                  {feature.name}
-                </dt>
-                <dd className="mt-4 flex flex-auto flex-col text-base leading-7 text-gray-600">
-                  <p className="flex-auto">{feature.description}</p>
-                </dd>
-              </MotionDiv>
+      {/* Services Section */}
+      <Box sx={{ py: 8, bgcolor: 'background.default' }}>
+        <Container maxWidth="lg">
+          <Typography variant="h2" align="center" sx={{ mb: 6 }}>
+            Our Services
+          </Typography>
+          <Box sx={{ 
+            display: 'grid', 
+            gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr', md: '1fr 1fr 1fr' },
+            gap: 4
+          }}>
+            {services.map((service) => (
+              <Box key={service.title}>
+                <Box sx={{ height: '100%' }}>
+                  <Box sx={{ mb: 2, color: 'primary.main' }}>
+                    {service.icon}
+                  </Box>
+                  <Typography variant="h5" gutterBottom>
+                    {service.title}
+                  </Typography>
+                  <Typography color="text.secondary">
+                    {service.description}
+                  </Typography>
+                </Box>
+              </Box>
             ))}
-          </dl>
-        </MotionDiv>
-      </div>
-    </div>
+          </Box>
+        </Container>
+      </Box>
+
+      {/* Features Section */}
+      <Box sx={{ py: 8, bgcolor: 'background.paper' }}>
+        <Container maxWidth="lg">
+          <Typography variant="h2" align="center" sx={{ mb: 6 }}>
+            Why Choose DriftiX
+          </Typography>
+          <Box sx={{ 
+            display: 'grid', 
+            gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr', md: '1fr 1fr 1fr 1fr' },
+            gap: 4
+          }}>
+            {features.map((feature) => (
+              <Box key={feature.title}>
+                <Box sx={{ textAlign: 'center' }}>
+                  <Box sx={{ mb: 2, color: 'primary.main' }}>
+                    {feature.icon}
+                  </Box>
+                  <Typography variant="h6" gutterBottom>
+                    {feature.title}
+                  </Typography>
+                  <Typography color="text.secondary">
+                    {feature.description}
+                  </Typography>
+                </Box>
+              </Box>
+            ))}
+          </Box>
+        </Container>
+      </Box>
+
+      {/* CTA Section */}
+      <Box sx={{ py: 8, bgcolor: 'primary.main', color: 'white' }}>
+        <Container maxWidth="lg">
+          <Box sx={{ textAlign: 'center' }}>
+            <Typography variant="h2" gutterBottom>
+              Ready to Get Started?
+            </Typography>
+            <Typography variant="h5" sx={{ mb: 4, opacity: 0.9 }}>
+              Join thousands of satisfied customers using DriftiX
+            </Typography>
+            <Button
+              variant="contained"
+              size="large"
+              color="secondary"
+              component={Link}
+              href="/signup"
+            >
+              Sign Up Now
+            </Button>
+          </Box>
+        </Container>
+      </Box>
+    </Box>
   );
 }
-
-const features = [
-  {
-    name: 'Real-time Tracking',
-    description: 'Track your ride in real-time with our advanced GPS technology. Know exactly where your driver is and when they will arrive.',
-  },
-  {
-    name: 'Secure Payments',
-    description: 'Pay securely with multiple payment options. Your transactions are protected with industry-standard encryption.',
-  },
-  {
-    name: '24/7 Support',
-    description: 'Our dedicated support team is available around the clock to help you with any questions or concerns.',
-  },
-];

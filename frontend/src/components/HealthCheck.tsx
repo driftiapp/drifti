@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import { initializeApp } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
 
 interface ServiceStatus {

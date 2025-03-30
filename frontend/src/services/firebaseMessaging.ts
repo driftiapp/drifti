@@ -3,7 +3,7 @@ import { app } from '../config/firebase';
 
 class FirebaseMessagingService {
     private messaging = getMessaging(app);
-    private vapidKey = process.env.REACT_APP_FIREBASE_VAPID_KEY;
+    private vapidKey = process.env['REACT_APP_FIREBASE_VAPID_KEY'];
 
     async requestPermission(): Promise<boolean> {
         try {
@@ -17,6 +17,10 @@ class FirebaseMessagingService {
 
     async getFCMToken(): Promise<string | null> {
         try {
+            if (!this.vapidKey) {
+                console.error('Firebase VAPID key is not configured');
+                return null;
+            }
             const currentToken = await getToken(this.messaging, {
                 vapidKey: this.vapidKey
             });

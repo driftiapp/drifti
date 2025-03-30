@@ -1,9 +1,7 @@
 import React, { useState } from 'react';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import axios from 'axios';
-import { motion } from 'framer-motion';
 import { useWeb3React } from '@web3-react/core';
-import { ethers } from 'ethers';
 import { loadStripe } from '@stripe/stripe-js';
 import { MotionWrapper } from './MotionWrapper';
 
@@ -89,7 +87,8 @@ const EventNFT: React.FC<EventNFTProps> = ({ eventId, isOwner }) => {
             const result = await createNFTTicketMutation.mutateAsync(selectedTicketType);
             
             if (result.clientSecret) {
-                const stripe = await loadStripe(process.env.REACT_APP_STRIPE_PUBLIC_KEY || '');
+                const stripePromise = loadStripe(process.env['REACT_APP_STRIPE_PUBLIC_KEY'] || '');
+                const stripe = await stripePromise;
                 if (stripe) {
                     const { error } = await stripe.confirmCardPayment(result.clientSecret);
                     if (error) {

@@ -1,109 +1,155 @@
-import { useState, useEffect } from 'react';
-import { api } from '../utils/api';
+'use client';
 
-interface User {
-    id: string;
-    email: string;
-    name: string;
-    role: string;
-    driverId?: string;
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { 
+  User as FirebaseUser,
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+  signInWithPopup, 
+  GoogleAuthProvider, 
+  signOut,
+  onAuthStateChanged
+} from 'firebase/auth';
+import { auth } from '@/config/firebase';
+
+interface User extends FirebaseUser {
+  role?: 'user' | 'driver' | 'admin';
 }
 
 interface AuthState {
-    user: User | null;
-    loading: boolean;
-    error: string | null;
+  user: User | null;
+  loading: boolean;
+  error: string | null;
 }
 
-export const useAuth = () => {
-    const [state, setState] = useState<AuthState>({
-        user: null,
-        loading: true,
-        error: null
+export function useAuth() {
+  const [authState, setAuthState] = useState<AuthState>({
+    user: null,
+    loading: true,
+    error: null
+  });
+  const router = useRouter();
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+      if (firebaseUser) {
+        try {
+          const token = await firebaseUser.getIdToken();
+          localStorage.setItem('token', token);
+          
+          // Add role to Firebase user
+          const user: User = {
+            ...firebaseUser,
+            role: 'user' // Default role, can be updated from backend
+          };
+          
+          setAuthState({
+            user,
+            loading: false,
+            error: null
+          });
+        } catch (error) {
+          console.error('Error getting user token:', error);
+          setAuthState({
+            user: null,
+            loading: false,
+            error: 'Failed to get user token'
+          });
+        }
+      } else {
+        localStorage.removeItem('token');
+        setAuthState({
+          user: null,
+          loading: false,
+          error: null
+        });
+      }
     });
 
-    useEffect(() => {
-        const checkAuth = async () => {
-            try {
-                const token = localStorage.getItem('token');
-                if (!token) {
-                    setState({ user: null, loading: false, error: null });
-                    return;
-                }
+    return () => unsubscribe();
+  }, []);
 
-                const { data } = await api.get('/auth/me');
-                setState({
-                    user: data.user,
-                    loading: false,
-                    error: null
-                });
-            } catch (error) {
-                console.error('Auth check failed:', error);
-                setState({
-                    user: null,
-                    loading: false,
-                    error: 'Authentication failed'
-                });
-                localStorage.removeItem('token');
-            }
-        };
+  const signInWithEmail = async (email: string, password: string) => {
+    try {
+      setAuthState(prev => ({ ...prev, loading: true, error: null }));
+      await signInWithEmailAndPassword(auth, email, password);
+      router.push('/dashboard');
+    } catch (error) {
+      console.error('Email sign-in failed:', error);
+      setAuthState(prev => ({
+        ...prev,
+        loading: false,
+        error: 'Failed to sign in with email'
+      }));
+      throw error;
+    }
+  };
 
-        checkAuth();
-    }, []);
+  const signUpWithEmail = async (email: string, password: string) => {
+    try {
+      setAuthState(prev => ({ ...prev, loading: true, error: null }));
+      await createUserWithEmailAndPassword(auth, email, password);
+      router.push('/dashboard');
+    } catch (error) {
+      console.error('Email sign-up failed:', error);
+      setAuthState(prev => ({
+        ...prev,
+        loading: false,
+        error: 'Failed to sign up with email'
+      }));
+      throw error;
+    }
+  };
 
-    const login = async (email: string, password: string) => {
-        try {
-            const { data } = await api.post('/auth/login', { email, password });
-            localStorage.setItem('token', data.token);
-            setState({
-                user: data.user,
-                loading: false,
-                error: null
-            });
-        } catch (error) {
-            console.error('Login failed:', error);
-            setState(prev => ({
-                ...prev,
-                error: 'Invalid credentials'
-            }));
-            throw error;
-        }
-    };
+  const signInWithGoogle = async () => {
+    try {
+      setAuthState(prev => ({ ...prev, loading: true, error: null }));
+      const provider = new GoogleAuthProvider();
+      await signInWithPopup(auth, provider);
+      router.push('/dashboard');
+    } catch (error) {
+      console.error('Google sign-in failed:', error);
+      setAuthState(prev => ({
+        ...prev,
+        loading: false,
+        error: 'Failed to sign in with Google'
+      }));
+      throw error;
+    }
+  };
 
-    const logout = async () => {
-        try {
-            await api.post('/auth/logout');
-        } catch (error) {
-            console.error('Logout failed:', error);
-        } finally {
-            localStorage.removeItem('token');
-            setState({
-                user: null,
-                loading: false,
-                error: null
-            });
-        }
-    };
+  const logout = async () => {
+    try {
+      setAuthState(prev => ({ ...prev, loading: true, error: null }));
+      await signOut(auth);
+      localStorage.removeItem('token');
+      setAuthState({
+        user: null,
+        loading: false,
+        error: null
+      });
+      router.push('/');
+    } catch (error) {
+      console.error('Logout failed:', error);
+      setAuthState(prev => ({
+        ...prev,
+        loading: false,
+        error: 'Failed to sign out'
+      }));
+      throw error;
+    }
+  };
 
-    const updateProfile = async (updates: Partial<User>) => {
-        try {
-            const { data } = await api.patch('/auth/profile', updates);
-            setState(prev => ({
-                ...prev,
-                user: { ...prev.user, ...data.user } as User
-            }));
-        } catch (error) {
-            console.error('Profile update failed:', error);
-            throw error;
-        }
-    };
-
-    return {
-        ...state,
-        login,
-        logout,
-        updateProfile
-    };
-};
+  return {
+    user: authState.user,
+    loading: authState.loading,
+    error: authState.error,
+    signInWithEmail,
+    signUpWithEmail,
+    signInWithGoogle,
+    logout
+  };
+}
 
 export default useAuth; 

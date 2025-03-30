@@ -2,13 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { AgreementModal } from './AgreementModal';
+import axios from '../utils/axios';
 
 export const withAgreementCheck = <P extends object>(
     WrappedComponent: React.ComponentType<P>,
     requiredBusinessType?: string
 ) => {
     return (props: P) => {
-        const { user, checkAgreements } = useAuth();
+        const { user } = useAuth();
         const navigate = useNavigate();
         const [showAgreement, setShowAgreement] = useState(false);
         const [loading, setLoading] = useState(true);
@@ -21,7 +22,8 @@ export const withAgreementCheck = <P extends object>(
                 }
 
                 try {
-                    const requiredAgreements = await checkAgreements();
+                    const response = await axios.get('/api/agreements/check');
+                    const requiredAgreements = response.data.data;
                     if (requiredAgreements.length > 0) {
                         setShowAgreement(true);
                     }
@@ -33,7 +35,7 @@ export const withAgreementCheck = <P extends object>(
             };
 
             verifyAgreements();
-        }, [user, navigate, checkAgreements]);
+        }, [user, navigate]);
 
         const handleAccept = () => {
             setShowAgreement(false);

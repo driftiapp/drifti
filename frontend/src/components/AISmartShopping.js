@@ -7,6 +7,10 @@ import LoyaltyIcon from '@mui/icons-material/Loyalty';
 import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
 import GroupIcon from '@mui/icons-material/Group';
 import useBusinessAutomation from '../hooks/useBusinessAutomation';
+import { toast } from 'react-hot-toast';
+import subscriptionService from '../services/subscriptionService';
+import challengeService from '../services/challengeService';
+import groupService from '../services/groupService';
 
 const AISmartShopping = () => {
     const {
@@ -259,8 +263,10 @@ const AISmartShopping = () => {
     const handleSubscriptionSignup = async (subscription) => {
         try {
             // Implement subscription signup logic
-            console.log('Signing up for subscription:', subscription);
+            await subscriptionService.signup(subscription);
+            toast.success('Successfully signed up for subscription');
         } catch (error) {
+            toast.error('Error signing up for subscription');
             console.error('Error signing up for subscription:', error);
         }
     };
@@ -268,8 +274,10 @@ const AISmartShopping = () => {
     const handleChallengeJoin = async (challenge) => {
         try {
             // Implement challenge join logic
-            console.log('Joining challenge:', challenge);
+            await challengeService.join(challenge);
+            toast.success('Successfully joined challenge');
         } catch (error) {
+            toast.error('Error joining challenge');
             console.error('Error joining challenge:', error);
         }
     };
@@ -277,8 +285,10 @@ const AISmartShopping = () => {
     const handleGroupJoin = async (group) => {
         try {
             // Implement group join logic
-            console.log('Joining group:', group);
+            await groupService.join(group);
+            toast.success('Successfully joined group');
         } catch (error) {
+            toast.error('Error joining group');
             console.error('Error joining group:', error);
         }
     };

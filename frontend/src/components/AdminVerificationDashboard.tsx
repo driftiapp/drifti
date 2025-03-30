@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useEffect, useState } from 'react';
 import {
     Box,
@@ -149,15 +151,16 @@ const AdminVerificationDashboard: React.FC = () => {
                     </Box>
 
                     <TextField
+                        variant="outlined"
                         label="Rejection Reason"
                         required
                         fullWidth
                         multiline
-                        rows={3}
+                        rows={4}
                         value={rejectionReason}
                         onChange={(e) => setRejectionReason(e.target.value)}
-                        error={error?.includes('reason')}
-                        helperText={error?.includes('reason') ? error : ''}
+                        error={rejectionReason === ''}
+                        helperText={rejectionReason === '' ? 'Please provide a reason for rejection' : ''}
                         sx={{ mb: 2 }}
                     />
 
@@ -176,6 +179,7 @@ const AdminVerificationDashboard: React.FC = () => {
                         color="error"
                         variant="contained"
                         onClick={() => handleReject(selectedRequest._id)}
+                        disabled={rejectionReason === ''}
                     >
                         Reject Verification
                     </Button>

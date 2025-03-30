@@ -20,7 +20,7 @@ import axios from '../utils/axios';
 interface AgreementModalProps {
     open: boolean;
     onClose: () => void;
-    businessType?: string;
+    businessType: string | undefined;
     onAccept: () => void;
 }
 
@@ -105,7 +105,7 @@ export const AgreementModal: React.FC<AgreementModalProps> = ({
                     .then(data => data.ip),
                 userAgent: navigator.userAgent,
                 providedFields: formData,
-                signature: `${user?.name} - ${new Date().toISOString()}`,
+                signature: `${user?.email || 'Unknown User'} - ${new Date().toISOString()}`,
                 metadata: {
                     deviceInfo: {
                         platform: navigator.platform,

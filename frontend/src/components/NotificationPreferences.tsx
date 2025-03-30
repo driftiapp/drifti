@@ -7,21 +7,18 @@ import {
     Switch,
     FormGroup,
     FormControlLabel,
-    Divider,
     TextField,
     Button,
     Alert,
     CircularProgress,
-    Grid,
     Accordion,
     AccordionSummary,
     AccordionDetails,
     Chip
 } from '@mui/material';
 import { TimePicker } from '@mui/x-date-pickers';
-import { ExpandMore as ExpandMoreIcon } from '@mui/icons-material';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import axios from '../utils/axios';
-import { useAuth } from '../hooks/useAuth';
 
 interface NotificationPreferences {
     holidays: {
@@ -66,8 +63,8 @@ interface NotificationPreferences {
     };
     quietHours: {
         enabled: boolean;
-        start: string;
-        end: string;
+        start: Date;
+        end: Date;
     };
     location: {
         enabled: boolean;
@@ -75,7 +72,6 @@ interface NotificationPreferences {
 }
 
 const NotificationPreferences: React.FC = () => {
-    const { user } = useAuth();
     const [preferences, setPreferences] = useState<NotificationPreferences | null>(null);
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
@@ -116,7 +112,7 @@ const NotificationPreferences: React.FC = () => {
         }
     };
 
-    const handleToggle = (section: string, subsection?: string, field?: string) => {
+    const handleToggle = (section: keyof NotificationPreferences, subsection?: string, field?: string) => {
         if (!preferences) return;
 
         setPreferences(prev => {
@@ -124,13 +120,58 @@ const NotificationPreferences: React.FC = () => {
 
             const newPrefs = { ...prev };
             if (!subsection) {
-                newPrefs[section as keyof NotificationPreferences] = {
-                    ...newPrefs[section as keyof NotificationPreferences],
-                    enabled: !newPrefs[section as keyof NotificationPreferences].enabled
-                };
+                switch (section) {
+                    case 'holidays': {
+                        const sectionData = { ...newPrefs.holidays };
+                        sectionData.enabled = !sectionData.enabled;
+                        newPrefs.holidays = sectionData;
+                        break;
+                    }
+                    case 'sports': {
+                        const sectionData = { ...newPrefs.sports };
+                        sectionData.enabled = !sectionData.enabled;
+                        newPrefs.sports = sectionData;
+                        break;
+                    }
+                    case 'religious': {
+                        const sectionData = { ...newPrefs.religious };
+                        sectionData.enabled = !sectionData.enabled;
+                        newPrefs.religious = sectionData;
+                        break;
+                    }
+                    case 'promos': {
+                        const sectionData = { ...newPrefs.promos };
+                        sectionData.enabled = !sectionData.enabled;
+                        newPrefs.promos = sectionData;
+                        break;
+                    }
+                    case 'quietHours': {
+                        const sectionData = { ...newPrefs.quietHours };
+                        sectionData.enabled = !sectionData.enabled;
+                        newPrefs.quietHours = sectionData;
+                        break;
+                    }
+                    case 'location': {
+                        const sectionData = { ...newPrefs.location };
+                        sectionData.enabled = !sectionData.enabled;
+                        newPrefs.location = sectionData;
+                        break;
+                    }
+                    case 'notificationMethods': {
+                        if (field) {
+                            const methods = { ...newPrefs.notificationMethods };
+                            methods[field as keyof typeof methods] = !methods[field as keyof typeof methods];
+                            newPrefs.notificationMethods = methods;
+                        }
+                        break;
+                    }
+                }
             } else if (!field) {
-                newPrefs[section as keyof NotificationPreferences].preferences[subsection] =
-                    !newPrefs[section as keyof NotificationPreferences].preferences[subsection];
+                const sectionKey = section as keyof NotificationPreferences;
+                const sectionData = newPrefs[sectionKey] as any;
+                if (sectionData.preferences) {
+                    sectionData.preferences[subsection] = !sectionData.preferences[subsection];
+                }
             }
             return newPrefs;
         });
@@ -189,9 +230,9 @@ const NotificationPreferences: React.FC = () => {
                 {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
                 {success && <Alert severity="success" sx={{ mb: 2 }}>Preferences saved successfully</Alert>}
 
-                <Grid container spacing={3}>
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
                     {/* Holiday Preferences */}
-                    <Grid item xs={12}>
+                    <Box>
                         <Accordion defaultExpanded>
                             <AccordionSummary expandIcon={<ExpandMoreIcon />}>
                                 <Typography variant="h6">Holiday Notifications</Typography>
@@ -250,10 +291,10 @@ const NotificationPreferences: React.FC = () => {
                                 </FormGroup>
                             </AccordionDetails>
                         </Accordion>
-                    </Grid>
+                    </Box>
 
                     {/* Sports Preferences */}
-                    <Grid item xs={12}>
+                    <Box>
                         <Accordion>
                             <AccordionSummary expandIcon={<ExpandMoreIcon />}>
                                 <Typography variant="h6">Sports Notifications</Typography>
@@ -339,10 +380,10 @@ const NotificationPreferences: React.FC = () => {
                                 </FormGroup>
                             </AccordionDetails>
                         </Accordion>
-                    </Grid>
+                    </Box>
 
                     {/* Religious Preferences */}
-                    <Grid item xs={12}>
+                    <Box>
                         <Accordion>
                             <AccordionSummary expandIcon={<ExpandMoreIcon />}>
                                 <Typography variant="h6">Religious Services</Typography>
@@ -392,10 +433,10 @@ const NotificationPreferences: React.FC = () => {
                                 </FormGroup>
                             </AccordionDetails>
                         </Accordion>
-                    </Grid>
+                    </Box>
 
                     {/* Notification Methods */}
-                    <Grid item xs={12}>
+                    <Box>
                         <Accordion>
                             <AccordionSummary expandIcon={<ExpandMoreIcon />}>
                                 <Typography variant="h6">Notification Methods</Typography>
@@ -406,7 +447,7 @@ const NotificationPreferences: React.FC = () => {
                                         control={
                                             <Switch
                                                 checked={preferences.notificationMethods.push}
-                                                onChange={() => handleToggle('notificationMethods', 'push')}
+                                                onChange={() => handleToggle('notificationMethods', undefined, 'push')}
                                             />
                                         }
                                         label="Push Notifications"
@@ -415,7 +456,7 @@ const NotificationPreferences: React.FC = () => {
                                         control={
                                             <Switch
                                                 checked={preferences.notificationMethods.email}
-                                                onChange={() => handleToggle('notificationMethods', 'email')}
+                                                onChange={() => handleToggle('notificationMethods', undefined, 'email')}
                                             />
                                         }
                                         label="Email Notifications"
@@ -424,7 +465,7 @@ const NotificationPreferences: React.FC = () => {
                                         control={
                                             <Switch
                                                 checked={preferences.notificationMethods.sms}
-                                                onChange={() => handleToggle('notificationMethods', 'sms')}
+                                                onChange={() => handleToggle('notificationMethods', undefined, 'sms')}
                                             />
                                         }
                                         label="SMS Notifications"
@@ -432,10 +473,10 @@ const NotificationPreferences: React.FC = () => {
                                 </FormGroup>
                             </AccordionDetails>
                         </Accordion>
-                    </Grid>
+                    </Box>
 
                     {/* Quiet Hours */}
-                    <Grid item xs={12}>
+                    <Box>
                         <Accordion>
                             <AccordionSummary expandIcon={<ExpandMoreIcon />}>
                                 <Typography variant="h6">Quiet Hours</Typography>
@@ -453,11 +494,11 @@ const NotificationPreferences: React.FC = () => {
                                     />
                                     {preferences.quietHours.enabled && (
                                         <Box sx={{ ml: 3, mt: 2 }}>
-                                            <Grid container spacing={2}>
-                                                <Grid item xs={12} sm={6}>
+                                            <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
+                                                <Box sx={{ flex: '1 1 300px' }}>
                                                     <TimePicker
                                                         label="Start Time"
-                                                        value={preferences.quietHours.start}
+                                                        value={new Date(preferences.quietHours.start)}
                                                         onChange={(newValue) => {
                                                             if (newValue) {
                                                                 setPreferences(prev => ({
@@ -470,11 +511,11 @@ const NotificationPreferences: React.FC = () => {
                                                             }
                                                         }}
                                                     />
-                                                </Grid>
-                                                <Grid item xs={12} sm={6}>
+                                                </Box>
+                                                <Box sx={{ flex: '1 1 300px' }}>
                                                     <TimePicker
                                                         label="End Time"
-                                                        value={preferences.quietHours.end}
+                                                        value={new Date(preferences.quietHours.end)}
                                                         onChange={(newValue) => {
                                                             if (newValue) {
                                                                 setPreferences(prev => ({
@@ -487,17 +528,17 @@ const NotificationPreferences: React.FC = () => {
                                                             }
                                                         }}
                                                     />
-                                                </Grid>
-                                            </Grid>
+                                                </Box>
+                                            </Box>
                                         </Box>
                                     )}
                                 </FormGroup>
                             </AccordionDetails>
                         </Accordion>
-                    </Grid>
+                    </Box>
 
                     {/* Location Services */}
-                    <Grid item xs={12}>
+                    <Box>
                         <Accordion>
                             <AccordionSummary expandIcon={<ExpandMoreIcon />}>
                                 <Typography variant="h6">Location Services</Typography>
@@ -516,8 +557,8 @@ const NotificationPreferences: React.FC = () => {
                                 </FormGroup>
                             </AccordionDetails>
                         </Accordion>
-                    </Grid>
-                </Grid>
+                    </Box>
+                </Box>
 
                 <Box sx={{ mt: 3, display: 'flex', justifyContent: 'flex-end' }}>
                     <Button

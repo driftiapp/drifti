@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import {
     Box,
     Container,
-    Grid,
     Paper,
     Typography,
     Tabs,
@@ -13,32 +12,23 @@ import {
     CardContent,
     Alert,
     CircularProgress,
-    useTheme,
-    Chip,
     Dialog,
     DialogTitle,
     DialogContent,
     DialogActions,
     TextField,
-    MenuItem,
-    Switch,
-    FormControlLabel
+    MenuItem
 } from '@mui/material';
-import {
-    Notifications as NotificationsIcon,
-    TrendingUp as TrendingUpIcon,
-    Warning as WarningIcon,
-    LocalShipping as ShippingIcon,
-    Inventory as InventoryIcon,
-    Hotel as HotelIcon,
-    LocalBar as BarIcon,
-    DirectionsCar as CarIcon,
-    Restaurant as RestaurantIcon,
-    Settings as SettingsIcon
-} from '@mui/icons-material';
-import { Line, Bar } from 'react-chartjs-2';
+import NotificationsIcon from '@mui/icons-material/Notifications';
+import InventoryIcon from '@mui/icons-material/Inventory';
+import SettingsIcon from '@mui/icons-material/Settings';
+import RestaurantIcon from '@mui/icons-material/Restaurant';
+import LocalBarIcon from '@mui/icons-material/LocalBar';
+import HotelIcon from '@mui/icons-material/Hotel';
+import DirectionsCarIcon from '@mui/icons-material/DirectionsCar';
+import { Line } from 'react-chartjs-2';
 import axios from 'axios';
-import { format, subDays, startOfDay, endOfDay } from 'date-fns';
+import { format } from 'date-fns';
 
 interface BusinessStats {
     revenue: number;
@@ -52,6 +42,9 @@ interface BusinessStats {
     }>;
     lowStock: number;
     pendingDeliveries: number;
+    totalRides: number;
+    activeDrivers: number;
+    customerRating: number;
 }
 
 interface AlertItem {
@@ -77,7 +70,6 @@ const BusinessDashboard: React.FC<{ businessId: string; businessType: string }> 
     businessId,
     businessType
 }) => {
-    const theme = useTheme();
     const [activeTab, setActiveTab] = useState(0);
     const [timeRange, setTimeRange] = useState('week');
     const [loading, setLoading] = useState(true);
@@ -86,7 +78,6 @@ const BusinessDashboard: React.FC<{ businessId: string; businessType: string }> 
     const [alerts, setAlerts] = useState<AlertItem[]>([]);
     const [salesData, setSalesData] = useState<SalesData | null>(null);
     const [showAlertDialog, setShowAlertDialog] = useState(false);
-    const [selectedAlert, setSelectedAlert] = useState<AlertItem | null>(null);
 
     useEffect(() => {
         fetchDashboardData();
@@ -130,82 +121,71 @@ const BusinessDashboard: React.FC<{ businessId: string; businessType: string }> 
             case 'restaurant':
                 return <RestaurantIcon />;
             case 'liquor_store':
-                return <BarIcon />;
+                return <LocalBarIcon />;
             case 'hotel':
                 return <HotelIcon />;
             case 'car_rental':
-                return <CarIcon />;
+                return <DirectionsCarIcon />;
             default:
                 return <InventoryIcon />;
         }
     };
 
     const renderStats = () => (
-        <Grid container spacing={3}>
-            <Grid item xs={12} md={3}>
+        <Box sx={{ 
+            display: 'grid', 
+            gridTemplateColumns: { xs: '1fr', md: '1fr 1fr 1fr 1fr' }, 
+            gap: 3 
+        }}>
+            <Box>
+                <Card>
+                    <CardContent>
+                        <Typography color="textSecondary" gutterBottom>
+                            Total Rides
+                        </Typography>
+                        <Typography variant="h4">
+                            {stats?.totalRides || 0}
+                        </Typography>
+                    </CardContent>
+                </Card>
+            </Box>
+            <Box>
+                <Card>
+                    <CardContent>
+                        <Typography color="textSecondary" gutterBottom>
+                            Active Drivers
+                        </Typography>
+                        <Typography variant="h4">
+                            {stats?.activeDrivers || 0}
+                        </Typography>
+                    </CardContent>
+                </Card>
+            </Box>
+            <Box>
                 <Card>
                     <CardContent>
                         <Typography color="textSecondary" gutterBottom>
                             Revenue
                         </Typography>
                         <Typography variant="h4">
-                            ${stats?.revenue.toLocaleString()}
-                        </Typography>
-                        <Typography variant="body2" color="textSecondary">
-                            {timeRange === 'today' ? 'Today' : 'This ' + timeRange}
+                            ${(stats?.revenue || 0).toFixed(2)}
                         </Typography>
                     </CardContent>
                 </Card>
-            </Grid>
-            <Grid item xs={12} md={3}>
+            </Box>
+            <Box>
                 <Card>
                     <CardContent>
                         <Typography color="textSecondary" gutterBottom>
-                            Orders
+                            Customer Rating
                         </Typography>
                         <Typography variant="h4">
-                            {stats?.orders}
-                        </Typography>
-                        <Typography variant="body2" color="success.main">
-                            +{((stats?.orders || 0) / 100).toFixed(1)}% vs last {timeRange}
+                            {(stats?.customerRating || 0).toFixed(1)}
                         </Typography>
                     </CardContent>
                 </Card>
-            </Grid>
-            <Grid item xs={12} md={3}>
-                <Card>
-                    <CardContent>
-                        <Typography color="textSecondary" gutterBottom>
-                            Avg Order Value
-                        </Typography>
-                        <Typography variant="h4">
-                            ${stats?.avgOrderValue.toFixed(2)}
-                        </Typography>
-                    </CardContent>
-                </Card>
-            </Grid>
-            <Grid item xs={12} md={3}>
-                <Card>
-                    <CardContent>
-                        <Typography color="textSecondary" gutterBottom>
-                            Alerts
-                        </Typography>
-                        <Typography variant="h4" color={alerts.length > 0 ? 'error.main' : 'success.main'}>
-                            {alerts.length}
-                        </Typography>
-                        {alerts.length > 0 && (
-                            <Button
-                                size="small"
-                                color="primary"
-                                onClick={() => setShowAlertDialog(true)}
-                            >
-                                View All
-                            </Button>
-                        )}
-                    </CardContent>
-                </Card>
-            </Grid>
-        </Grid>
+            </Box>
+        </Box>
     );
 
     const renderAlerts = () => (
@@ -245,6 +225,36 @@ const BusinessDashboard: React.FC<{ businessId: string; businessType: string }> 
                 <Button onClick={() => setShowAlertDialog(false)}>Close</Button>
             </DialogActions>
         </Dialog>
+    );
+
+    const renderSalesChart = () => (
+        <Box sx={{ display: 'grid', gridTemplateColumns: '1fr', gap: 3 }}>
+            <Box>
+                <Card>
+                    <CardContent>
+                        <Typography variant="h6" gutterBottom>
+                            Sales Trend
+                        </Typography>
+                        <Box sx={{ height: 300 }}>
+                            {salesData && (
+                                <Line
+                                    data={salesData}
+                                    options={{
+                                        responsive: true,
+                                        maintainAspectRatio: false,
+                                        scales: {
+                                            y: {
+                                                beginAtZero: true
+                                            }
+                                        }
+                                    }}
+                                />
+                            )}
+                        </Box>
+                    </CardContent>
+                </Card>
+            </Box>
+        </Box>
     );
 
     if (loading) {
@@ -296,7 +306,39 @@ const BusinessDashboard: React.FC<{ businessId: string; businessType: string }> 
                     </Alert>
                 )}
 
-                {renderStats()}
+                <Box sx={{ mb: 4 }}>
+                    <Typography variant="h4" gutterBottom>
+                        Dashboard
+                    </Typography>
+                    {renderStats()}
+                </Box>
+
+                <Box sx={{ 
+                    display: 'grid', 
+                    gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' }, 
+                    gap: 4 
+                }}>
+                    <Box>
+                        <Card>
+                            <CardContent>
+                                <Typography variant="h6" gutterBottom>
+                                    Recent Activity
+                                </Typography>
+                                {/* Recent activity content */}
+                            </CardContent>
+                        </Card>
+                    </Box>
+                    <Box>
+                        <Card>
+                            <CardContent>
+                                <Typography variant="h6" gutterBottom>
+                                    Performance Metrics
+                                </Typography>
+                                {/* Performance metrics content */}
+                            </CardContent>
+                        </Card>
+                    </Box>
+                </Box>
 
                 <Box mt={4}>
                     <Paper>
@@ -317,31 +359,20 @@ const BusinessDashboard: React.FC<{ businessId: string; businessType: string }> 
 
                 <Box mt={3}>
                     {activeTab === 0 && (
-                        <Grid container spacing={3}>
-                            <Grid item xs={12} md={8}>
+                        <Box sx={{ 
+                            display: 'grid', 
+                            gridTemplateColumns: { xs: '1fr', md: '2fr 1fr' }, 
+                            gap: 3 
+                        }}>
+                            <Box>
                                 <Paper sx={{ p: 2 }}>
                                     <Typography variant="h6" gutterBottom>
                                         Sales Trend
                                     </Typography>
-                                    {salesData && (
-                                        <Box height={300}>
-                                            <Line
-                                                data={salesData}
-                                                options={{
-                                                    responsive: true,
-                                                    maintainAspectRatio: false,
-                                                    scales: {
-                                                        y: {
-                                                            beginAtZero: true
-                                                        }
-                                                    }
-                                                }}
-                                            />
-                                        </Box>
-                                    )}
+                                    {renderSalesChart()}
                                 </Paper>
-                            </Grid>
-                            <Grid item xs={12} md={4}>
+                            </Box>
+                            <Box>
                                 <Paper sx={{ p: 2 }}>
                                     <Typography variant="h6" gutterBottom>
                                         Top Categories
@@ -363,8 +394,8 @@ const BusinessDashboard: React.FC<{ businessId: string; businessType: string }> 
                                         </Box>
                                     ))}
                                 </Paper>
-                            </Grid>
-                        </Grid>
+                            </Box>
+                        </Box>
                     )}
                 </Box>
 

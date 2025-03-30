@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import {
     Box,
-    Grid,
     Paper,
     Typography,
     Button,
@@ -24,15 +23,10 @@ import {
     CardContent,
     useTheme
 } from '@mui/material';
-import {
-    Add as AddIcon,
-    Edit as EditIcon,
-    Warning as WarningIcon,
-    TrendingUp as TrendingUpIcon,
-    Refresh as RefreshIcon
-} from '@mui/icons-material';
-import { Line } from 'react-chartjs-2';
-import axios from 'axios';
+import AddIcon from '@mui/icons-material/Add';
+import EditIcon from '@mui/icons-material/Edit';
+import RefreshIcon from '@mui/icons-material/Refresh';
+import axios, { AxiosError } from 'axios';
 import { format } from 'date-fns';
 
 interface InventoryItem {
@@ -83,6 +77,12 @@ interface InventoryAnalytics {
     };
 }
 
+interface ApiError {
+    message: string;
+    code?: string;
+    details?: unknown;
+}
+
 const InventoryDashboard: React.FC<{ storeId: string }> = ({ storeId }) => {
     const theme = useTheme();
     const [inventory, setInventory] = useState<InventoryItem[]>([]);
@@ -106,8 +106,9 @@ const InventoryDashboard: React.FC<{ storeId: string }> = ({ storeId }) => {
             setInventory(inventoryRes.data);
             setAnalytics(analyticsRes.data);
             setError(null);
-        } catch (err: any) {
-            setError(err?.response?.data?.message || 'Failed to fetch inventory data');
+        } catch (err) {
+            const error = err as AxiosError<ApiError>;
+            setError(error.response?.data?.message || 'Failed to fetch inventory data');
         } finally {
             setLoading(false);
         }
@@ -133,8 +134,9 @@ const InventoryDashboard: React.FC<{ storeId: string }> = ({ storeId }) => {
             setNewQuantity('');
             setUpdateReason('');
             await fetchInventory();
-        } catch (err: any) {
-            setError(err?.response?.data?.message || 'Failed to update stock');
+        } catch (err) {
+            const error = err as AxiosError<ApiError>;
+            setError(error.response?.data?.message || 'Failed to update stock');
         }
     };
 
@@ -143,8 +145,9 @@ const InventoryDashboard: React.FC<{ storeId: string }> = ({ storeId }) => {
             setVerifyingInventory(true);
             await axios.post(`/api/inventory/${storeId}/verify`);
             await fetchInventory();
-        } catch (err: any) {
-            setError(err?.response?.data?.message || 'Failed to verify inventory');
+        } catch (err) {
+            const error = err as AxiosError<ApiError>;
+            setError(error.response?.data?.message || 'Failed to verify inventory');
         } finally {
             setVerifyingInventory(false);
         }
@@ -203,56 +206,53 @@ const InventoryDashboard: React.FC<{ storeId: string }> = ({ storeId }) => {
             )}
 
             {analytics && (
-                <Grid container spacing={3} mb={3}>
-                    <Grid item xs={12} md={3}>
-                        <Card>
-                            <CardContent>
-                                <Typography color="textSecondary" gutterBottom>
-                                    Total Items
-                                </Typography>
-                                <Typography variant="h4">
-                                    {analytics.totalItems}
-                                </Typography>
-                            </CardContent>
-                        </Card>
-                    </Grid>
-                    <Grid item xs={12} md={3}>
-                        <Card>
-                            <CardContent>
-                                <Typography color="textSecondary" gutterBottom>
-                                    Low Stock Items
-                                </Typography>
-                                <Typography variant="h4" color="warning.main">
-                                    {analytics.lowStockItems}
-                                </Typography>
-                            </CardContent>
-                        </Card>
-                    </Grid>
-                    <Grid item xs={12} md={3}>
-                        <Card>
-                            <CardContent>
-                                <Typography color="textSecondary" gutterBottom>
-                                    Out of Stock
-                                </Typography>
-                                <Typography variant="h4" color="error.main">
-                                    {analytics.outOfStockItems}
-                                </Typography>
-                            </CardContent>
-                        </Card>
-                    </Grid>
-                    <Grid item xs={12} md={3}>
-                        <Card>
-                            <CardContent>
-                                <Typography color="textSecondary" gutterBottom>
-                                    Average Turnover
-                                </Typography>
-                                <Typography variant="h4">
-                                    {analytics.averageTurnover.toFixed(1)}x
-                                </Typography>
-                            </CardContent>
-                        </Card>
-                    </Grid>
-                </Grid>
+                <Box sx={{ 
+                    display: 'grid',
+                    gridTemplateColumns: { xs: '1fr', md: 'repeat(4, 1fr)' },
+                    gap: 3,
+                    mb: 3
+                }}>
+                    <Card>
+                        <CardContent>
+                            <Typography color="textSecondary" gutterBottom>
+                                Total Items
+                            </Typography>
+                            <Typography variant="h5" component="div">
+                                {analytics.totalItems}
+                            </Typography>
+                        </CardContent>
+                    </Card>
+                    <Card>
+                        <CardContent>
+                            <Typography color="textSecondary" gutterBottom>
+                                Low Stock Items
+                            </Typography>
+                            <Typography variant="h5" component="div" color="warning.main">
+                                {analytics.lowStockItems}
+                            </Typography>
+                        </CardContent>
+                    </Card>
+                    <Card>
+                        <CardContent>
+                            <Typography color="textSecondary" gutterBottom>
+                                Out of Stock Items
+                            </Typography>
+                            <Typography variant="h5" component="div" color="error.main">
+                                {analytics.outOfStockItems}
+                            </Typography>
+                        </CardContent>
+                    </Card>
+                    <Card>
+                        <CardContent>
+                            <Typography color="textSecondary" gutterBottom>
+                                Average Turnover
+                            </Typography>
+                            <Typography variant="h5" component="div">
+                                {analytics.averageTurnover.toFixed(1)}x
+                            </Typography>
+                        </CardContent>
+                    </Card>
+                </Box>
             )}
 
             <TableContainer component={Paper}>

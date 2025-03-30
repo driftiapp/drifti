@@ -1,109 +1,76 @@
 'use client';
 
-import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-import {
-  User,
-  signInWithPopup,
-  signOut,
-  onAuthStateChanged,
-  signInWithPhoneNumber,
-  ApplicationVerifier,
-  Auth
-} from 'firebase/auth';
-import { auth, googleProvider, facebookProvider } from '@/lib/firebase';
+import React, { createContext, useContext, useEffect, useState } from 'react';
+import { auth } from '../firebase/config';
+import { User } from 'firebase/auth';
+import { logger } from '../utils/logger';
 
 interface AuthContextType {
   user: User | null;
-  setUser: (user: User | null) => void;
   loading: boolean;
-  signInWithGoogle: () => Promise<void>;
-  signInWithFacebook: () => Promise<void>;
-  signInWithPhone: (phoneNumber: string, appVerifier: ApplicationVerifier) => Promise<void>;
-  logout: () => Promise<void>;
+  signOut: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType>({
   user: null,
-  setUser: () => {},
   loading: true,
-  signInWithGoogle: async () => {},
-  signInWithFacebook: async () => {},
-  signInWithPhone: async () => {},
-  logout: async () => {},
+  signOut: async () => {},
 });
 
-export function AuthProvider({ children }: { children: ReactNode }) {
+export const useAuth = () => useContext(AuthContext);
+
+export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (typeof window !== 'undefined' && auth) {
-      const unsubscribe = auth.onAuthStateChanged((user) => {
-        setUser(user);
-        setLoading(false);
+    if (!auth) {
+      logger.error('Firebase auth is not initialized', {
+        component: 'AuthContext',
+        action: 'initialization'
       });
-
-      return () => unsubscribe();
+      return;
     }
+
+    const unsubscribe = auth.onAuthStateChanged((user) => {
+      setUser(user);
+      setLoading(false);
+    });
+
+    return unsubscribe;
   }, []);
 
-  const signInWithGoogle = async () => {
-    if (!auth || !googleProvider) return;
-    try {
-      await signInWithPopup(auth, googleProvider);
-    } catch (error) {
-      console.error('Error signing in with Google:', error);
-      throw error;
+  const signOut = async () => {
+    if (!auth) {
+      logger.error('Firebase auth is not initialized', {
+        component: 'AuthContext',
+        action: 'signOut'
+      });
+      throw new Error('Firebase auth is not initialized');
     }
-  };
 
-  const signInWithFacebook = async () => {
-    if (!auth || !facebookProvider) return;
     try {
-      await signInWithPopup(auth, facebookProvider);
-    } catch (error) {
-      console.error('Error signing in with Facebook:', error);
-      throw error;
-    }
-  };
-
-  const signInWithPhone = async (phoneNumber: string, appVerifier: ApplicationVerifier) => {
-    if (!auth) return;
-    try {
-      await signInWithPhoneNumber(auth, phoneNumber, appVerifier);
-    } catch (error) {
-      console.error('Error signing in with phone:', error);
-      throw error;
-    }
-  };
-
-  const logout = async () => {
-    if (!auth) return;
-    try {
-      await signOut(auth);
-    } catch (error) {
-      console.error('Error signing out:', error);
+      await auth.signOut();
+    } catch (err) {
+      const error = err instanceof Error ? err : new Error('Unknown error during sign out');
+      logger.error('Failed to sign out', {
+        component: 'AuthContext',
+        action: 'signOut',
+        error
+      });
       throw error;
     }
   };
 
   const value = {
     user,
-    setUser,
     loading,
-    signInWithGoogle,
-    signInWithFacebook,
-    signInWithPhone,
-    logout,
+    signOut,
   };
 
   return (
     <AuthContext.Provider value={value}>
-      {children}
+      {!loading && children}
     </AuthContext.Provider>
   );
-}
-
-export function useAuth() {
-  return useContext(AuthContext);
-} 
+}; 

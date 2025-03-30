@@ -13,8 +13,10 @@ import {
     useTheme,
     LinearProgress
 } from '@mui/material';
-import { Check, Error, Pending, Warning } from '@mui/icons-material';
-import axios from 'axios';
+import CheckIcon from '@mui/icons-material/Check';
+import ErrorIcon from '@mui/icons-material/Error';
+import PendingIcon from '@mui/icons-material/Pending';
+import axios, { AxiosError } from 'axios';
 import { format } from 'date-fns';
 
 interface VerificationStep {
@@ -25,11 +27,25 @@ interface VerificationStep {
 }
 
 interface VerificationDetails {
-    verificationDetails: Record<string, any>;
+    verificationDetails: Record<string, unknown>;
     retryCount: number;
     nextRetryAt?: string;
     expiresAt?: string;
     completedAt?: string;
+}
+
+interface VerificationProgressResponse {
+    status: string;
+    currentStep: string;
+    progress: number;
+    details: VerificationDetails;
+    stepDetails: Record<string, VerificationStep>;
+}
+
+interface ApiErrorResponse {
+    message: string;
+    code?: string;
+    details?: unknown;
 }
 
 interface VerificationProgressProps {
@@ -49,13 +65,12 @@ const VerificationProgress: React.FC<VerificationProgressProps> = ({
     const [progress, setProgress] = useState<number>(0);
     const [status, setStatus] = useState<string>('pending');
     const [currentStep, setCurrentStep] = useState<string>('');
-    const [completedSteps, setCompletedSteps] = useState<string[]>([]);
     const [details, setDetails] = useState<VerificationDetails | null>(null);
     const [stepDetails, setStepDetails] = useState<Record<string, VerificationStep>>({});
 
     const fetchProgress = async () => {
         try {
-            const response = await axios.get('/api/verification/progress', {
+            const response = await axios.get<VerificationProgressResponse>('/api/verification/progress', {
                 params: { type }
             });
 
@@ -63,7 +78,6 @@ const VerificationProgress: React.FC<VerificationProgressProps> = ({
                 status,
                 currentStep,
                 progress: progressPercentage,
-                completedSteps,
                 details,
                 stepDetails: steps
             } = response.data;
@@ -71,7 +85,6 @@ const VerificationProgress: React.FC<VerificationProgressProps> = ({
             setStatus(status);
             setCurrentStep(currentStep);
             setProgress(progressPercentage);
-            setCompletedSteps(completedSteps);
             setDetails(details);
             setStepDetails(steps);
             setError(null);
@@ -79,10 +92,22 @@ const VerificationProgress: React.FC<VerificationProgressProps> = ({
             if (status === 'approved' && onComplete) {
                 onComplete();
             }
-        } catch (err: any) {
-            const message = err?.response?.data?.message || 'Failed to fetch verification progress';
-            setError(message);
-            if (onError) onError(message);
+        } catch (err) {
+            const axiosError = err as AxiosError<ApiErrorResponse>;
+            const errorMessage = axiosError.response?.data?.message || 
+                               axiosError.message || 
+                               'Failed to fetch verification progress';
+            
+            setError(errorMessage);
+            if (onError) onError(errorMessage);
+            
+            // Log the error with additional context
+            console.error('Verification progress fetch failed:', {
+                type,
+                status: axiosError.response?.status,
+                code: axiosError.response?.data?.code,
+                details: axiosError.response?.data?.details
+            });
         } finally {
             setLoading(false);
         }
@@ -103,13 +128,13 @@ const VerificationProgress: React.FC<VerificationProgressProps> = ({
     const getStepIcon = (stepStatus: string) => {
         switch (stepStatus) {
             case 'completed':
-                return <Check style={{ color: theme.palette.success.main }} />;
+                return <CheckIcon style={{ color: theme.palette.success.main }} />;
             case 'failed':
-                return <Error style={{ color: theme.palette.error.main }} />;
+                return <ErrorIcon style={{ color: theme.palette.error.main }} />;
             case 'in_progress':
                 return <CircularProgress size={20} />;
             default:
-                return <Pending style={{ color: theme.palette.grey[500] }} />;
+                return <PendingIcon style={{ color: theme.palette.grey[500] }} />;
         }
     };
 

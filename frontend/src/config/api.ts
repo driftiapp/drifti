@@ -1,4 +1,4 @@
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://drifti-backend.onrender.com';
+const API_URL = process.env['NEXT_PUBLIC_API_URL'] || 'https://drifti-backend.onrender.com';
 
 export const apiConfig = {
   baseURL: API_URL,

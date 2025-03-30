@@ -1,51 +1,50 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
     Box,
-    Paper,
     TextField,
-    IconButton,
+    Paper,
     Typography,
     CircularProgress,
     Avatar,
-    Divider,
     Fade,
     Tooltip,
-    useTheme,
-    useMediaQuery
+    IconButton
 } from '@mui/material';
-import {
-    Send as SendIcon,
-    Clear as ClearIcon,
-    SmartToy as AIIcon,
-    Person as UserIcon,
-    Refresh as RefreshIcon
-} from '@mui/icons-material';
+import SendIcon from '@mui/icons-material/Send';
+import ClearIcon from '@mui/icons-material/Clear';
+import AIIcon from '@mui/icons-material/SmartToy';
+import UserIcon from '@mui/icons-material/Person';
+import RefreshIcon from '@mui/icons-material/Refresh';
 import { styled } from '@mui/material/styles';
 import { useAuth } from '../hooks/useAuth';
-import { api } from '../services/api';
+import { logger } from '../utils/logger';
 
 interface Message {
-    message: string;
-    response: string;
-    timestamp: string;
+    id: string;
+    content: string;
+    sender: 'user' | 'ai';
+    timestamp: Date;
 }
 
 interface AIChatInterfaceProps {
     onClose?: () => void;
+    onSendMessage: (message: string) => Promise<void>;
+    onClearHistory: () => Promise<void>;
 }
 
 const ChatContainer = styled(Paper)(({ theme }) => ({
-    height: '100%',
     display: 'flex',
     flexDirection: 'column',
-    position: 'relative',
+    height: '100%',
+    maxHeight: '80vh',
     overflow: 'hidden',
+    backgroundColor: theme.palette.background.paper,
     borderRadius: theme.shape.borderRadius,
-    boxShadow: theme.shadows[3]
+    boxShadow: theme.shadows[4]
 }));
 
 const MessageContainer = styled(Box)(({ theme }) => ({
-    flex: 1,
+    flexGrow: 1,
     overflowY: 'auto',
     padding: theme.spacing(2),
     display: 'flex',
@@ -53,143 +52,139 @@ const MessageContainer = styled(Box)(({ theme }) => ({
     gap: theme.spacing(2)
 }));
 
-const MessageBubble = styled(Box)<{ isUser: boolean }>(({ theme, isUser }) => ({
-    maxWidth: '80%',
-    padding: theme.spacing(1.5),
-    borderRadius: theme.shape.borderRadius,
-    backgroundColor: isUser ? theme.palette.primary.main : theme.palette.background.paper,
+const MessageBubble = styled(Box, {
+    shouldForwardProp: (prop) => prop !== 'isUser'
+})<{ isUser: boolean }>(({ theme, isUser }) => ({
+    backgroundColor: isUser ? theme.palette.primary.light : theme.palette.grey[100],
     color: isUser ? theme.palette.primary.contrastText : theme.palette.text.primary,
-    alignSelf: isUser ? 'flex-end' : 'flex-start',
-    position: 'relative',
-    '&::before': {
-        content: '""',
-        position: 'absolute',
-        top: '50%',
-        [isUser ? 'right' : 'left']: -8,
-        transform: 'translateY(-50%)',
-        border: `8px solid transparent`,
-        borderRightColor: isUser ? theme.palette.primary.main : theme.palette.background.paper,
-        borderLeftColor: isUser ? theme.palette.primary.main : theme.palette.background.paper,
-        [isUser ? 'borderRight' : 'borderLeft']: 'none'
-    }
+    padding: theme.spacing(1, 2),
+    borderRadius: theme.shape.borderRadius,
+    maxWidth: '80%',
+    wordBreak: 'break-word'
 }));
 
 const InputContainer = styled(Box)(({ theme }) => ({
-    padding: theme.spacing(2),
-    borderTop: `1px solid ${theme.palette.divider}`,
     display: 'flex',
     gap: theme.spacing(1),
-    backgroundColor: theme.palette.background.paper
+    padding: theme.spacing(2),
+    borderTop: `1px solid ${theme.palette.divider}`
 }));
 
-const AIChatInterface: React.FC<AIChatInterfaceProps> = ({ onClose }) => {
+const AIChatInterface: React.FC<AIChatInterfaceProps> = ({ onClose, onSendMessage, onClearHistory }) => {
     const { user } = useAuth();
-    const theme = useTheme();
-    const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const [messages, setMessages] = useState<Message[]>([]);
-    const [input, setInput] = useState('');
-    const [loading, setLoading] = useState(false);
+    const [inputMessage, setInputMessage] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
-
-    useEffect(() => {
-        if (user?.id) {
-            fetchChatHistory();
-        }
-    }, [user?.id]);
-
-    useEffect(() => {
-        scrollToBottom();
-    }, [messages]);
 
     const scrollToBottom = () => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     };
 
+    useEffect(() => {
+        scrollToBottom();
+    }, [messages]);
+
+    useEffect(() => {
+        fetchChatHistory();
+    }, []);
+
     const fetchChatHistory = async () => {
         try {
-            setLoading(true);
-            const response = await api.get(`/ai/chat/${user?.id}/history`);
-            setMessages(response.data.data);
+            setIsLoading(true);
+            const response = await fetch(`/api/chat/${user?.uid}/history`);
+            const data = await response.json();
+            setMessages(data);
         } catch (err) {
-            setError('Failed to load chat history');
             console.error('Error fetching chat history:', err);
+            setError('Failed to load chat history');
         } finally {
-            setLoading(false);
+            setIsLoading(false);
         }
     };
 
-    const handleSend = async () => {
-        if (!input.trim() || !user?.id) return;
+    const handleSendMessage = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!inputMessage.trim() || isLoading) return;
 
-        const userMessage = input.trim();
-        setInput('');
-        setLoading(true);
-        setError(null);
+        const userMessage: Message = {
+            id: Date.now().toString(),
+            content: inputMessage,
+            sender: 'user',
+            timestamp: new Date(),
+        };
+
+        setMessages((prev) => [...prev, userMessage]);
+        setInputMessage('');
+        setIsLoading(true);
 
         try {
-            const response = await api.post(`/ai/chat/${user.id}`, {
-                message: userMessage
-            });
-
-            setMessages(prev => [...prev, response.data.data]);
+            await onSendMessage(inputMessage);
         } catch (err) {
-            setError('Failed to send message');
-            console.error('Error sending message:', err);
+            const error = err instanceof Error ? err : new Error('Failed to send message');
+            logger.error('Failed to send message', {
+                component: 'AIChatInterface',
+                action: 'sendMessage',
+                error
+            });
         } finally {
-            setLoading(false);
+            setIsLoading(false);
         }
     };
 
     const handleClearHistory = async () => {
-        if (!user?.id) return;
-
         try {
-            await api.delete(`/ai/chat/${user.id}/history`);
+            await onClearHistory();
             setMessages([]);
         } catch (err) {
-            setError('Failed to clear chat history');
-            console.error('Error clearing chat history:', err);
+            const error = err instanceof Error ? err : new Error('Failed to clear chat history');
+            logger.error('Failed to clear chat history', {
+                component: 'AIChatInterface',
+                action: 'clearHistory',
+                error
+            });
         }
     };
 
     const handleKeyPress = (event: React.KeyboardEvent) => {
         if (event.key === 'Enter' && !event.shiftKey) {
             event.preventDefault();
-            handleSend();
+            handleSendMessage(event);
         }
     };
 
     return (
         <ChatContainer>
-            <Box p={2} display="flex" alignItems="center" justifyContent="space-between" borderBottom={1} borderColor="divider">
-                <Box display="flex" alignItems="center" gap={1}>
-                    <AIIcon color="primary" />
-                    <Typography variant="h6">AI Assistant</Typography>
-                </Box>
-                <Box>
-                    <Tooltip title="Clear History">
-                        <IconButton onClick={handleClearHistory} size="small">
-                            <ClearIcon />
-                        </IconButton>
-                    </Tooltip>
-                    <Tooltip title="Refresh">
-                        <IconButton onClick={fetchChatHistory} size="small">
-                            <RefreshIcon />
-                        </IconButton>
-                    </Tooltip>
-                    {onClose && (
-                        <Tooltip title="Close">
-                            <IconButton onClick={onClose} size="small">
+            <Box sx={{ p: 2, borderBottom: 1, borderColor: 'divider' }}>
+                <Box display="flex" justifyContent="space-between" alignItems="center">
+                    <Typography variant="h6" component="div">
+                        AI Assistant
+                    </Typography>
+                    <Box>
+                        <Tooltip title="Clear History">
+                            <IconButton onClick={handleClearHistory} size="small">
                                 <ClearIcon />
                             </IconButton>
                         </Tooltip>
-                    )}
+                        <Tooltip title="Refresh">
+                            <IconButton onClick={fetchChatHistory} size="small">
+                                <RefreshIcon />
+                            </IconButton>
+                        </Tooltip>
+                        {onClose && (
+                            <Tooltip title="Close">
+                                <IconButton onClick={onClose} size="small">
+                                    <ClearIcon />
+                                </IconButton>
+                            </Tooltip>
+                        )}
+                    </Box>
                 </Box>
             </Box>
 
             <MessageContainer>
-                {loading && messages.length === 0 ? (
+                {isLoading && messages.length === 0 ? (
                     <Box display="flex" justifyContent="center" alignItems="center" height="100%">
                         <CircularProgress />
                     </Box>
@@ -197,12 +192,12 @@ const AIChatInterface: React.FC<AIChatInterfaceProps> = ({ onClose }) => {
                     messages.map((msg, index) => (
                         <Fade in key={index} timeout={500}>
                             <Box display="flex" gap={1} alignItems="flex-start">
-                                <Avatar sx={{ bgcolor: msg.message ? 'primary.main' : 'secondary.main' }}>
-                                    {msg.message ? <UserIcon /> : <AIIcon />}
+                                <Avatar sx={{ bgcolor: msg.content ? 'primary.main' : 'secondary.main' }}>
+                                    {msg.content ? <UserIcon /> : <AIIcon />}
                                 </Avatar>
-                                <MessageBubble isUser={!!msg.message}>
+                                <MessageBubble isUser={!!msg.content}>
                                     <Typography variant="body1">
-                                        {msg.message || msg.response}
+                                        {msg.content}
                                     </Typography>
                                     <Typography variant="caption" sx={{ opacity: 0.7 }}>
                                         {new Date(msg.timestamp).toLocaleTimeString()}
@@ -220,24 +215,24 @@ const AIChatInterface: React.FC<AIChatInterfaceProps> = ({ onClose }) => {
                     fullWidth
                     multiline
                     maxRows={4}
-                    value={input}
-                    onChange={(e) => setInput(e.target.value)}
+                    value={inputMessage}
+                    onChange={(e) => setInputMessage(e.target.value)}
                     onKeyPress={handleKeyPress}
                     placeholder="Ask me anything about businesses, deals, or experiences..."
-                    disabled={loading}
+                    disabled={isLoading}
                     error={!!error}
                     helperText={error}
                 />
                 <IconButton
                     color="primary"
-                    onClick={handleSend}
-                    disabled={!input.trim() || loading}
+                    onClick={handleSendMessage}
+                    disabled={!inputMessage.trim() || isLoading}
                 >
-                    {loading ? <CircularProgress size={24} /> : <SendIcon />}
+                    {isLoading ? <CircularProgress size={24} /> : <SendIcon />}
                 </IconButton>
             </InputContainer>
         </ChatContainer>
     );
 };
 
-export default AIChatInterface; 
+export default AIChatInterface;

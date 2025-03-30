@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { motion, AnimatePresence, HTMLMotionProps } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useQuery } from '@tanstack/react-query';
 import { api } from '../services/api';
 import confetti from 'canvas-confetti';
@@ -38,14 +38,14 @@ interface Perk {
 
 const GamificationDashboard: React.FC = () => {
     const [showConfetti, setShowConfetti] = useState(false);
-    const { data: stats, isLoading: statsLoading } = useQuery<UserStats>(
-        ['userStats'],
-        () => api.get('/api/gamification/stats').then(res => res.data)
-    );
-    const { data: leaderboard, isLoading: leaderboardLoading } = useQuery<LeaderboardEntry[]>(
-        ['leaderboard'],
-        () => api.get('/api/gamification/leaderboard').then(res => res.data)
-    );
+    const { data: stats } = useQuery<UserStats>({
+        queryKey: ['userStats'],
+        queryFn: () => api.get('/api/gamification/stats').then(res => res.data)
+    });
+    const { data: leaderboard } = useQuery<LeaderboardEntry[]>({
+        queryKey: ['leaderboard'],
+        queryFn: () => api.get('/api/gamification/leaderboard').then(res => res.data)
+    });
 
     useEffect(() => {
         if (stats?.level && stats.level > 1) {
