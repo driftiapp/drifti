@@ -1,14 +1,14 @@
 "use client"
 
-import { auth } from "@/auth"
-import { redirect } from "next/navigation"
-import { Users, DollarSign, Activity, TrendingUp } from "lucide-react"
-import { MetricCard } from "@/components/ui/metric-card"
-import { DataTable } from "@/components/DataTable"
-import { DateRangePicker } from "@/components/ui/date-range-picker"
-import { ExportButton } from "@/components/ui/export-button"
-import { useState } from "react"
-import { DateRange } from "react-day-picker"
+import { authOptions } from '@/lib/auth'
+import { redirect } from 'next/navigation'
+import { Users, DollarSign, Activity, TrendingUp } from 'lucide-react'
+import { MetricCard } from '@/components/ui/metric-card'
+import { DataTable } from '@/components/DataTable'
+import { DateRangePicker } from '@/components/ui/date-range-picker'
+import { ExportButton, ExportFormat } from '@/components/ui/export-button'
+import { useState } from 'react'
+import { DateRange } from 'react-day-picker'
 
 export default function DashboardPage() {
   const [dateRange, setDateRange] = useState<DateRange | undefined>()
@@ -16,7 +16,7 @@ export default function DashboardPage() {
   return (
     <div className="container mx-auto py-6">
       <h1 className="text-3xl font-bold mb-6">Dashboard</h1>
-      
+
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 mb-6">
         <MetricCard
           title="Total Users"
@@ -53,9 +53,36 @@ export default function DashboardPage() {
               onChange={setDateRange}
             />
             <ExportButton
-              onExport={async (format) => {
-                // Implement export functionality
-                console.log(`Exporting data in ${format} format`)
+              onExport={async (format: ExportFormat) => {
+                try {
+                  const response = await fetch('/api/export', {
+                    method: 'POST',
+                    headers: {
+                      'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                      format,
+                      dateRange
+                    }),
+                  })
+
+                  if (!response.ok) {
+                    throw new Error('Export failed')
+                  }
+
+                  const blob = await response.blob()
+                  const url = window.URL.createObjectURL(blob)
+                  const a = document.createElement('a')
+                  a.href = url
+                  a.download = `export-${new Date().toISOString().split('T')[0]}.${format}`
+                  document.body.appendChild(a)
+                  a.click()
+                  window.URL.revokeObjectURL(url)
+                  document.body.removeChild(a)
+                } catch (error) {
+                  console.error('Export error:', error)
+                  // You might want to show a toast notification here
+                }
               }}
             />
           </div>
@@ -65,9 +92,9 @@ export default function DashboardPage() {
           columns={[
             { key: "name", label: "Name", filterType: "text" },
             { key: "email", label: "Email", filterType: "text" },
-            { 
-              key: "status", 
-              label: "Status", 
+            {
+              key: "status",
+              label: "Status",
               filterType: "multi-select",
               filterOptions: [
                 { value: "active", label: "Active" },

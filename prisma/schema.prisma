@@ -178,6 +178,8 @@ model User {
   sentInvitations Invitation[]
   transactions  Transaction[]
   stores        Store[]
+  twoFactorSecret String?
+  twoFactorEnabled Boolean @default(false)
 
   @@index([email])
 }

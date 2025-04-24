@@ -20,9 +20,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-interface DateRangePickerProps {
-  dateRange: DateRange | undefined;
-  onDateRangeChange: (range: DateRange | undefined) => void;
+export interface DateRangePickerProps {
+  value?: DateRange;
+  onChange?: (date: DateRange | undefined) => void;
   className?: string;
 }
 
@@ -66,8 +66,8 @@ const PRESET_RANGES = [
 ];
 
 export function DateRangePicker({
-  dateRange,
-  onDateRangeChange,
+  value,
+  onChange,
   className,
 }: DateRangePickerProps) {
   const [selectedPreset, setSelectedPreset] = React.useState<string>("custom");
@@ -76,13 +76,13 @@ export function DateRangePicker({
     setSelectedPreset(value);
     const preset = PRESET_RANGES.find((p) => p.value === value);
     if (preset?.getRange) {
-      onDateRangeChange(preset.getRange());
+      onChange?.(preset.getRange());
     }
   };
 
   const handleDateRangeChange = (range: DateRange | undefined) => {
     setSelectedPreset("custom");
-    onDateRangeChange(range);
+    onChange?.(range);
   };
 
   return (
@@ -108,18 +108,18 @@ export function DateRangePicker({
               variant={"outline"}
               className={cn(
                 "w-[300px] justify-start text-left font-normal",
-                !dateRange && "text-muted-foreground"
+                !value && "text-muted-foreground"
               )}
             >
               <CalendarIcon className="mr-2 h-4 w-4" />
-              {dateRange?.from ? (
-                dateRange.to ? (
+              {value?.from ? (
+                value.to ? (
                   <>
-                    {format(dateRange.from, "LLL dd, y")} -{" "}
-                    {format(dateRange.to, "LLL dd, y")}
+                    {format(value.from, "LLL dd, y")} -{" "}
+                    {format(value.to, "LLL dd, y")}
                   </>
                 ) : (
-                  format(dateRange.from, "LLL dd, y")
+                  format(value.from, "LLL dd, y")
                 )
               ) : (
                 <span>Pick a date range</span>
@@ -130,8 +130,8 @@ export function DateRangePicker({
             <Calendar
               initialFocus
               mode="range"
-              defaultMonth={dateRange?.from}
-              selected={dateRange}
+              defaultMonth={value?.from}
+              selected={value}
               onSelect={handleDateRangeChange}
               numberOfMonths={2}
             />

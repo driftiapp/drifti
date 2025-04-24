@@ -1,0 +1,452 @@
+openapi: 3.0.0
+info:
+  title: Driftix API
+  version: 1.0.0
+  description: API documentation for Driftix platform
+
+servers:
+  - url: /api
+    description: API endpoint
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        email:
+          type: string
+          format: email
+        name:
+          type: string
+        role:
+          type: string
+          enum: [USER, ADMIN]
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    Theme:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        description:
+          type: string
+        colors:
+          type: object
+        isPublic:
+          type: boolean
+        userId:
+          type: string
+          format: uuid
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    BlockedIP:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        ip:
+          type: string
+        reason:
+          type: string
+        blockedBy:
+          type: string
+          format: uuid
+        createdAt:
+          type: string
+          format: date-time
+        expiresAt:
+          type: string
+          format: date-time
+          nullable: true
+
+    Error:
+      type: object
+      properties:
+        message:
+          type: string
+        code:
+          type: string
+        status:
+          type: integer
+
+paths:
+  /auth/login:
+    post:
+      summary: User login
+      tags: [Authentication]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                  user:
+                    $ref: '#/components/schemas/User'
+        '401':
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /auth/register:
+    post:
+      summary: User registration
+      tags: [Authentication]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+                name:
+                  type: string
+      responses:
+        '201':
+          description: User created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          description: Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /users/me:
+    get:
+      summary: Get current user
+      tags: [Users]
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Current user information
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /themes:
+    get:
+      summary: List themes
+      tags: [Themes]
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+            default: 1
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            default: 10
+      responses:
+        '200':
+          description: List of themes
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Theme'
+                  total:
+                    type: integer
+                  page:
+                    type: integer
+                  limit:
+                    type: integer
+
+    post:
+      summary: Create theme
+      tags: [Themes]
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                description:
+                  type: string
+                colors:
+                  type: object
+                isPublic:
+                  type: boolean
+      responses:
+        '201':
+          description: Theme created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Theme'
+
+  /themes/{id}:
+    get:
+      summary: Get theme by ID
+      tags: [Themes]
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Theme details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Theme'
+        '404':
+          description: Theme not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    put:
+      summary: Update theme
+      tags: [Themes]
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                description:
+                  type: string
+                colors:
+                  type: object
+                isPublic:
+                  type: boolean
+      responses:
+        '200':
+          description: Theme updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Theme'
+        '404':
+          description: Theme not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    delete:
+      summary: Delete theme
+      tags: [Themes]
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: Theme deleted successfully
+        '404':
+          description: Theme not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /analytics/usage:
+    get:
+      summary: Get usage analytics
+      tags: [Analytics]
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: query
+          name: startDate
+          schema:
+            type: string
+            format: date
+        - in: query
+          name: endDate
+          schema:
+            type: string
+            format: date
+      responses:
+        '200':
+          description: Usage analytics
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  totalUsers:
+                    type: integer
+                  activeUsers:
+                    type: integer
+                  totalThemes:
+                    type: integer
+                  totalDownloads:
+                    type: integer
+                  dailyStats:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        date:
+                          type: string
+                          format: date
+                        users:
+                          type: integer
+                        themes:
+                          type: integer
+                        downloads:
+                          type: integer
+
+  /analytics/performance:
+    get:
+      summary: Get performance metrics
+      tags: [Analytics]
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Performance metrics
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  responseTime:
+                    type: number
+                  errorRate:
+                    type: number
+                  cpuUsage:
+                    type: number
+                  memoryUsage:
+                    type: number
+                  activeConnections:
+                    type: integer
+
+  /blocked-ips:
+    get:
+      summary: List blocked IPs
+      tags: [Security]
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: List of blocked IPs
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/BlockedIP'
+
+    post:
+      summary: Block IP
+      tags: [Security]
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                ip:
+                  type: string
+                reason:
+                  type: string
+                expiresAt:
+                  type: string
+                  format: date-time
+                  nullable: true
+      responses:
+        '201':
+          description: IP blocked successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BlockedIP' 

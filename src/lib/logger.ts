@@ -1,5 +1,6 @@
 import { prisma } from '@/lib/prisma';
 import { subDays, subWeeks, subMonths, format } from 'date-fns';
+import { Redis } from '@upstash/redis'
 
 interface DownloadLog {
   id: string;
@@ -54,6 +55,13 @@ interface TimelineData {
   errorRate: number;
 }
 
+interface LogEntry {
+  timestamp: number
+  level: 'info' | 'warn' | 'error'
+  message: string
+  metadata?: Record<string, any>
+}
+
 export class DownloadLogger {
   private static instance: DownloadLogger;
   private downloads: Map<string, {
@@ -70,9 +78,15 @@ export class DownloadLogger {
       lastOccurrence: Date;
     }>;
   }>;
+  private redis: Redis
+  private readonly logKey: string
+  private readonly maxLogs: number
 
-  private constructor() {
+  private constructor(redis: Redis, maxLogs: number = 1000) {
     this.downloads = new Map();
+    this.redis = redis
+    this.logKey = 'auth:logs'
+    this.maxLogs = maxLogs
   }
 
   public static getInstance(): DownloadLogger {
@@ -417,5 +431,51 @@ export class DownloadLogger {
       count: trend._count?._all || 0,
       type: trend.error || 'Unknown',
     }));
+  }
+
+  async log(level: LogEntry['level'], message: string, metadata?: Record<string, any>) {
+    const entry: LogEntry = {
+      timestamp: Date.now(),
+      level,
+      message,
+      metadata
+    }
+
+    try {
+      await this.redis.lpush(this.logKey, JSON.stringify(entry))
+      await this.redis.ltrim(this.logKey, 0, this.maxLogs - 1)
+    } catch (error) {
+      console.error('Failed to log entry:', error)
+    }
+  }
+
+  async info(message: string, metadata?: Record<string, any>) {
+    await this.log('info', message, metadata)
+  }
+
+  async warn(message: string, metadata?: Record<string, any>) {
+    await this.log('warn', message, metadata)
+  }
+
+  async error(message: string, metadata?: Record<string, any>) {
+    await this.log('error', message, metadata)
+  }
+
+  async getLogs(limit: number = 100): Promise<LogEntry[]> {
+    try {
+      const logs = await this.redis.lrange(this.logKey, 0, limit - 1)
+      return logs.map(log => JSON.parse(log))
+    } catch (error) {
+      console.error('Failed to get logs:', error)
+      return []
+    }
+  }
+
+  async clearLogs(): Promise<void> {
+    try {
+      await this.redis.del(this.logKey)
+    } catch (error) {
+      console.error('Failed to clear logs:', error)
+    }
   }
 } 

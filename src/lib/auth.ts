@@ -1,182 +1,134 @@
-import { PrismaAdapter } from "@auth/prisma-adapter"
-import type { DefaultSession, NextAuthConfig, User } from "next-auth"
-import { db } from "@/lib/db"
-import { env } from "@/lib/env"
-import { compare } from "bcrypt"
-import CredentialsProvider from "next-auth/providers/credentials"
-import GoogleProvider from "next-auth/providers/google"
-import GitHubProvider from "next-auth/providers/github"
-import TwitterProvider from "next-auth/providers/twitter"
-import FacebookProvider from "next-auth/providers/facebook"
-import { Role } from "@/types/auth"
-import NextAuth from "next-auth"
+import type { NextAuthConfig } from 'next-auth'
+import { PrismaAdapter } from '@auth/prisma-adapter'
+import { prisma } from './prisma'
+import CredentialsProvider from 'next-auth/providers/credentials'
+import GoogleProvider from 'next-auth/providers/google'
+import bcrypt from 'bcryptjs'
+import { Role, AuthSession } from '@/types/auth'
+import { AuthErrors, handleAuthError } from './auth-errors'
+import { RateLimiter } from './rate-limit'
+import { AuthLogger } from './auth-logger'
+import { Redis } from '@upstash/redis'
+
+const redis = new Redis({
+  url: process.env.UPSTASH_REDIS_URL!,
+  token: process.env.UPSTASH_REDIS_TOKEN!,
+})
+
+const rateLimiter = new RateLimiter(redis, {
+  maxAttempts: 5,
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  blockDurationMs: 30 * 60 * 1000, // 30 minutes
+})
+
+const logger = new AuthLogger(redis)
+
+interface Credentials {
+  email: string
+  password: string
+}
 
 export const authOptions: NextAuthConfig = {
-  adapter: PrismaAdapter(db),
-  session: {
-    strategy: "jwt"
-  },
-  pages: {
-    signIn: "/auth/signin",
-    signOut: "/auth/signout",
-    error: "/auth/error",
-    verifyRequest: "/auth/verify-request",
-    newUser: "/auth/register"
-  },
+  adapter: PrismaAdapter(prisma),
   providers: [
     GoogleProvider({
-      clientId: env.GOOGLE_CLIENT_ID,
-      clientSecret: env.GOOGLE_CLIENT_SECRET,
-      authorization: {
-        params: {
-          prompt: "consent",
-          access_type: "offline",
-          response_type: "code"
-        }
-      }
-    }),
-    GitHubProvider({
-      clientId: env.GITHUB_CLIENT_ID,
-      clientSecret: env.GITHUB_CLIENT_SECRET,
-      authorization: {
-        params: {
-          scope: "read:user user:email"
-        }
-      }
-    }),
-    TwitterProvider({
-      clientId: env.TWITTER_CLIENT_ID,
-      clientSecret: env.TWITTER_CLIENT_SECRET,
-    }),
-    FacebookProvider({
-      clientId: env.FACEBOOK_CLIENT_ID,
-      clientSecret: env.FACEBOOK_CLIENT_SECRET,
+      clientId: process.env.GOOGLE_CLIENT_ID!,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
     }),
     CredentialsProvider({
-      name: "credentials",
+      name: 'credentials',
       credentials: {
-        email: { label: "Email", type: "email" },
-        password: { label: "Password", type: "password" }
+        email: { label: 'Email', type: 'email' },
+        password: { label: 'Password', type: 'password' }
       },
-      async authorize(credentials): Promise<User | null> {
-        if (!credentials?.email || !credentials?.password) {
-          return null
-        }
-
-        const user = await db.user.findUnique({
-          where: {
-            email: credentials.email
+      async authorize(credentials) {
+        try {
+          if (!credentials?.email || !credentials?.password) {
+            await logger.warn('Invalid credentials: missing email or password')
+            throw AuthErrors.INVALID_CREDENTIALS
           }
-        })
 
-        if (!user || !user.password) {
-          return null
-        }
+          const creds = credentials as Credentials
 
-        const isPasswordValid = await compare(
-          credentials.password as string,
-          user.password
-        )
+          // Check rate limit
+          await rateLimiter.check(creds.email)
 
-        if (!isPasswordValid) {
-          return null
-        }
+          const user = await prisma.user.findUnique({
+            where: { email: creds.email }
+          })
 
-        return {
-          id: user.id,
-          email: user.email,
-          name: user.name,
-          image: user.image,
-          role: user.role as Role
+          if (!user || !user.password) {
+            await logger.warn('Invalid credentials: user not found', { email: creds.email })
+            throw AuthErrors.INVALID_CREDENTIALS
+          }
+
+          const isPasswordValid = await bcrypt.compare(
+            creds.password,
+            user.password
+          )
+
+          if (!isPasswordValid) {
+            await logger.warn('Invalid credentials: wrong password', { email: creds.email })
+            throw AuthErrors.INVALID_CREDENTIALS
+          }
+
+          if (user.twoFactorEnabled && !user.twoFactorVerified) {
+            await logger.info('2FA required', { userId: user.id })
+            throw AuthErrors.TWO_FACTOR_REQUIRED
+          }
+
+          // Reset rate limit on successful login
+          await rateLimiter.reset(creds.email)
+          await logger.info('User logged in successfully', { userId: user.id })
+
+          return {
+            id: user.id,
+            email: user.email,
+            name: user.name,
+            role: user.role as Role,
+          }
+        } catch (error) {
+          await logger.error('Auth error', { error })
+          throw handleAuthError(error)
         }
       }
     })
   ],
+  session: {
+    strategy: 'jwt'
+  },
+  pages: {
+    signIn: '/auth/signin',
+    error: '/auth/error',
+  },
   callbacks: {
-    async signIn({ user, account, profile }) {
-      if (account?.provider === "google") {
-        const email = profile?.email
-        if (!email) return false
-
-        // Check if user exists
-        const existingUser = await db.user.findUnique({
-          where: { email }
-        })
-
-        if (!existingUser) {
-          // Create new user
-          await db.user.create({
-            data: {
-              email,
-              name: profile.name,
-              image: profile.picture,
-              role: Role.USER,
-              password: "", // OAuth users don't need a password
-            }
-          })
+    async session({ session, token }) {
+      try {
+        if (token) {
+          session.user.id = token.id
+          session.user.role = token.role as Role
         }
+        return session as AuthSession
+      } catch (error) {
+        await logger.error('Session error', { error })
+        throw handleAuthError(error)
       }
-
-      if (account?.provider === "github") {
-        const email = profile?.email
-        if (!email) return false
-
-        // Check if user exists
-        const existingUser = await db.user.findUnique({
-          where: { email }
-        })
-
-        if (!existingUser) {
-          // Create new user
-          await db.user.create({
-            data: {
-              email,
-              name: profile.name,
-              image: profile.avatar_url,
-              role: Role.USER,
-              password: "", // OAuth users don't need a password
-            }
-          })
-        }
-      }
-
-      return true
-    },
-    async session({ token, session }) {
-      if (token) {
-        session.user.id = token.id as string
-        session.user.name = token.name as string
-        session.user.email = token.email as string
-        session.user.image = token.picture as string
-        session.user.role = token.role as Role
-      }
-
-      return session
     },
     async jwt({ token, user }) {
-      const dbUser = await db.user.findFirst({
-        where: {
-          email: token.email ?? undefined,
-        },
-      })
-
-      if (!dbUser) {
-        if (user?.id) {
+      try {
+        if (user) {
           token.id = user.id
           token.role = user.role
         }
         return token
-      }
-
-      return {
-        id: dbUser.id,
-        name: dbUser.name ?? undefined,
-        email: dbUser.email,
-        picture: dbUser.image ?? undefined,
-        role: dbUser.role as Role,
+      } catch (error) {
+        await logger.error('JWT error', { error })
+        throw handleAuthError(error)
       }
     }
   }
 }
 
-export const { handlers: { GET, POST }, auth, signIn, signOut } = NextAuth(authOptions)
+export const auth = () => {
+  return authOptions
+}

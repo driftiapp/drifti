@@ -1,4 +1,5 @@
-import { DefaultSession } from "next-auth"
+import type { DefaultSession } from 'next-auth'
+import type { JWT as DefaultJWT } from 'next-auth/jwt'
 
 export enum Role {
     USER = "USER",
@@ -8,23 +9,37 @@ export enum Role {
     CUSTOMER_SUPPORT = "CUSTOMER_SUPPORT"
 }
 
-declare module "next-auth" {
-    interface User {
-        role: Role;
-        emailVerified?: Date | null;
+declare module 'next-auth' {
+    interface Session extends DefaultSession {
+        user: {
+            id: string
+            role: Role
+        } & DefaultSession['user']
     }
 
-    interface Session {
-        user: {
-            id: string;
-            role: Role;
-            emailVerified?: Date | null;
-        } & DefaultSession["user"];
+    interface User {
+        id: string
+        email: string
+        name?: string | null
+        role: Role
+        image?: string | null
     }
 }
 
-declare module "next-auth/jwt" {
+declare module 'next-auth/jwt' {
     interface JWT {
-        role: Role;
+        id: string
+        role: Role
     }
+}
+
+export interface AuthSession {
+    user: {
+        id: string
+        email: string
+        name?: string | null
+        role: Role
+        image?: string | null
+    }
+    expires: string
 } 
