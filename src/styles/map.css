@@ -1,0 +1,57 @@
+.custom-marker-cluster {
+  background: rgba(239, 68, 68, 0.8);
+  border: 3px solid rgba(239, 68, 68, 0.9);
+  border-radius: 50%;
+  color: white;
+  text-align: center;
+  font-size: 14px;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.8);
+}
+
+.custom-marker-cluster.small {
+  width: 30px;
+  height: 30px;
+}
+
+.custom-marker-cluster.medium {
+  width: 40px;
+  height: 40px;
+}
+
+.custom-marker-cluster.large {
+  width: 50px;
+  height: 50px;
+}
+
+/* Custom popup styles */
+.leaflet-popup-content-wrapper {
+  border-radius: 4px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+}
+
+.leaflet-popup-content {
+  margin: 8px 12px;
+}
+
+/* Dark mode support */
+.dark .leaflet-tile-pane {
+  opacity: 0.7;
+}
+
+.dark .leaflet-control {
+  background-color: #1f2937;
+  color: #f3f4f6;
+}
+
+.dark .leaflet-popup-content-wrapper {
+  background-color: #1f2937;
+  color: #f3f4f6;
+}
+
+.dark .leaflet-popup-tip {
+  background-color: #1f2937;
+} 

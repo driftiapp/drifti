@@ -1,0 +1,56 @@
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "module": "commonjs",
+    "lib": [
+      "ES2020",
+      "DOM",
+      "DOM.Iterable"
+    ],
+    "outDir": "./dist",
+    "rootDir": "./",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "moduleResolution": "node",
+    "baseUrl": ".",
+    "jsx": "react-jsx",
+    "paths": {
+      "@/*": [
+        "src/*"
+      ],
+      "@shared/*": [
+        "shared/*"
+      ],
+      "@frontend/*": [
+        "frontend/src/*"
+      ],
+      "@backend/*": [
+        "backend/src/*"
+      ],
+      "@types/*": [
+        "src/types/*"
+      ]
+    },
+    "typeRoots": [
+      "./node_modules/@types",
+      "./src/types",
+      "./shared/types"
+    ]
+  },
+  "include": [
+    "src/**/*",
+    "scripts/**/*",
+    "shared/**/*",
+    "frontend/src/**/*",
+    "backend/src/**/*"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist",
+    ".git",
+    "**/*.test.ts"
+  ]
+}

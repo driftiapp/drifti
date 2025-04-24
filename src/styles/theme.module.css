@@ -1,0 +1,24 @@
+.themePreview {
+    background-color: var(--background);
+    color: var(--text);
+    border-color: var(--border);
+}
+
+.themeButton {
+    background-color: var(--primary);
+    color: var(--background);
+}
+
+.themeButtonSecondary {
+    border-color: var(--border);
+    color: var(--text);
+}
+
+.themeCard {
+    background-color: var(--secondary);
+    color: var(--text);
+}
+
+.themeAvatar {
+    background-color: var(--primary);
+}

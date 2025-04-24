@@ -1,0 +1,150 @@
+{
+  "Index": {
+    "title": "Revolucione Sua Experiência de Transporte e Entrega",
+    "description": "Drifti conecta motoristas, empresas e clientes através de uma plataforma alimentada por IA que torna cada viagem e entrega mais inteligente, rápida e eficiente.",
+    "cta": {
+      "driver": "Junte-se como Motorista",
+      "business": "Cadastre Sua Empresa"
+    },
+    "features": {
+      "title": "Por Que Escolher Drifti",
+      "subtitle": "Tudo o que você precisa para ter sucesso",
+      "description": "Nossa plataforma é projetada para capacitar todos os usuários com recursos de ponta e experiências fluidas.",
+      "items": {
+        "ai": {
+          "title": "Emparelhamento com IA",
+          "description": "Algoritmos inteligentes que conectam motoristas com as melhores oportunidades e clientes com as rotas mais rápidas."
+        },
+        "tracking": {
+          "title": "Rastreamento em Tempo Real",
+          "description": "Rastreamento GPS avançado e atualizações ao vivo garantem transparência e confiabilidade para cada entrega e viagem."
+        },
+        "payments": {
+          "title": "Pagamentos Seguros",
+          "description": "Múltiplas opções de pagamento com criptografia de ponta a ponta e processamento instantâneo para transações sem preocupações."
+        }
+      }
+    },
+    "categories": {
+      "title": "Explore Nossos Serviços",
+      "description": "Descubra tudo o que Drifti tem a oferecer, desde viagens até entregas e muito mais."
+    }
+  },
+  "Navigation": {
+    "driver": "Para Motoristas",
+    "business": "Para Empresas",
+    "about": "Sobre Nós",
+    "login": "Entrar"
+  },
+  "Orders": {
+    "status": {
+      "pending": "Pendente",
+      "accepted": "Aceito",
+      "pickedUp": "Coletado",
+      "inTransit": "Em Trânsito",
+      "delivered": "Entregue",
+      "cancelled": "Cancelado"
+    },
+    "actions": {
+      "track": "Rastrear Pedido",
+      "cancel": "Cancelar Pedido",
+      "rate": "Avaliar Entrega",
+      "contact": "Contatar Motorista",
+      "reorder": "Pedir Novamente"
+    },
+    "details": {
+      "orderId": "Número do Pedido",
+      "placedAt": "Feito em",
+      "estimated": "Entrega Estimada",
+      "actual": "Entrega Real",
+      "driver": "Motorista",
+      "vehicle": "Veículo",
+      "items": "Itens",
+      "total": "Valor Total",
+      "payment": "Forma de Pagamento",
+      "address": "Endereço de Entrega",
+      "notes": "Instruções Especiais"
+    },
+    "notifications": {
+      "accepted": "Seu pedido foi aceito",
+      "pickedUp": "Seu pedido foi coletado",
+      "inTransit": "Seu pedido está a caminho",
+      "delivered": "Seu pedido foi entregue",
+      "cancelled": "Seu pedido foi cancelado",
+      "delayed": "Seu pedido está atrasado"
+    },
+    "errors": {
+      "notFound": "Pedido não encontrado",
+      "cancelled": "Não foi possível cancelar o pedido",
+      "rateFailed": "Falha ao enviar avaliação",
+      "contactFailed": "Não foi possível contatar o motorista"
+    }
+  },
+  "Support": {
+    "title": "Centro de Suporte",
+    "subtitle": "Como podemos ajudar hoje?",
+    "search": {
+      "placeholder": "Procurar ajuda...",
+      "button": "Procurar"
+    },
+    "categories": {
+      "title": "Categorias Populares",
+      "items": {
+        "account": {
+          "title": "Conta & Perfil",
+          "description": "Gerencie as configurações da sua conta e informações do perfil"
+        },
+        "payments": {
+          "title": "Pagamentos & Faturamento",
+          "description": "Dúvidas sobre pagamentos, reembolsos e faturamento"
+        },
+        "technical": {
+          "title": "Suporte Técnico",
+          "description": "Obtenha ajuda com problemas técnicos e solução de problemas"
+        },
+        "safety": {
+          "title": "Segurança",
+          "description": "Conheça os recursos de segurança e medidas de proteção"
+        }
+      }
+    },
+    "faq": {
+      "title": "Perguntas Frequentes",
+      "items": {
+        "account": {
+          "question": "Como atualizo minhas informações de perfil?",
+          "answer": "Você pode atualizar suas informações de perfil indo para a página de Configurações e selecionando 'Editar Perfil'."
+        },
+        "payments": {
+          "question": "Como solicito um reembolso?",
+          "answer": "Para solicitar um reembolso, vá ao seu histórico de pagamentos e selecione a transação que deseja reembolsar."
+        },
+        "technical": {
+          "question": "O que devo fazer se o aplicativo não estiver funcionando?",
+          "answer": "Tente limpar o cache e os cookies, depois reinicie o aplicativo. Se o problema persistir, entre em contato com nossa equipe de suporte."
+        }
+      }
+    },
+    "contact": {
+      "title": "Contatar Suporte",
+      "email": "Suporte por Email",
+      "chat": "Chat ao Vivo",
+      "phone": "Suporte Telefônico",
+      "hours": "Disponível 24/7",
+      "response": "Tempo médio de resposta: 2 horas"
+    },
+    "ticket": {
+      "title": "Enviar um Ticket",
+      "form": {
+        "subject": "Assunto",
+        "category": "Categoria",
+        "description": "Descrição",
+        "priority": "Prioridade",
+        "attachments": "Anexos",
+        "submit": "Enviar Ticket"
+      },
+      "success": "Seu ticket foi enviado com sucesso!",
+      "error": "Ocorreu um erro ao enviar seu ticket. Por favor, tente novamente."
+    }
+  }
+} 

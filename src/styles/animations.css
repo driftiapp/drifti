@@ -1,0 +1,112 @@
+@keyframes carDrive {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes bikePulse {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-5px);
+  }
+}
+
+@keyframes starTwinkle {
+  0%, 100% {
+    opacity: 0.2;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@keyframes logoGlow {
+  0%, 100% {
+    filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.3));
+  }
+  50% {
+    filter: drop-shadow(0 0 15px rgba(255, 255, 255, 0.6));
+  }
+}
+
+/* New button animations */
+@keyframes buttonLift {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-5px);
+  }
+}
+
+@keyframes buttonGlow {
+  0%, 100% {
+    filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.3));
+  }
+  50% {
+    filter: drop-shadow(0 0 15px rgba(255, 255, 255, 0.6));
+  }
+}
+
+@keyframes buttonVibrate {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-2px);
+  }
+  75% {
+    transform: translateX(2px);
+  }
+}
+
+/* Apply animations to SVG elements */
+.hero-car {
+  animation: carDrive 15s linear infinite;
+}
+
+.hero-bike {
+  animation: bikePulse 2s ease-in-out infinite;
+}
+
+.hero-star {
+  animation: starTwinkle 3s ease-in-out infinite;
+  animation-delay: calc(var(--star-index) * 0.3s);
+}
+
+.hero-logo {
+  animation: logoGlow 4s ease-in-out infinite;
+}
+
+/* Button hover effects */
+.ride-button {
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.ride-button:hover {
+  animation: buttonLift 0.5s ease-in-out infinite;
+  filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.5));
+}
+
+.delivery-button {
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.delivery-button:hover {
+  animation: buttonVibrate 0.3s ease-in-out infinite;
+  filter: drop-shadow(0 0 10px rgba(16, 185, 129, 0.5));
+}
+
+/* Focus styles for accessibility */
+.ride-button:focus,
+.delivery-button:focus {
+  outline: 2px solid white;
+  outline-offset: 2px;
+} 

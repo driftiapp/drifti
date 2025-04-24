@@ -1,0 +1,150 @@
+{
+  "Index": {
+    "title": "Revolutioneer Je Transport- en Bezorgervaring",
+    "description": "Drifti verbindt chauffeurs, bedrijven en klanten via een AI-gestuurde platform dat elke rit en bezorging slimmer, sneller en efficiënter maakt.",
+    "cta": {
+      "driver": "Word Chauffeur",
+      "business": "Registreer Je Bedrijf"
+    },
+    "features": {
+      "title": "Waarom Drifti Kiezen",
+      "subtitle": "Alles wat je nodig hebt om succesvol te zijn",
+      "description": "Ons platform is ontworpen om alle gebruikers te voorzien van geavanceerde functies en naadloze ervaringen.",
+      "items": {
+        "ai": {
+          "title": "AI-gestuurde Matching",
+          "description": "Slimme algoritmen die chauffeurs verbinden met de beste mogelijkheden en klanten met de snelste routes."
+        },
+        "tracking": {
+          "title": "Realtime Tracking",
+          "description": "Geavanceerde GPS-tracking en live updates zorgen voor transparantie en betrouwbaarheid bij elke bezorging en rit."
+        },
+        "payments": {
+          "title": "Veilige Betalingen",
+          "description": "Meerdere betaalmogelijkheden met end-to-end encryptie en directe verwerking voor zorgeloze transacties."
+        }
+      }
+    },
+    "categories": {
+      "title": "Ontdek Onze Diensten",
+      "description": "Ontdek alles wat Drifti te bieden heeft, van ritten tot bezorgingen en meer."
+    }
+  },
+  "Navigation": {
+    "driver": "Voor Chauffeurs",
+    "business": "Voor Bedrijven",
+    "about": "Over Ons",
+    "login": "Inloggen"
+  },
+  "Orders": {
+    "status": {
+      "pending": "In Afwachting",
+      "accepted": "Geaccepteerd",
+      "pickedUp": "Opgehaald",
+      "inTransit": "Onderweg",
+      "delivered": "Bezorgd",
+      "cancelled": "Geannuleerd"
+    },
+    "actions": {
+      "track": "Bestelling Volgen",
+      "cancel": "Bestelling Annuleren",
+      "rate": "Bezorging Beoordelen",
+      "contact": "Contact Chauffeur",
+      "reorder": "Opnieuw Bestellen"
+    },
+    "details": {
+      "orderId": "Bestelnummer",
+      "placedAt": "Geplaatst op",
+      "estimated": "Geschatte Bezorging",
+      "actual": "Werkelijke Bezorging",
+      "driver": "Chauffeur",
+      "vehicle": "Voertuig",
+      "items": "Artikelen",
+      "total": "Totaalbedrag",
+      "payment": "Betaalmethode",
+      "address": "Bezorgadres",
+      "notes": "Speciale Instructies"
+    },
+    "notifications": {
+      "accepted": "Je bestelling is geaccepteerd",
+      "pickedUp": "Je bestelling is opgehaald",
+      "inTransit": "Je bestelling is onderweg",
+      "delivered": "Je bestelling is bezorgd",
+      "cancelled": "Je bestelling is geannuleerd",
+      "delayed": "Je bestelling is vertraagd"
+    },
+    "errors": {
+      "notFound": "Bestelling niet gevonden",
+      "cancelled": "Bestelling kon niet worden geannuleerd",
+      "rateFailed": "Beoordeling kon niet worden verzonden",
+      "contactFailed": "Kon geen contact maken met chauffeur"
+    }
+  },
+  "Support": {
+    "title": "Supportcentrum",
+    "subtitle": "Hoe kunnen we u vandaag helpen?",
+    "search": {
+      "placeholder": "Zoek hulp...",
+      "button": "Zoeken"
+    },
+    "categories": {
+      "title": "Populaire Categorieën",
+      "items": {
+        "account": {
+          "title": "Account & Profiel",
+          "description": "Beheer uw accountinstellingen en profielinformatie"
+        },
+        "payments": {
+          "title": "Betalingen & Facturering",
+          "description": "Vragen over betalingen, terugbetalingen en facturering"
+        },
+        "technical": {
+          "title": "Technische Ondersteuning",
+          "description": "Krijg hulp bij technische problemen en probleemoplossing"
+        },
+        "safety": {
+          "title": "Veiligheid",
+          "description": "Leer meer over veiligheidsfuncties en beschermingsmaatregelen"
+        }
+      }
+    },
+    "faq": {
+      "title": "Veelgestelde Vragen",
+      "items": {
+        "account": {
+          "question": "Hoe update ik mijn profielinformatie?",
+          "answer": "U kunt uw profielinformatie bijwerken door naar de pagina Instellingen te gaan en 'Profiel Bewerken' te selecteren."
+        },
+        "payments": {
+          "question": "Hoe vraag ik een terugbetaling aan?",
+          "answer": "Om een terugbetaling aan te vragen, gaat u naar uw betalingsgeschiedenis en selecteert u de transactie die u wilt terugbetalen."
+        },
+        "technical": {
+          "question": "Wat moet ik doen als de app niet werkt?",
+          "answer": "Probeer de cache en cookies te wissen en start de app opnieuw op. Als het probleem aanhoudt, neem dan contact op met ons ondersteuningsteam."
+        }
+      }
+    },
+    "contact": {
+      "title": "Contact Ondersteuning",
+      "email": "E-mail Ondersteuning",
+      "chat": "Live Chat",
+      "phone": "Telefonische Ondersteuning",
+      "hours": "24/7 beschikbaar",
+      "response": "Gemiddelde reactietijd: 2 uur"
+    },
+    "ticket": {
+      "title": "Ticket Indienen",
+      "form": {
+        "subject": "Onderwerp",
+        "category": "Categorie",
+        "description": "Beschrijving",
+        "priority": "Prioriteit",
+        "attachments": "Bijlagen",
+        "submit": "Ticket Indienen"
+      },
+      "success": "Uw ticket is succesvol ingediend!",
+      "error": "Er is een fout opgetreden bij het indienen van uw ticket. Probeer het opnieuw."
+    }
+  }
+} 

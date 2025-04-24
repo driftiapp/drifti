@@ -1,0 +1,440 @@
+{
+  "Index": {
+    "title": "Revolutionize Your Rides & Delivery Experience",
+    "description": "Drifti connects drivers, businesses, and customers through an AI-powered platform that makes every journey and delivery smarter, faster, and more efficient.",
+    "cta": {
+      "driver": "Join as a Driver",
+      "business": "List Your Business"
+    },
+    "features": {
+      "title": "Why Choose Drifti",
+      "subtitle": "Everything you need to succeed",
+      "description": "Our platform is designed to empower all users with cutting-edge features and seamless experiences.",
+      "items": {
+        "ai": {
+          "title": "AI-Powered Matching",
+          "description": "Smart algorithms that connect drivers with the best opportunities and customers with the fastest routes."
+        },
+        "tracking": {
+          "title": "Real-Time Tracking",
+          "description": "Advanced GPS tracking and live updates ensure transparency and reliability for every delivery and ride."
+        },
+        "payments": {
+          "title": "Secure Payments",
+          "description": "Multiple payment options with end-to-end encryption and instant processing for worry-free transactions."
+        }
+      }
+    },
+    "categories": {
+      "title": "Explore Our Services",
+      "description": "Discover everything Drifti has to offer, from rides to deliveries and more."
+    }
+  },
+  "Navigation": {
+    "driver": "For Drivers",
+    "business": "For Businesses",
+    "about": "About",
+    "login": "Log in"
+  },
+  "Auth": {
+    "login": {
+      "title": "Welcome Back",
+      "subtitle": "Sign in to your account",
+      "email": "Email Address",
+      "password": "Password",
+      "remember": "Remember me",
+      "forgot": "Forgot password?",
+      "submit": "Sign In",
+      "noAccount": "Don't have an account?",
+      "signUp": "Sign up"
+    },
+    "register": {
+      "title": "Create Account",
+      "subtitle": "Join Drifti today",
+      "name": "Full Name",
+      "email": "Email Address",
+      "password": "Password",
+      "confirm": "Confirm Password",
+      "terms": "I agree to the Terms of Service and Privacy Policy",
+      "submit": "Create Account",
+      "haveAccount": "Already have an account?",
+      "signIn": "Sign in"
+    },
+    "forgot": {
+      "title": "Reset Password",
+      "subtitle": "Enter your email to receive a reset link",
+      "email": "Email Address",
+      "submit": "Send Reset Link",
+      "back": "Back to login"
+    },
+    "reset": {
+      "title": "Set New Password",
+      "subtitle": "Create a new password for your account",
+      "password": "New Password",
+      "confirm": "Confirm New Password",
+      "submit": "Reset Password"
+    },
+    "errors": {
+      "required": "This field is required",
+      "invalidEmail": "Please enter a valid email address",
+      "passwordLength": "Password must be at least 8 characters",
+      "passwordMatch": "Passwords do not match",
+      "invalidCredentials": "Invalid email or password",
+      "emailExists": "Email already registered",
+      "unknown": "An error occurred. Please try again."
+    }
+  },
+  "Orders": {
+    "status": {
+      "pending": "Pending",
+      "accepted": "Accepted",
+      "pickedUp": "Picked Up",
+      "inTransit": "In Transit",
+      "delivered": "Delivered",
+      "cancelled": "Cancelled"
+    },
+    "actions": {
+      "track": "Track Order",
+      "cancel": "Cancel Order",
+      "rate": "Rate Delivery",
+      "contact": "Contact Driver",
+      "reorder": "Reorder"
+    },
+    "details": {
+      "orderId": "Order ID",
+      "placedAt": "Placed At",
+      "estimated": "Estimated Delivery",
+      "actual": "Actual Delivery",
+      "driver": "Driver",
+      "vehicle": "Vehicle",
+      "items": "Items",
+      "total": "Total Amount",
+      "payment": "Payment Method",
+      "address": "Delivery Address",
+      "notes": "Special Instructions"
+    },
+    "notifications": {
+      "accepted": "Your order has been accepted",
+      "pickedUp": "Your order has been picked up",
+      "inTransit": "Your order is on the way",
+      "delivered": "Your order has been delivered",
+      "cancelled": "Your order has been cancelled",
+      "delayed": "Your order is delayed"
+    },
+    "errors": {
+      "notFound": "Order not found",
+      "cancelled": "Unable to cancel order",
+      "rateFailed": "Failed to submit rating",
+      "contactFailed": "Unable to contact driver"
+    }
+  },
+  "Profile": {
+    "title": "My Profile",
+    "subtitle": "Manage your personal information",
+    "sections": {
+      "personal": {
+        "title": "Personal Information",
+        "name": "Full Name",
+        "email": "Email Address",
+        "phone": "Phone Number",
+        "dateOfBirth": "Date of Birth",
+        "address": "Address"
+      },
+      "documents": {
+        "title": "Documents",
+        "license": "Driver's License",
+        "insurance": "Insurance",
+        "verification": "Identity Verification"
+      },
+      "preferences": {
+        "title": "Preferences",
+        "language": "Language",
+        "notifications": "Notification Settings",
+        "timezone": "Time Zone"
+      }
+    },
+    "actions": {
+      "edit": "Edit Profile",
+      "save": "Save Changes",
+      "cancel": "Cancel",
+      "upload": "Upload Document",
+      "verify": "Verify Identity"
+    },
+    "messages": {
+      "success": "Profile updated successfully",
+      "error": "Failed to update profile",
+      "verificationNeeded": "Please verify your identity"
+    }
+  },
+  "Settings": {
+    "title": "Settings",
+    "subtitle": "Customize your Drifti experience",
+    "sections": {
+      "account": {
+        "title": "Account Settings",
+        "email": "Email Preferences",
+        "password": "Change Password",
+        "privacy": "Privacy Settings",
+        "delete": "Delete Account"
+      },
+      "notifications": {
+        "title": "Notifications",
+        "push": "Push Notifications",
+        "email": "Email Notifications",
+        "sms": "SMS Notifications",
+        "marketing": "Marketing Communications"
+      },
+      "appearance": {
+        "title": "Appearance",
+        "theme": "Theme",
+        "language": "Language",
+        "timezone": "Time Zone"
+      },
+      "security": {
+        "title": "Security",
+        "twoFactor": "Two-Factor Authentication",
+        "devices": "Connected Devices",
+        "sessions": "Active Sessions"
+      }
+    },
+    "actions": {
+      "save": "Save Settings",
+      "reset": "Reset to Default",
+      "enable": "Enable",
+      "disable": "Disable"
+    },
+    "messages": {
+      "saved": "Settings saved successfully",
+      "error": "Failed to save settings",
+      "confirmDelete": "Are you sure you want to delete your account?"
+    }
+  },
+  "Payments": {
+    "title": "Payments",
+    "subtitle": "Manage your payment methods and transactions",
+    "sections": {
+      "methods": {
+        "title": "Payment Methods",
+        "cards": "Credit/Debit Cards",
+        "bank": "Bank Accounts",
+        "digital": "Digital Wallets"
+      },
+      "transactions": {
+        "title": "Transaction History",
+        "all": "All Transactions",
+        "pending": "Pending",
+        "completed": "Completed",
+        "refunded": "Refunded"
+      },
+      "billing": {
+        "title": "Billing Information",
+        "name": "Billing Name",
+        "address": "Billing Address",
+        "company": "Company Name",
+        "tax": "Tax Information"
+      }
+    },
+    "actions": {
+      "add": "Add Payment Method",
+      "remove": "Remove",
+      "setDefault": "Set as Default",
+      "download": "Download Statement",
+      "dispute": "Dispute Transaction"
+    },
+    "messages": {
+      "addSuccess": "Payment method added successfully",
+      "removeSuccess": "Payment method removed",
+      "error": "Payment operation failed",
+      "confirmRemove": "Are you sure you want to remove this payment method?"
+    },
+    "details": {
+      "cardNumber": "Card Number",
+      "expiry": "Expiration Date",
+      "cvv": "CVV",
+      "accountNumber": "Account Number",
+      "routingNumber": "Routing Number"
+    }
+  },
+  "Support": {
+    "title": "Support Center",
+    "subtitle": "How can we help you today?",
+    "search": {
+      "placeholder": "Search for help...",
+      "button": "Search"
+    },
+    "categories": {
+      "title": "Popular Categories",
+      "items": {
+        "account": {
+          "title": "Account & Profile",
+          "description": "Manage your account settings and profile information"
+        },
+        "payments": {
+          "title": "Payments & Billing",
+          "description": "Questions about payments, refunds, and billing"
+        },
+        "technical": {
+          "title": "Technical Support",
+          "description": "Get help with technical issues and troubleshooting"
+        },
+        "safety": {
+          "title": "Safety & Security",
+          "description": "Learn about safety features and security measures"
+        }
+      }
+    },
+    "faq": {
+      "title": "Frequently Asked Questions",
+      "questions": [
+        {
+          "id": "account",
+          "question": "How do I create an account?",
+          "answer": "You can create an account by clicking the 'Sign Up' button in the top right corner. Fill in your details and follow the verification process."
+        },
+        {
+          "id": "payment",
+          "question": "What payment methods do you accept?",
+          "answer": "We accept all major credit cards, PayPal, and mobile payment solutions like Apple Pay and Google Pay."
+        },
+        {
+          "id": "driver",
+          "question": "How can I become a driver?",
+          "answer": "To become a driver, you need to be at least 21 years old, have a valid driver's license, and pass our background check. Click 'Drive with Us' to start."
+        },
+        {
+          "id": "safety",
+          "question": "What safety measures do you have in place?",
+          "answer": "We prioritize safety with real-time tracking, driver verification, emergency assistance, and comprehensive insurance coverage."
+        }
+      ]
+    },
+    "contact": {
+      "title": "Contact Us",
+      "success": "Your message has been sent successfully. We'll get back to you soon!",
+      "form": {
+        "name": "Full Name",
+        "email": "Email Address",
+        "category": "Category",
+        "message": "Your Message",
+        "submit": "Send Message",
+        "categories": [
+          {
+            "id": "general",
+            "name": "General Inquiry"
+          },
+          {
+            "id": "technical",
+            "name": "Technical Support"
+          },
+          {
+            "id": "billing",
+            "name": "Billing Issues"
+          },
+          {
+            "id": "feedback",
+            "name": "Feedback & Suggestions"
+          }
+        ]
+      }
+    },
+    "hours": {
+      "title": "Support Hours",
+      "description": "Our support team is available to help you during the following hours:",
+      "schedule": [
+        {
+          "day": "Monday - Friday",
+          "hours": "9:00 AM - 8:00 PM EST"
+        },
+        {
+          "day": "Saturday",
+          "hours": "10:00 AM - 6:00 PM EST"
+        },
+        {
+          "day": "Sunday",
+          "hours": "12:00 PM - 5:00 PM EST"
+        }
+      ]
+    }
+  },
+  "Notifications": {
+    "title": "Notifications",
+    "empty": "No notifications",
+    "markAllRead": "Mark all as read",
+    "clearAll": "Clear all",
+    "types": {
+      "ride": {
+        "requested": "New ride request",
+        "accepted": "Ride accepted",
+        "completed": "Ride completed",
+        "cancelled": "Ride cancelled"
+      },
+      "delivery": {
+        "requested": "New delivery request",
+        "accepted": "Delivery accepted",
+        "completed": "Delivery completed",
+        "cancelled": "Delivery cancelled"
+      },
+      "payment": {
+        "received": "Payment received",
+        "failed": "Payment failed",
+        "refunded": "Payment refunded"
+      },
+      "system": {
+        "update": "System update",
+        "maintenance": "System maintenance",
+        "alert": "System alert"
+      }
+    },
+    "actions": {
+      "view": "View",
+      "accept": "Accept",
+      "decline": "Decline",
+      "details": "View details"
+    },
+    "time": {
+      "justNow": "Just now",
+      "minutesAgo": "{count} minutes ago",
+      "hoursAgo": "{count} hours ago",
+      "daysAgo": "{count} days ago"
+    }
+  },
+  "DriverDashboard": {
+    "title": "Driver Dashboard",
+    "stats": {
+      "totalRides": "Total Rides",
+      "totalEarnings": "Total Earnings",
+      "rating": "Rating",
+      "acceptanceRate": "Acceptance Rate"
+    },
+    "recentActivity": {
+      "title": "Recent Activity",
+      "noActivity": "No recent activity"
+    },
+    "earnings": {
+      "title": "Earnings",
+      "today": "Today",
+      "week": "This Week",
+      "month": "This Month",
+      "total": "Total"
+    },
+    "schedule": {
+      "title": "Schedule",
+      "available": "Available",
+      "unavailable": "Unavailable",
+      "setAvailability": "Set Availability"
+    },
+    "vehicle": {
+      "title": "Vehicle Information",
+      "make": "Make",
+      "model": "Model",
+      "year": "Year",
+      "licensePlate": "License Plate"
+    },
+    "documents": {
+      "title": "Documents",
+      "driverLicense": "Driver's License",
+      "vehicleInsurance": "Vehicle Insurance",
+      "vehicleRegistration": "Vehicle Registration"
+    }
+  }
+} 

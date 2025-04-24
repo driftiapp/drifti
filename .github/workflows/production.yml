@@ -1,0 +1,193 @@
+name: Production Deployment
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          
+      - name: Install dependencies
+        run: npm ci
+        
+      - name: Validate environment variables
+        run: npm run test:env
+        env:
+          PORT: 3000
+          NODE_ENV: production
+          WS_PORT: 8080
+          WS_PATH: /ws
+          JWT_SECRET: ${{ secrets.PROD_JWT_SECRET }}
+          JWT_EXPIRES_IN: 1h
+          ADMIN_USERNAME: admin
+          ADMIN_PASSWORD: ${{ secrets.PROD_ADMIN_PASSWORD }}
+          REDIS_HOST: ${{ secrets.PROD_REDIS_HOST }}
+          REDIS_PORT: 6379
+          REDIS_PASSWORD: ${{ secrets.PROD_REDIS_PASSWORD }}
+          REDIS_DB: 0
+          METRICS_ENABLED: true
+          METRICS_PORT: 9100
+          METRICS_PATH: /metrics
+          REACT_APP_API_URL: ${{ secrets.PROD_API_URL }}
+          REACT_APP_WS_URL: ${{ secrets.PROD_WS_URL }}
+          REACT_APP_ENV: production
+          PRESENCE_ACTIVITY_TIMEOUT: 300000
+          PRESENCE_CLEANUP_INTERVAL: 30000
+          PRESENCE_MAX_ROOMS_PER_USER: 5
+          PRESENCE_MAX_USERS_PER_ROOM: 100
+          LOG_LEVEL: info
+          LOG_FORMAT: json
+          LOG_FILE: logs/app.log
+          CORS_ORIGIN: ${{ secrets.PROD_CORS_ORIGIN }}
+          RATE_LIMIT_WINDOW: 15
+          RATE_LIMIT_MAX: 100
+          DB_HOST: ${{ secrets.PROD_DB_HOST }}
+          DB_PORT: 5432
+          DB_NAME: driftix_prod
+          DB_USER: ${{ secrets.PROD_DB_USER }}
+          DB_PASSWORD: ${{ secrets.PROD_DB_PASSWORD }}
+
+  test:
+    needs: validate
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:14
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: driftix_prod
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+          
+      redis:
+        image: redis:7
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+          
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          
+      - name: Install dependencies
+        run: npm ci
+        
+      - name: Run tests
+        run: npm test
+        env:
+          PORT: 3000
+          NODE_ENV: production
+          WS_PORT: 8080
+          WS_PATH: /ws
+          JWT_SECRET: ${{ secrets.PROD_JWT_SECRET }}
+          JWT_EXPIRES_IN: 1h
+          ADMIN_USERNAME: admin
+          ADMIN_PASSWORD: ${{ secrets.PROD_ADMIN_PASSWORD }}
+          REDIS_HOST: localhost
+          REDIS_PORT: 6379
+          REDIS_PASSWORD: ${{ secrets.PROD_REDIS_PASSWORD }}
+          REDIS_DB: 0
+          METRICS_ENABLED: true
+          METRICS_PORT: 9100
+          METRICS_PATH: /metrics
+          REACT_APP_API_URL: http://localhost:3000/api
+          REACT_APP_WS_URL: ws://localhost:8080/ws
+          REACT_APP_ENV: production
+          PRESENCE_ACTIVITY_TIMEOUT: 300000
+          PRESENCE_CLEANUP_INTERVAL: 30000
+          PRESENCE_MAX_ROOMS_PER_USER: 5
+          PRESENCE_MAX_USERS_PER_ROOM: 100
+          LOG_LEVEL: info
+          LOG_FORMAT: json
+          LOG_FILE: logs/app.log
+          CORS_ORIGIN: http://localhost:3000
+          RATE_LIMIT_WINDOW: 15
+          RATE_LIMIT_MAX: 100
+          DB_HOST: localhost
+          DB_PORT: 5432
+          DB_NAME: driftix_prod
+          DB_USER: postgres
+          DB_PASSWORD: postgres
+
+  security-scan:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Run security scan
+        uses: snyk/actions/node@master
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        with:
+          args: --severity-threshold=high
+
+  deploy:
+    needs: [test, security-scan]
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          
+      - name: Install dependencies
+        run: npm ci
+        
+      - name: Build
+        run: npm run build
+        env:
+          NODE_ENV: production
+          REACT_APP_API_URL: ${{ secrets.PROD_API_URL }}
+          REACT_APP_WS_URL: ${{ secrets.PROD_WS_URL }}
+          REACT_APP_ENV: production
+          
+      - name: Deploy to Production
+        run: |
+          echo "Deploying to production environment..."
+          # Add your deployment commands here
+          # For example:
+          # - Upload to production server
+          # - Update environment variables
+          # - Restart services
+          
+      - name: Notify on Success
+        if: success()
+        run: |
+          echo "Production deployment successful!"
+          # Add notification commands here (e.g., Slack, email)
+          
+      - name: Notify on Failure
+        if: failure()
+        run: |
+          echo "Production deployment failed!"
+          # Add notification commands here (e.g., Slack, email) 

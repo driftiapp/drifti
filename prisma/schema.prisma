@@ -1,0 +1,450 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../node_modules/.prisma/client"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Data {
+  id        Int      @id @default(autoincrement())
+  name      String
+  email     String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model BlockedIP {
+  id        String   @id @default(cuid())
+  ip        String   @unique
+  blockedBy String
+  reason    String
+  createdAt DateTime @default(now())
+  expiresAt DateTime?
+  user      User     @relation(fields: [blockedBy], references: [id], onDelete: Cascade)
+}
+
+model WhitelistedIP {
+  id            String   @id @default(cuid())
+  ip            String   @unique
+  whitelistedBy String
+  reason        String
+  createdAt     DateTime @default(now())
+  user          User     @relation(fields: [whitelistedBy], references: [id], onDelete: Cascade)
+}
+
+model ipHistory {
+  id        String   @id @default(cuid())
+  ip        String
+  action    String
+  details   String?
+  severity  String
+  timestamp DateTime @default(now())
+  userId    String?
+  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+}
+
+model IPNote {
+  id          String            @id @default(cuid())
+  content     String
+  category    String            @default("general")
+  ipAddress   String
+  userId      String
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+  user        User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  attachments IPNoteAttachment[]
+
+  @@index([ipAddress])
+  @@index([userId])
+}
+
+model IPNoteAttachment {
+  id        String   @id @default(cuid())
+  noteId    String
+  filename  String
+  fileType  String
+  fileSize  Int
+  url       String
+  createdAt DateTime @default(now())
+  note      IPNote   @relation(fields: [noteId], references: [id])
+
+  @@index([noteId])
+}
+
+model CustomTheme {
+  id        String   @id @default(cuid())
+  name      String
+  colors    Json
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+}
+
+model SharedTheme {
+  id        String   @id @default(cuid())
+  name      String
+  colors    Json
+  isPublic  Boolean  @default(true)
+  shareCode String   @unique
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@index([shareCode])
+}
+
+model Theme {
+  id          String         @id @default(cuid())
+  name        String
+  description String?
+  colors      Json     // Stores the custom colors as JSON
+  userId      String
+  user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  isPublic    Boolean       @default(false)
+  likes       Int          @default(0)
+  downloads   Int          @default(0)
+  category    String?      // e.g., "dark", "light", "pastel", etc.
+  ratings     ThemeRating[]
+  comments    ThemeComment[]
+
+  @@index([userId])
+  @@index([category])
+}
+
+model ThemeRating {
+  id        String   @id @default(cuid())
+  rating    Int      // 1-5 stars
+  themeId   String
+  userId    String
+  createdAt DateTime @default(now())
+  theme     Theme    @relation(fields: [themeId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([themeId, userId]) // One rating per user per theme
+  @@index([themeId])
+  @@index([userId])
+}
+
+model ThemeComment {
+  id        String   @id @default(cuid())
+  content   String
+  themeId   String
+  userId    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  theme     Theme    @relation(fields: [themeId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([themeId])
+  @@index([userId])
+}
+
+model User {
+  id            String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  email         String        @unique
+  name          String?
+  password      String
+  role          Role         @default(USER)
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+  orders        Order[]      @relation("UserOrders")
+  driverOrders  Order[]      @relation("DriverOrders")
+  activities    ActivityLog[]
+  downloadLogs  DownloadLog[]
+  blockedIPs    BlockedIP[]
+  whitelistedIPs WhitelistedIP[]
+  ipHistories   ipHistory[]
+  ipNotes       IPNote[]
+  customThemes  CustomTheme[]
+  sharedThemes  SharedTheme[]
+  themes        Theme[]
+  themeRatings  ThemeRating[]
+  themeComments ThemeComment[]
+  accounts      Account[]
+  sessions      Session[]
+  sentInvitations Invitation[]
+  transactions  Transaction[]
+  stores        Store[]
+
+  @@index([email])
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+enum Role {
+  USER              // Basic user with limited access
+  ADMIN             // Full system access
+  BUSINESS_OWNER    // Can manage their business/store
+  DRIVER            // Can manage deliveries
+  CUSTOMER_SUPPORT  // Can handle customer support tasks
+}
+
+enum ThemeType {
+  LIGHT
+  DARK
+  SEPIA
+  HIGH_CONTRAST
+  RIDER
+  DRIVER
+  OWNER
+  SOLARIZED
+  NEON
+  PASTEL
+  SYSTEM
+}
+
+model Invitation {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  token     String   @unique
+  role      Role     @default(USER)
+  status    InvitationStatus @default(PENDING)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  invitedBy String
+  inviter   User     @relation(fields: [invitedBy], references: [id], onDelete: Cascade)
+
+  @@index([invitedBy])
+}
+
+enum InvitationStatus {
+  PENDING
+  ACCEPTED
+  REVOKED
+  EXPIRED
+}
+
+enum PaymentMethod {
+  CREDIT_CARD
+  DEBIT_CARD
+  PAYPAL
+  BANK_TRANSFER
+  WALLET
+}
+
+enum PaymentProvider {
+  STRIPE
+  PAYPAL
+}
+
+enum PaymentStatus {
+  PENDING
+  COMPLETED
+  FAILED
+  REFUNDED
+  PARTIALLY_REFUNDED
+  CANCELLED
+}
+
+model Transaction {
+  id              String          @id @default(cuid())
+  userId          String
+  orderId         String?
+  amount          Float
+  currency        String          @default("USD")
+  paymentMethod   PaymentMethod
+  paymentProvider PaymentProvider
+  status          PaymentStatus   @default(PENDING)
+  metadata        Json?
+  refundedAmount  Float?          @default(0)
+  invoiceUrl      String?
+  paypalOrderId   String?         // PayPal-specific fields
+  paypalPayerId   String?
+  paypalCaptureId String?
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  user            User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  order           Order?          @relation(fields: [orderId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([orderId])
+  @@index([status])
+  @@index([createdAt])
+  @@index([paypalOrderId])
+  @@index([paymentMethod, paymentProvider])
+  @@index([status, createdAt])
+  @@index([userId, status])
+}
+
+model Order {
+  id              String         @id @default(cuid())
+  userId          String
+  storeId         String?
+  driverId        String?
+  status          OrderStatus    @default(PENDING)
+  totalAmount     Float
+  currency        String         @default("USD")
+  items           Json
+  deliveryAddress Json?
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+  user            User           @relation("UserOrders", fields: [userId], references: [id], onDelete: Cascade)
+  store           Store?         @relation(fields: [storeId], references: [id], onDelete: SetNull)
+  driver          User?          @relation("DriverOrders", fields: [driverId], references: [id], onDelete: SetNull)
+  transactions    Transaction[]
+
+  @@index([userId])
+  @@index([storeId])
+  @@index([driverId])
+  @@index([status])
+  @@index([createdAt])
+  @@index([status, createdAt])
+  @@index([userId, status])
+  @@index([storeId, status])
+}
+
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  PREPARING
+  READY_FOR_PICKUP
+  OUT_FOR_DELIVERY
+  DELIVERED
+  CANCELLED
+  REFUNDED
+}
+
+model PaymentAnalytics {
+  id              String   @id @default(cuid())
+  date            DateTime @default(now())
+  totalRevenue    Float
+  totalTransactions Int
+  successfulTransactions Int
+  failedTransactions Int
+  refundedTransactions Int
+  averageAmount   Float
+  currency        String   @default("USD")
+  paymentMethod   PaymentMethod
+  paymentProvider PaymentProvider
+  storeId         String?
+  metadata        Json?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  store           Store?   @relation(fields: [storeId], references: [id], onDelete: SetNull)
+
+  @@index([date])
+  @@index([storeId])
+  @@index([paymentMethod])
+  @@index([paymentProvider])
+}
+
+model PaymentMetrics {
+  id              String   @id @default(cuid())
+  date            DateTime @default(now())
+  totalRevenue    Float
+  totalTransactions Int
+  successfulTransactions Int
+  failedTransactions Int
+  refundedTransactions Int
+  averageAmount   Float
+  currency        String   @default("USD")
+  paymentMethod   PaymentMethod
+  paymentProvider PaymentProvider
+  storeId         String?
+  metadata        Json?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  store           Store?   @relation(fields: [storeId], references: [id], onDelete: SetNull)
+
+  @@index([date])
+  @@index([storeId])
+  @@index([paymentMethod])
+  @@index([paymentProvider])
+}
+
+model Store {
+  id              String            @id @default(cuid())
+  name            String
+  description     String?
+  userId          String
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  user            User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  orders          Order[]
+  analytics       PaymentAnalytics[]
+  metrics         PaymentMetrics[]
+
+  @@index([userId])
+}
+
+model ActivityLog {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  action    String
+  entityType String
+  entityId  String?
+  metadata  Json?
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([createdAt])
+  @@index([action])
+  @@index([entityType])
+}
+
+enum ActivityType {
+  LOGIN
+  LOGOUT
+  CREATE
+  UPDATE
+  DELETE
+  EXPORT
+  IMPORT
+}
+
+model DownloadLog {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  filename    String
+  fileSize    Int
+  downloadSpeed Float
+  status      String
+  error       String?
+  metadata    Json?
+  createdAt   DateTime @default(now())
+  completedAt DateTime?
+
+  @@index([userId])
+  @@index([createdAt])
+} 

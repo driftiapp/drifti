@@ -1,0 +1,51 @@
+@keyframes stepFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes iconPulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+}
+
+.how-it-works-step {
+  opacity: 0;
+  animation: stepFadeIn 0.6s ease-out forwards;
+}
+
+.how-it-works-step:nth-child(1) {
+  animation-delay: 0.2s;
+}
+
+.how-it-works-step:nth-child(2) {
+  animation-delay: 0.4s;
+}
+
+.how-it-works-step:nth-child(3) {
+  animation-delay: 0.6s;
+}
+
+.step-icon {
+  transition: all 0.3s ease;
+}
+
+.step-icon:hover {
+  animation: iconPulse 1s ease-in-out infinite;
+}
+
+/* Dark mode adjustments */
+@media (prefers-color-scheme: dark) {
+  .step-icon {
+    filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.1));
+  }
+} 

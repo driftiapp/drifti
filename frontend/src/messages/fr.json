@@ -1,0 +1,277 @@
+{
+  "Index": {
+    "title": "Révolutionnez Votre Expérience de Transport et de Livraison",
+    "description": "Drifti connecte les chauffeurs, les entreprises et les clients via une plateforme alimentée par l'IA qui rend chaque trajet et livraison plus intelligent, plus rapide et plus efficace.",
+    "cta": {
+      "driver": "Devenir Chauffeur",
+      "business": "Inscrire Votre Entreprise"
+    },
+    "features": {
+      "title": "Pourquoi Choisir Drifti",
+      "subtitle": "Tout ce dont vous avez besoin pour réussir",
+      "description": "Notre plateforme est conçue pour donner à tous les utilisateurs des fonctionnalités de pointe et des expériences fluides.",
+      "items": {
+        "ai": {
+          "title": "Appariement par IA",
+          "description": "Des algorithmes intelligents qui connectent les chauffeurs aux meilleures opportunités et les clients aux itinéraires les plus rapides."
+        },
+        "tracking": {
+          "title": "Suivi en Temps Réel",
+          "description": "Le suivi GPS avancé et les mises à jour en direct assurent la transparence et la fiabilité pour chaque livraison et trajet."
+        },
+        "payments": {
+          "title": "Paiements Sécurisés",
+          "description": "Plusieurs options de paiement avec cryptage de bout en bout et traitement instantané pour des transactions sans souci."
+        }
+      }
+    },
+    "categories": {
+      "title": "Explorez Nos Services",
+      "description": "Découvrez tout ce que Drifti a à offrir, des trajets aux livraisons et plus encore."
+    }
+  },
+  "Navigation": {
+    "driver": "Pour les Chauffeurs",
+    "business": "Pour les Entreprises",
+    "about": "À Propos",
+    "login": "Connexion"
+  },
+  "Orders": {
+    "status": {
+      "pending": "En Attente",
+      "accepted": "Acceptée",
+      "pickedUp": "Récupérée",
+      "inTransit": "En Transit",
+      "delivered": "Livrée",
+      "cancelled": "Annulée"
+    },
+    "actions": {
+      "track": "Suivre la Commande",
+      "cancel": "Annuler la Commande",
+      "rate": "Évaluer la Livraison",
+      "contact": "Contacter le Chauffeur",
+      "reorder": "Commander à Nouveau"
+    },
+    "details": {
+      "orderId": "Numéro de Commande",
+      "placedAt": "Passée le",
+      "estimated": "Livraison Estimée",
+      "actual": "Livraison Effective",
+      "driver": "Chauffeur",
+      "vehicle": "Véhicule",
+      "items": "Articles",
+      "total": "Montant Total",
+      "payment": "Mode de Paiement",
+      "address": "Adresse de Livraison",
+      "notes": "Instructions Spéciales"
+    },
+    "notifications": {
+      "accepted": "Votre commande a été acceptée",
+      "pickedUp": "Votre commande a été récupérée",
+      "inTransit": "Votre commande est en route",
+      "delivered": "Votre commande a été livrée",
+      "cancelled": "Votre commande a été annulée",
+      "delayed": "Votre commande est retardée"
+    },
+    "errors": {
+      "notFound": "Commande introuvable",
+      "cancelled": "Impossible d'annuler la commande",
+      "rateFailed": "Échec de l'envoi de l'évaluation",
+      "contactFailed": "Impossible de contacter le chauffeur"
+    }
+  },
+  "Profile": {
+    "title": "Mon Profil",
+    "subtitle": "Gérez vos informations personnelles",
+    "sections": {
+      "personal": {
+        "title": "Informations Personnelles",
+        "name": "Nom Complet",
+        "email": "Adresse Email",
+        "phone": "Numéro de Téléphone",
+        "dateOfBirth": "Date de Naissance",
+        "address": "Adresse"
+      },
+      "documents": {
+        "title": "Documents",
+        "license": "Permis de Conduire",
+        "insurance": "Assurance",
+        "verification": "Vérification d'Identité"
+      },
+      "preferences": {
+        "title": "Préférences",
+        "language": "Langue",
+        "notifications": "Paramètres de Notification",
+        "timezone": "Fuseau Horaire"
+      }
+    },
+    "actions": {
+      "edit": "Modifier le Profil",
+      "save": "Enregistrer les Modifications",
+      "cancel": "Annuler",
+      "upload": "Télécharger un Document",
+      "verify": "Vérifier l'Identité"
+    },
+    "messages": {
+      "success": "Profil mis à jour avec succès",
+      "error": "Échec de la mise à jour du profil",
+      "verificationNeeded": "Veuillez vérifier votre identité"
+    }
+  },
+  "Settings": {
+    "title": "Paramètres",
+    "subtitle": "Personnalisez votre expérience Drifti",
+    "sections": {
+      "account": {
+        "title": "Paramètres du Compte",
+        "email": "Préférences Email",
+        "password": "Changer le Mot de Passe",
+        "privacy": "Paramètres de Confidentialité",
+        "delete": "Supprimer le Compte"
+      },
+      "notifications": {
+        "title": "Notifications",
+        "push": "Notifications Push",
+        "email": "Notifications Email",
+        "sms": "Notifications SMS",
+        "marketing": "Communications Marketing"
+      },
+      "appearance": {
+        "title": "Apparence",
+        "theme": "Thème",
+        "language": "Langue",
+        "timezone": "Fuseau Horaire"
+      },
+      "security": {
+        "title": "Sécurité",
+        "twoFactor": "Authentification à Deux Facteurs",
+        "devices": "Appareils Connectés",
+        "sessions": "Sessions Actives"
+      }
+    },
+    "actions": {
+      "save": "Enregistrer les Paramètres",
+      "reset": "Réinitialiser par Défaut",
+      "enable": "Activer",
+      "disable": "Désactiver"
+    },
+    "messages": {
+      "saved": "Paramètres enregistrés avec succès",
+      "error": "Échec de l'enregistrement des paramètres",
+      "confirmDelete": "Êtes-vous sûr de vouloir supprimer votre compte ?"
+    }
+  },
+  "Payments": {
+    "title": "Paiements",
+    "subtitle": "Gérez vos moyens de paiement et vos transactions",
+    "sections": {
+      "methods": {
+        "title": "Moyens de Paiement",
+        "cards": "Cartes de Crédit/Débit",
+        "bank": "Comptes Bancaires",
+        "digital": "Portefeuilles Numériques"
+      },
+      "transactions": {
+        "title": "Historique des Transactions",
+        "all": "Toutes les Transactions",
+        "pending": "En Attente",
+        "completed": "Terminées",
+        "refunded": "Remboursées"
+      },
+      "billing": {
+        "title": "Informations de Facturation",
+        "name": "Nom de Facturation",
+        "address": "Adresse de Facturation",
+        "company": "Nom de l'Entreprise",
+        "tax": "Informations Fiscales"
+      }
+    },
+    "actions": {
+      "add": "Ajouter un Moyen de Paiement",
+      "remove": "Supprimer",
+      "setDefault": "Définir par Défaut",
+      "download": "Télécharger le Relevé",
+      "dispute": "Contester la Transaction"
+    },
+    "messages": {
+      "addSuccess": "Moyen de paiement ajouté avec succès",
+      "removeSuccess": "Moyen de paiement supprimé",
+      "error": "Échec de l'opération de paiement",
+      "confirmRemove": "Êtes-vous sûr de vouloir supprimer ce moyen de paiement ?"
+    },
+    "details": {
+      "cardNumber": "Numéro de Carte",
+      "expiry": "Date d'Expiration",
+      "cvv": "CVV",
+      "accountNumber": "Numéro de Compte",
+      "routingNumber": "Code Guichet"
+    }
+  },
+  "Support": {
+    "title": "Centre d'Aide",
+    "subtitle": "Comment pouvons-nous vous aider aujourd'hui ?",
+    "search": {
+      "placeholder": "Rechercher de l'aide...",
+      "button": "Rechercher"
+    },
+    "categories": {
+      "title": "Catégories Populaires",
+      "items": {
+        "account": {
+          "title": "Compte & Profil",
+          "description": "Gérez les paramètres de votre compte et les informations de profil"
+        },
+        "payments": {
+          "title": "Paiements & Facturation",
+          "description": "Questions sur les paiements, remboursements et facturation"
+        },
+        "technical": {
+          "title": "Support Technique",
+          "description": "Obtenez de l'aide pour les problèmes techniques et le dépannage"
+        },
+        "safety": {
+          "title": "Sécurité",
+          "description": "Découvrez les fonctionnalités de sécurité et les mesures de protection"
+        }
+      }
+    },
+    "faq": {
+      "title": "Questions Fréquemment Posées",
+      "items": {
+        "account": {
+          "question": "Comment mettre à jour mes informations de profil ?",
+          "answer": "Vous pouvez mettre à jour vos informations de profil en allant sur la page Paramètres et en sélectionnant 'Modifier le Profil'."
+        },
+        "payments": {
+          "question": "Comment demander un remboursement ?",
+          "answer": "Pour demander un remboursement, allez dans votre historique de paiements et sélectionnez la transaction que vous souhaitez rembourser."
+        },
+        "technical": {
+          "question": "Que faire si l'application ne fonctionne pas ?",
+          "answer": "Essayez de vider le cache et les cookies, puis redémarrez l'application. Si le problème persiste, contactez notre équipe de support."
+        }
+      }
+    },
+    "contact": {
+      "title": "Contacter le Support",
+      "email": "Support par Email",
+      "chat": "Chat en Direct",
+      "phone": "Support Téléphonique",
+      "hours": "Disponible 24/7",
+      "response": "Temps de réponse moyen : 2 heures"
+    },
+    "ticket": {
+      "title": "Soumettre un Ticket",
+      "form": {
+        "subject": "Sujet",
+        "category": "Catégorie",
+        "description": "Description",
+        "priority": "Priorité",
+        "attachments": "Pièces Jointes",
+        "submit": "Soumettre le Ticket"
+      },
+      "success": "Votre ticket a été soumis avec succès !",
+      "error": "Une erreur s'est produite lors de la soumission de votre ticket. Veuillez réessayer."
+    }
+  }
+} 

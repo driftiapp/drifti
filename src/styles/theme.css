@@ -1,0 +1,145 @@
+/* Theme-specific styles */
+.theme-transition {
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+/* Light theme */
+.light {
+  --theme-bg: #ffffff;
+  --theme-text: #1a1a1a;
+  --theme-primary: #3b82f6;
+  --theme-secondary: #f3f4f6;
+  --theme-accent: #10b981;
+  --theme-border: #e5e7eb;
+}
+
+/* Dark theme */
+.dark {
+  --theme-bg: #1a1a1a;
+  --theme-text: #ffffff;
+  --theme-primary: #60a5fa;
+  --theme-secondary: #374151;
+  --theme-accent: #34d399;
+  --theme-border: #4b5563;
+}
+
+/* Sepia theme */
+.sepia {
+  --theme-bg: #f4ecd8;
+  --theme-text: #5b4636;
+  --theme-primary: #8b5a2b;
+  --theme-secondary: #e6d9c8;
+  --theme-accent: #8b5a2b;
+  --theme-border: #d9c7b1;
+}
+
+/* High contrast theme */
+.high-contrast {
+  --theme-bg: #000000;
+  --theme-text: #ffffff;
+  --theme-primary: #ffff00;
+  --theme-secondary: #333333;
+  --theme-accent: #00ffff;
+  --theme-border: #ffffff;
+}
+
+/* Rider theme */
+.rider {
+  --theme-bg: #f0f9ff;
+  --theme-text: #0369a1;
+  --theme-primary: #0284c7;
+  --theme-secondary: #e0f2fe;
+  --theme-accent: #0ea5e9;
+  --theme-border: #bae6fd;
+}
+
+/* Driver theme */
+.driver {
+  --theme-bg: #fef3c7;
+  --theme-text: #92400e;
+  --theme-primary: #f59e0b;
+  --theme-secondary: #fef9c3;
+  --theme-accent: #fbbf24;
+  --theme-border: #fcd34d;
+}
+
+/* Owner theme */
+.owner {
+  --theme-bg: #f5f3ff;
+  --theme-text: #5b21b6;
+  --theme-primary: #7c3aed;
+  --theme-secondary: #ede9fe;
+  --theme-accent: #8b5cf6;
+  --theme-border: #ddd6fe;
+}
+
+/* Theme-specific component styles */
+[data-theme] .card {
+  background-color: var(--theme-bg);
+  color: var(--theme-text);
+  border-color: var(--theme-border);
+}
+
+[data-theme] .button {
+  background-color: var(--theme-primary);
+  color: var(--theme-text);
+  border-color: var(--theme-border);
+}
+
+[data-theme] .button:hover {
+  background-color: var(--theme-accent);
+}
+
+[data-theme] .input {
+  background-color: var(--theme-secondary);
+  color: var(--theme-text);
+  border-color: var(--theme-border);
+}
+
+[data-theme] .input:focus {
+  border-color: var(--theme-primary);
+  box-shadow: 0 0 0 2px var(--theme-primary);
+}
+
+/* Theme-specific animations */
+@keyframes theme-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.theme-transition {
+  animation: theme-fade 0.3s ease-in-out;
+}
+
+/* Theme-specific icons */
+[data-theme="dark"] .icon-sun {
+  display: none;
+}
+
+[data-theme="light"] .icon-moon {
+  display: none;
+}
+
+/* Theme-specific gradients */
+[data-theme] .gradient-bg {
+  background: linear-gradient(
+    135deg,
+    var(--theme-primary) 0%,
+    var(--theme-accent) 100%
+  );
+}
+
+/* Theme-specific shadows */
+[data-theme] .card {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+              0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+[data-theme="dark"] .card {
+  box-shadow: 0 4px 6px -1px rgba(255, 255, 255, 0.1),
+              0 2px 4px -1px rgba(255, 255, 255, 0.06);
+} 

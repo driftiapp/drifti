@@ -1,0 +1,13 @@
+{
+    "watch": [
+        "src/",
+        "scripts/"
+    ],
+    "ext": "js,ts,json",
+    "ignore": [
+        "node_modules/",
+        "dist/",
+        ".git/"
+    ],
+    "exec": "node -r dotenv/config scripts/manage-backups.js"
+}
