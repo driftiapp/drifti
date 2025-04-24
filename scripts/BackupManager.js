@@ -1,71 +1,110 @@
 const fs = require('fs').promises;
 const path = require('path');
 const crypto = require('crypto');
+const glob = require('glob');
 
 class BackupManager {
     constructor(config) {
         this.config = config;
-        this.backupDir = path.resolve(process.cwd(), 'backups');
-        this.metadataPath = path.join(this.backupDir, 'backup-meta.json');
-        this.encryptionKey = process.env.BACKUP_ENCRYPTION_KEY;
-
-        if (!this.encryptionKey) {
-            console.warn('⚠️ No encryption key found. Backups will be stored unencrypted.');
-        }
+        this.ensureDirectories();
     }
 
-    async _loadMetadata() {
+    async ensureDirectories() {
+        await fs.mkdir(this.config.backupDir, { recursive: true });
+        await fs.mkdir(this.config.keyDir, { recursive: true });
+    }
+
+    async listBackups() {
+        const files = await glob(this.config.backupPattern, { cwd: this.config.backupDir });
+        const backups = [];
+
+        for (const file of files) {
+            const filePath = path.join(this.config.backupDir, file);
+            const stats = await fs.stat(filePath);
+            const metaPath = `${filePath}.meta`;
+
+            backups.push({
+                filename: file,
+                path: filePath,
+                size: stats.size,
+                created: stats.birthtime,
+                encrypted: await fs.access(metaPath).then(() => true).catch(() => false)
+            });
+        }
+
+        return backups.sort((a, b) => b.created - a.created);
+    }
+
+    async verifyBackup(backupPath) {
         try {
-            const data = await fs.readFile(this.metadataPath, 'utf8');
-            return JSON.parse(data);
-        } catch (error) {
-            return {};
-        }
-    }
+            const content = await fs.readFile(backupPath);
+            const metaPath = `${backupPath}.meta`;
 
-    async _saveMetadata(metadata) {
-        await fs.writeFile(this.metadataPath, JSON.stringify(metadata, null, 2));
+            // Check if backup is encrypted
+            const hasMeta = await fs.access(metaPath).then(() => true).catch(() => false);
+            if (!hasMeta) {
+                return { isValid: true, content: content.toString() };
+            }
+
+            // Read metadata
+            const meta = JSON.parse(await fs.readFile(metaPath, 'utf8'));
+            const { iv, authTag } = meta;
+
+            // Decrypt content
+            const key = process.env.BACKUP_ENCRYPTION_KEY;
+            if (!key) {
+                throw new Error('No encryption key found');
+            }
+
+            const decipher = crypto.createDecipheriv(
+                this.config.encryptionAlgorithm,
+                Buffer.from(key, 'hex'),
+                Buffer.from(iv, 'hex')
+            );
+
+            decipher.setAuthTag(Buffer.from(authTag, 'hex'));
+
+            const decrypted = Buffer.concat([
+                decipher.update(content),
+                decipher.final()
+            ]);
+
+            return { isValid: true, content: decrypted.toString() };
+        } catch (error) {
+            console.error('Backup verification failed:', error);
+            return { isValid: false, content: null };
+        }
     }
 
     async _encrypt(content) {
-        if (!this.encryptionKey) return { encrypted: content, iv: null };
+        const key = process.env.BACKUP_ENCRYPTION_KEY;
+        if (!key) {
+            throw new Error('No encryption key found');
+        }
 
-        const iv = crypto.randomBytes(12);
-        const cipher = crypto.createCipheriv('aes-256-gcm', Buffer.from(this.encryptionKey, 'hex'), iv);
-
-        let encrypted = cipher.update(content, 'utf8', 'hex');
-        encrypted += cipher.final('hex');
-
-        const authTag = cipher.getAuthTag();
-
-        return {
-            encrypted: encrypted,
-            iv: iv.toString('hex'),
-            authTag: authTag.toString('hex')
-        };
-    }
-
-    async _decrypt(encrypted, iv, authTag) {
-        if (!this.encryptionKey) return encrypted;
-
-        const decipher = crypto.createDecipheriv(
-            'aes-256-gcm',
-            Buffer.from(this.encryptionKey, 'hex'),
-            Buffer.from(iv, 'hex')
+        const iv = crypto.randomBytes(this.config.ivLength);
+        const cipher = crypto.createCipheriv(
+            this.config.encryptionAlgorithm,
+            Buffer.from(key, 'hex'),
+            iv
         );
 
-        decipher.setAuthTag(Buffer.from(authTag, 'hex'));
+        const encrypted = Buffer.concat([
+            cipher.update(content),
+            cipher.final()
+        ]);
 
-        let decrypted = decipher.update(encrypted, 'hex', 'utf8');
-        decrypted += decipher.final('utf8');
-
-        return decrypted;
+        return {
+            encrypted,
+            iv: iv.toString('hex'),
+            authTag: cipher.getAuthTag().toString('hex')
+        };
     }
 
     async createBackup(tags = []) {
         try {
             // Create backup directory if it doesn't exist
-            await fs.mkdir(this.backupDir, { recursive: true });
+            await fs.mkdir(this.config.backupDir, { recursive: true });
 
             // Read current .env file
             const envPath = path.resolve(process.cwd(), '.env');
@@ -73,7 +112,7 @@ class BackupManager {
 
             // Generate backup filename with timestamp
             const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-            const backupPath = path.join(this.backupDir, `backup-${timestamp}.env`);
+            const backupPath = path.join(this.config.backupDir, `backup-${timestamp}.env`);
 
             // Encrypt content if key is available
             const { encrypted, iv, authTag } = await this._encrypt(envContent);
@@ -108,36 +147,6 @@ class BackupManager {
         }
     }
 
-    async verifyBackup(backupPath) {
-        try {
-            const content = await fs.readFile(backupPath, 'utf8');
-            const checksumPath = `${backupPath}.checksum`;
-            const storedChecksum = await fs.readFile(checksumPath, 'utf8');
-
-            // Check if backup is encrypted
-            const metaPath = `${backupPath}.meta`;
-            let decryptedContent;
-
-            try {
-                const meta = JSON.parse(await fs.readFile(metaPath, 'utf8'));
-                decryptedContent = await this._decrypt(content, meta.iv, meta.authTag);
-            } catch (error) {
-                // If no meta file or decryption fails, assume unencrypted
-                decryptedContent = content;
-            }
-
-            const calculatedChecksum = crypto.createHash('sha256').update(decryptedContent).digest('hex');
-
-            return {
-                isValid: storedChecksum === calculatedChecksum,
-                content: decryptedContent
-            };
-        } catch (error) {
-            console.error('Error verifying backup:', error);
-            return { isValid: false, content: null };
-        }
-    }
-
     async restoreBackup(backupPath) {
         try {
             // Verify backup
@@ -155,32 +164,6 @@ class BackupManager {
         } catch (error) {
             console.error('Error restoring backup:', error);
             return false;
-        }
-    }
-
-    async listBackups() {
-        try {
-            const metadata = await this._loadMetadata();
-            const backups = [];
-
-            for (const [filename, meta] of Object.entries(metadata)) {
-                const filePath = path.join(this.backupDir, filename);
-                const stats = await fs.stat(filePath);
-                backups.push({
-                    filename,
-                    path: filePath,
-                    created: new Date(meta.created),
-                    size: meta.size,
-                    encrypted: meta.encrypted,
-                    tags: meta.tags || [],
-                    checksum: meta.checksum
-                });
-            }
-
-            return backups.sort((a, b) => b.created - a.created);
-        } catch (error) {
-            console.error('Error listing backups:', error);
-            return [];
         }
     }
 
@@ -208,6 +191,19 @@ class BackupManager {
         } catch (error) {
             console.error('Error cleaning up backups:', error);
         }
+    }
+
+    async _loadMetadata() {
+        try {
+            const data = await fs.readFile(this.config.metadataPath, 'utf8');
+            return JSON.parse(data);
+        } catch (error) {
+            return {};
+        }
+    }
+
+    async _saveMetadata(metadata) {
+        await fs.writeFile(this.config.metadataPath, JSON.stringify(metadata, null, 2));
     }
 }
 

@@ -1,6 +1,6 @@
 'use client'
 
-import { useTheme } from '@/context/ThemeContext'
+import { useTheme } from '../../context/ThemeContext'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useState, useEffect } from 'react'
 import { ChromePicker, ColorResult } from 'react-color'
@@ -104,8 +104,8 @@ export function ThemeEditor() {
           <button
             onClick={() => setIsPreviewMode(!isPreviewMode)}
             className={`px-3 py-1 rounded-lg text-sm transition-colors ${isPreviewMode
-                ? 'bg-[var(--primary)] text-white'
-                : 'bg-[var(--background)] text-[var(--text)] border border-[var(--border)]'
+              ? 'bg-[var(--primary)] text-white'
+              : 'bg-[var(--background)] text-[var(--text)] border border-[var(--border)]'
               }`}
           >
             {isPreviewMode ? 'Exit Preview' : 'Preview Theme'}

@@ -1,6 +1,6 @@
 'use client'
 
-import { useTheme } from '@/context/ThemeContext'
+import { useTheme } from '../../context/ThemeContext'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
@@ -142,11 +142,10 @@ export function ThemeSwitcher() {
                     setIsOpen(false)
                   }}
                   onMouseEnter={() => setPreviewTheme(key as keyof typeof themePreviews)}
-                  className={`p-2 rounded-lg text-left transition-colors ${
-                    theme === key
+                  className={`p-2 rounded-lg text-left transition-colors ${theme === key
                       ? 'bg-[var(--primary)] text-white'
                       : 'hover:bg-[var(--primary)]/10'
-                  }`}
+                    }`}
                   role="option"
                   aria-selected={theme === key}
                 >

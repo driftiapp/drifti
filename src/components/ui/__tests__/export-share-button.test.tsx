@@ -16,6 +16,16 @@ jest.mock('@/lib/export-utils', () => ({
   createZipAndShare: jest.fn(),
 }));
 
+// Mock console.error
+const originalConsoleError = console.error;
+beforeAll(() => {
+  console.error = jest.fn();
+});
+
+afterAll(() => {
+  console.error = originalConsoleError;
+});
+
 describe('ExportShareButton', () => {
   const mockData = [
     {
@@ -32,21 +42,21 @@ describe('ExportShareButton', () => {
   it('renders the button with correct text and icon', () => {
     render(<ExportShareButton data={mockData} filename="test" />);
     expect(screen.getByText('Export & Share')).toBeInTheDocument();
-    expect(screen.getByRole('button')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Export and share this data/i })).toBeInTheDocument();
   });
 
   it('shows loading state when exporting', async () => {
-    (createZipAndShare as jest.Mock).mockImplementation(() => new Promise(() => {}));
+    (createZipAndShare as jest.Mock).mockImplementation(() => new Promise(() => { }));
     render(<ExportShareButton data={mockData} filename="test" />);
-    
-    fireEvent.click(screen.getByRole('button'));
-    expect(screen.getByRole('button')).toBeDisabled();
+
+    fireEvent.click(screen.getByRole('button', { name: /Export and share this data/i }));
+    expect(screen.getByRole('button', { name: /Export and share this data/i })).toBeDisabled();
     expect(screen.getByTestId('loader')).toBeInTheDocument();
   });
 
   it('shows warning toast when no data is provided', () => {
     render(<ExportShareButton data={[]} filename="test" />);
-    fireEvent.click(screen.getByRole('button'));
+    fireEvent.click(screen.getByRole('button', { name: /Export and share this data/i }));
     expect(toast.warning).toHaveBeenCalledWith('No data to export');
   });
 
@@ -58,7 +68,7 @@ describe('ExportShareButton', () => {
     (createZipAndShare as jest.Mock).mockResolvedValue(mockResult);
 
     render(<ExportShareButton data={mockData} filename="test" />);
-    fireEvent.click(screen.getByRole('button'));
+    fireEvent.click(screen.getByRole('button', { name: /Export and share this data/i }));
 
     await waitFor(() => {
       expect(createZipAndShare).toHaveBeenCalledWith(
@@ -79,9 +89,9 @@ describe('ExportShareButton', () => {
   it('handles export errors gracefully', async () => {
     (createZipAndShare as jest.Mock).mockRejectedValue(new Error('Export failed'));
     render(<ExportShareButton data={mockData} filename="test" />);
-    
-    fireEvent.click(screen.getByRole('button'));
-    
+
+    fireEvent.click(screen.getByRole('button', { name: /Export and share this data/i }));
+
     await waitFor(() => {
       expect(toast.error).toHaveBeenCalledWith('Failed to create export');
       expect(console.error).toHaveBeenCalledWith('[Export Error]', expect.any(Error));
@@ -104,7 +114,7 @@ describe('ExportShareButton', () => {
     });
 
     render(<ExportShareButton data={mockDataWithBinary} filename="test" />);
-    fireEvent.click(screen.getByRole('button'));
+    fireEvent.click(screen.getByRole('button', { name: /Export and share this data/i }));
 
     await waitFor(() => {
       expect(createZipAndShare).toHaveBeenCalledWith(
@@ -137,7 +147,7 @@ describe('ExportShareButton', () => {
       });
 
       render(<ExportShareButton data={largeData} filename="large-test" />);
-      fireEvent.click(screen.getByRole('button'));
+      fireEvent.click(screen.getByRole('button', { name: /Export and share this data/i }));
 
       await waitFor(() => {
         expect(createZipAndShare).toHaveBeenCalledWith(
@@ -165,7 +175,7 @@ describe('ExportShareButton', () => {
       });
 
       render(<ExportShareButton data={largeData} filename="multi-large" />);
-      fireEvent.click(screen.getByRole('button'));
+      fireEvent.click(screen.getByRole('button', { name: /Export and share this data/i }));
 
       await waitFor(() => {
         expect(createZipAndShare).toHaveBeenCalledWith(
@@ -189,14 +199,15 @@ describe('ExportShareButton', () => {
         });
 
       render(<ExportShareButton data={mockData} filename="test" />);
-      fireEvent.click(screen.getByRole('button'));
+      const exportButton = screen.getByRole('button', { name: /Export and share this data/i });
+      fireEvent.click(exportButton);
 
       await waitFor(() => {
         expect(toast.error).toHaveBeenCalledWith('Failed to create export');
       });
 
       // Retry should work
-      fireEvent.click(screen.getByRole('button'));
+      fireEvent.click(exportButton);
       await waitFor(() => {
         expect(toast.success).toHaveBeenCalledWith('Export created successfully');
       });
@@ -212,7 +223,7 @@ describe('ExportShareButton', () => {
       ];
 
       render(<ExportShareButton data={invalidData} filename="test" />);
-      fireEvent.click(screen.getByRole('button'));
+      fireEvent.click(screen.getByRole('button', { name: /Export and share this data/i }));
 
       await waitFor(() => {
         expect(createZipAndShare).toHaveBeenCalledWith(
@@ -231,13 +242,14 @@ describe('ExportShareButton', () => {
       const incompleteData = [
         {
           filename: 'test.csv',
-          // Missing content
+          content: undefined as unknown as string,
           type: 'text/csv',
         },
       ];
 
+      (createZipAndShare as jest.Mock).mockRejectedValue(new Error('Missing content'));
       render(<ExportShareButton data={incompleteData} filename="test" />);
-      fireEvent.click(screen.getByRole('button'));
+      fireEvent.click(screen.getByRole('button', { name: /Export and share this data/i }));
 
       await waitFor(() => {
         expect(toast.error).toHaveBeenCalledWith('Failed to create export');
@@ -248,11 +260,11 @@ describe('ExportShareButton', () => {
       const mockResults = [
         {
           shareUrl: 'https://example.com/share/1',
-          expiresAt: new Date(),
+          expiresAt: new Date(Date.now() + 86400000),
         },
         {
           shareUrl: 'https://example.com/share/2',
-          expiresAt: new Date(),
+          expiresAt: new Date(Date.now() + 86400000),
         },
       ];
 
@@ -261,11 +273,17 @@ describe('ExportShareButton', () => {
         .mockResolvedValueOnce(mockResults[1]);
 
       render(<ExportShareButton data={mockData} filename="test" />);
-      
-      // Trigger two exports quickly
-      fireEvent.click(screen.getByRole('button'));
-      fireEvent.click(screen.getByRole('button'));
+      const exportButton = screen.getByRole('button', { name: /Export and share this data/i });
 
+      // First export
+      fireEvent.click(exportButton);
+      await waitFor(() => {
+        expect(createZipAndShare).toHaveBeenCalledTimes(1);
+        expect(toast.success).toHaveBeenCalledTimes(1);
+      });
+
+      // Second export
+      fireEvent.click(exportButton);
       await waitFor(() => {
         expect(createZipAndShare).toHaveBeenCalledTimes(2);
         expect(toast.success).toHaveBeenCalledTimes(2);

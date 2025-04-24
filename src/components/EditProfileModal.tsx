@@ -4,11 +4,12 @@ import { useState, useRef } from 'react'
 import { useSession } from 'next-auth/react'
 import { motion, AnimatePresence } from 'framer-motion'
 import Image from 'next/image'
-import { useTheme } from '@/context/ThemeContext'
+import { useTheme } from '../../context/ThemeContext'
 import { uploadProfileImage } from '@/lib/storage'
 import { toast } from 'react-hot-toast'
 import ImageCropper from './ImageCropper'
 import DeviceManagement from './DeviceManagement'
+import { Session } from 'next-auth'
 
 interface EditProfileModalProps {
   isOpen: boolean
@@ -58,6 +59,24 @@ interface UserPreferences {
       thirdParty: boolean
     }
   }
+}
+
+interface ExtendedUser {
+  id: string;
+  role: string;
+  name?: string | null;
+  email?: string | null;
+  image?: string | null;
+  preferences?: UserPreferences;
+}
+
+type ExtendedSession = Session & {
+  user?: ExtendedUser;
+}
+
+interface ThemeContextType {
+  theme: string;
+  toggleTheme: () => void;
 }
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024 // 5MB
@@ -110,9 +129,15 @@ const PROFILE_VISIBILITY_OPTIONS = [
   { value: 'connections', label: 'Connections Only' },
 ]
 
+const FormLabel = ({ htmlFor, children }: { htmlFor: string; children: React.ReactNode }) => (
+  <label htmlFor={htmlFor} className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+    {children}
+  </label>
+);
+
 export default function EditProfileModal({ isOpen, onCloseAction }: EditProfileModalProps) {
-  const { data: session, update } = useSession()
-  const { theme, toggleTheme } = useTheme()
+  const { data: session, update } = useSession();
+  const { theme, setTheme } = useTheme();
   const [name, setName] = useState(session?.user?.name || '')
   const [previewImage, setPreviewImage] = useState<string | null>(session?.user?.image || null)
   const [isLoading, setIsLoading] = useState(false)
@@ -303,12 +328,12 @@ export default function EditProfileModal({ isOpen, onCloseAction }: EditProfileM
     try {
       setIsLoading(true)
       setUploadProgress(0)
-      
+
       // Convert the cropped image data URL to a File object
       const response = await fetch(croppedImage)
       const blob = await response.blob()
       const file = new File([blob], 'profile-image.jpg', { type: 'image/jpeg' })
-      
+
       // Upload to Firebase Storage with progress tracking
       const downloadURL = await uploadProfileImage(
         file,
@@ -320,7 +345,7 @@ export default function EditProfileModal({ isOpen, onCloseAction }: EditProfileM
           })
         }
       )
-      
+
       // Update preview with the new URL
       setPreviewImage(downloadURL)
       toast.dismiss('upload-progress')
@@ -367,8 +392,8 @@ export default function EditProfileModal({ isOpen, onCloseAction }: EditProfileM
     }
 
     // Validate phone number if SMS is selected
-    if (preferences.contactPreferences.method !== 'email' && 
-        !validatePhoneNumber(preferences.contactPreferences.phoneNumber || '')) {
+    if (preferences.contactPreferences.method !== 'email' &&
+      !validatePhoneNumber(preferences.contactPreferences.phoneNumber || '')) {
       setIsLoading(false)
       return
     }
@@ -404,11 +429,7 @@ export default function EditProfileModal({ isOpen, onCloseAction }: EditProfileM
   }
 
   const handleThemeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const newTheme = e.target.value as 'light' | 'dark' | 'system'
-    if (newTheme !== theme) {
-      toggleTheme()
-      toast.success(`Theme changed to ${newTheme}`)
-    }
+    setTheme(e.target.value as 'light' | 'dark' | 'system');
   }
 
   const handlePreferenceChange = (key: keyof UserPreferences, value: any) => {
@@ -417,6 +438,21 @@ export default function EditProfileModal({ isOpen, onCloseAction }: EditProfileM
       [key]: value
     }))
   }
+
+  const renderProfileImage = () => {
+    if (previewImage) {
+      return (
+        <div className="relative w-32 h-32 rounded-full overflow-hidden">
+          <img
+            src={previewImage}
+            alt="Profile"
+            className="w-full h-full object-cover"
+          />
+        </div>
+      );
+    }
+    return null;
+  };
 
   if (!isOpen) return null
 
@@ -461,106 +497,103 @@ export default function EditProfileModal({ isOpen, onCloseAction }: EditProfileM
                   </h3>
                   <form onSubmit={handleSubmit} className="mt-4 space-y-6">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                        Profile Picture
-                      </label>
-                      <div className="mt-2 flex items-center">
-                        <div className="relative w-20 h-20 rounded-full overflow-hidden">
-                          {previewImage ? (
-                            <Image
-                              src={previewImage}
-                              alt="Profile preview"
-                              fill
-                              className="object-cover"
-                            />
-                          ) : (
-                            <div className="w-full h-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
-                              <span className="text-2xl font-medium text-gray-500 dark:text-gray-400">
-                                {name[0]?.toUpperCase() || 'U'}
-                              </span>
-                            </div>
-                          )}
-                        </div>
-                        <button
-                          type="button"
-                          onClick={() => fileInputRef.current?.click()}
-                          className="ml-4 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                        >
-                          Change
-                        </button>
+                      <FormLabel htmlFor="profileImage">Profile Image</FormLabel>
+                      <input
+                        type="file"
+                        id="profileImage"
+                        name="profileImage"
+                        ref={fileInputRef}
+                        onChange={handleImageChange}
+                        accept={ALLOWED_FILE_TYPES.join(',')}
+                        className="hidden"
+                        aria-label="Upload profile image"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => fileInputRef.current?.click()}
+                        className="mt-2 px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700"
+                        aria-label="Choose profile image"
+                      >
+                        Choose Image
+                      </button>
+                    </div>
+
+                    <div className="space-y-4">
+                      <div>
+                        <FormLabel htmlFor="name">Name</FormLabel>
                         <input
-                          ref={fileInputRef}
-                          type="file"
-                          accept="image/*"
-                          onChange={handleImageChange}
-                          className="hidden"
+                          type="text"
+                          id="name"
+                          name="name"
+                          value={name}
+                          onChange={(e) => setName(e.target.value)}
+                          className="w-full px-3 py-2 border rounded-md"
+                          aria-label="Enter your name"
+                          placeholder="Your name"
                         />
                       </div>
-                    </div>
 
-                    <div>
-                      <label htmlFor="name" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                        Name
-                      </label>
-                      <input
-                        type="text"
-                        id="name"
-                        value={name}
-                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => setName(e.target.value)}
-                        className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-700 dark:text-white sm:text-sm"
-                      />
-                    </div>
+                      <div>
+                        <FormLabel htmlFor="email">Email</FormLabel>
+                        <input
+                          type="email"
+                          id="email"
+                          name="email"
+                          value={session?.user?.email || ''}
+                          className="w-full px-3 py-2 border rounded-md"
+                          aria-label="Your email address"
+                          placeholder="your.email@example.com"
+                          readOnly
+                        />
+                      </div>
 
-                    <div>
-                      <label htmlFor="bio" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                        Bio
-                      </label>
-                      <div className="mt-1">
+                      <div>
+                        <FormLabel htmlFor="bio">Bio</FormLabel>
                         <textarea
                           id="bio"
-                          rows={3}
-                          maxLength={MAX_BIO_LENGTH}
+                          name="bio"
                           value={preferences.bio}
-                          onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => handlePreferenceChange('bio', e.target.value)}
-                          className="block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-700 dark:text-white sm:text-sm"
-                          placeholder="Tell us about yourself..."
+                          onChange={(e) => handlePreferenceChange('bio', e.target.value)}
+                          maxLength={MAX_BIO_LENGTH}
+                          className="w-full px-3 py-2 border rounded-md"
+                          aria-label="Tell us about yourself"
+                          placeholder="Write a short bio..."
                         />
-                        <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                          {preferences.bio.length}/{MAX_BIO_LENGTH} characters
-                        </p>
                       </div>
-                    </div>
 
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                        Language
-                      </label>
-                      <select
-                        value={preferences.language}
-                        onChange={(e: React.ChangeEvent<HTMLSelectElement>) => handlePreferenceChange('language', e.target.value)}
-                        className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-700 dark:text-white sm:text-sm"
-                      >
-                        {LANGUAGES.map((lang) => (
-                          <option key={lang.code} value={lang.code}>
-                            {lang.name}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
+                      <div>
+                        <FormLabel htmlFor="language">Language</FormLabel>
+                        <select
+                          id="language"
+                          name="language"
+                          value={preferences.language}
+                          onChange={(e) => handlePreferenceChange('language', e.target.value)}
+                          className="w-full px-3 py-2 border rounded-md"
+                          aria-label="Select your preferred language"
+                        >
+                          {LANGUAGES.map((lang) => (
+                            <option key={lang.code} value={lang.code}>
+                              {lang.name}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
 
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                        Theme
-                      </label>
-                      <select
-                        value={theme}
-                        onChange={handleThemeChange}
-                        className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-700 dark:text-white sm:text-sm"
-                      >
-                        <option value="light">Light</option>
-                        <option value="dark">Dark</option>
-                        <option value="system">System</option>
-                      </select>
+                      <div>
+                        <FormLabel htmlFor="theme">Theme</FormLabel>
+                        <select
+                          id="theme"
+                          name="theme"
+                          value={theme}
+                          onChange={handleThemeChange}
+                          className="w-full px-3 py-2 border rounded-md"
+                          aria-label="Select your preferred theme"
+                        >
+                          <option value="light">Light</option>
+                          <option value="dark">Dark</option>
+                          <option value="system">System</option>
+                        </select>
+                      </div>
                     </div>
 
                     <div className="space-y-4">
@@ -599,68 +632,69 @@ export default function EditProfileModal({ isOpen, onCloseAction }: EditProfileM
                       </h4>
                       <div className="space-y-3">
                         <div>
-                          <label htmlFor="twitter" className="block text-sm text-gray-700 dark:text-gray-300">
-                            Twitter
-                          </label>
+                          <FormLabel htmlFor="twitter">Twitter Profile</FormLabel>
                           <input
                             type="url"
                             id="twitter"
+                            name="twitter"
                             value={preferences.socialLinks.twitter || ''}
-                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleSocialLinkChange('twitter', e.target.value)}
+                            onChange={(e) => handleSocialLinkChange('twitter', e.target.value)}
+                            className="w-full px-3 py-2 border rounded-md"
+                            aria-label="Twitter profile URL"
                             placeholder="https://twitter.com/username"
-                            className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-700 dark:text-white sm:text-sm"
                           />
                         </div>
                         <div>
-                          <label htmlFor="linkedin" className="block text-sm text-gray-700 dark:text-gray-300">
-                            LinkedIn
-                          </label>
+                          <FormLabel htmlFor="linkedin">LinkedIn Profile</FormLabel>
                           <input
                             type="url"
                             id="linkedin"
+                            name="linkedin"
                             value={preferences.socialLinks.linkedin || ''}
-                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleSocialLinkChange('linkedin', e.target.value)}
+                            onChange={(e) => handleSocialLinkChange('linkedin', e.target.value)}
+                            className="w-full px-3 py-2 border rounded-md"
+                            aria-label="LinkedIn profile URL"
                             placeholder="https://linkedin.com/in/username"
-                            className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-700 dark:text-white sm:text-sm"
                           />
                         </div>
                         <div>
-                          <label htmlFor="instagram" className="block text-sm text-gray-700 dark:text-gray-300">
-                            Instagram
-                          </label>
+                          <FormLabel htmlFor="instagram">Instagram Profile</FormLabel>
                           <input
                             type="url"
                             id="instagram"
+                            name="instagram"
                             value={preferences.socialLinks.instagram || ''}
-                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleSocialLinkChange('instagram', e.target.value)}
+                            onChange={(e) => handleSocialLinkChange('instagram', e.target.value)}
+                            className="w-full px-3 py-2 border rounded-md"
+                            aria-label="Instagram profile URL"
                             placeholder="https://instagram.com/username"
-                            className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-700 dark:text-white sm:text-sm"
                           />
                         </div>
                         <div>
-                          <label htmlFor="facebook" className="block text-sm text-gray-700 dark:text-gray-300">
-                            Facebook
-                          </label>
+                          <FormLabel htmlFor="facebook">Facebook Profile</FormLabel>
                           <input
                             type="url"
                             id="facebook"
+                            name="facebook"
                             value={preferences.socialLinks.facebook || ''}
-                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleSocialLinkChange('facebook', e.target.value)}
+                            onChange={(e) => handleSocialLinkChange('facebook', e.target.value)}
+                            className="w-full px-3 py-2 border rounded-md"
+                            aria-label="Facebook profile URL"
                             placeholder="https://facebook.com/username"
-                            className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-700 dark:text-white sm:text-sm"
                           />
                         </div>
                       </div>
                     </div>
 
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                        Timezone
-                      </label>
+                      <FormLabel htmlFor="timezone">Timezone</FormLabel>
                       <select
+                        id="timezone"
+                        name="timezone"
                         value={preferences.timezone}
-                        onChange={(e: React.ChangeEvent<HTMLSelectElement>) => handlePreferenceChange('timezone', e.target.value)}
-                        className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-700 dark:text-white sm:text-sm"
+                        onChange={(e) => handlePreferenceChange('timezone', e.target.value)}
+                        className="w-full px-3 py-2 border rounded-md"
+                        aria-label="Select your timezone"
                       >
                         {TIMEZONES.map((tz) => (
                           <option key={tz.value} value={tz.value}>
@@ -676,18 +710,14 @@ export default function EditProfileModal({ isOpen, onCloseAction }: EditProfileM
                       </h4>
                       <div className="space-y-3">
                         <div>
-                          <label className="block text-sm text-gray-700 dark:text-gray-300">
-                            Preferred Contact Method
-                          </label>
+                          <FormLabel htmlFor="contactMethod">Contact Method</FormLabel>
                           <select
+                            id="contactMethod"
+                            name="contactMethod"
                             value={preferences.contactPreferences.method}
-                            onChange={(e: React.ChangeEvent<HTMLSelectElement>) => 
-                              handlePreferenceChange('contactPreferences', {
-                                ...preferences.contactPreferences,
-                                method: e.target.value as 'email' | 'sms' | 'both'
-                              })
-                            }
-                            className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-700 dark:text-white sm:text-sm"
+                            onChange={(e) => handlePreferenceChange('contactPreferences', { ...preferences.contactPreferences, method: e.target.value })}
+                            className="w-full px-3 py-2 border rounded-md"
+                            aria-label="Select your preferred contact method"
                           >
                             {CONTACT_METHODS.map((method) => (
                               <option key={method.value} value={method.value}>
@@ -698,21 +728,19 @@ export default function EditProfileModal({ isOpen, onCloseAction }: EditProfileM
                         </div>
                         {preferences.contactPreferences.method !== 'email' && (
                           <div>
-                            <label htmlFor="phoneNumber" className="block text-sm text-gray-700 dark:text-gray-300">
-                              Phone Number
-                            </label>
+                            <FormLabel htmlFor="phoneNumber">Phone Number</FormLabel>
                             <input
                               type="tel"
                               id="phoneNumber"
+                              name="phoneNumber"
                               value={preferences.contactPreferences.phoneNumber || ''}
-                              onChange={(e: React.ChangeEvent<HTMLInputElement>) => 
-                                handlePreferenceChange('contactPreferences', {
-                                  ...preferences.contactPreferences,
-                                  phoneNumber: e.target.value
-                                })
-                              }
-                              placeholder="+1234567890"
-                              className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-700 dark:text-white sm:text-sm"
+                              onChange={(e) => handlePreferenceChange('contactPreferences', {
+                                ...preferences.contactPreferences,
+                                phoneNumber: e.target.value
+                              })}
+                              className="w-full px-3 py-2 border rounded-md"
+                              aria-label="Enter your phone number"
+                              placeholder="+1 (555) 555-5555"
                             />
                           </div>
                         )}
@@ -724,90 +752,84 @@ export default function EditProfileModal({ isOpen, onCloseAction }: EditProfileM
                         Notification Settings
                       </h4>
                       <div className="space-y-3">
-                        <div className="flex items-center">
+                        <div>
+                          <FormLabel htmlFor="bookingUpdates">Booking Updates</FormLabel>
                           <input
                             type="checkbox"
                             id="bookingUpdates"
+                            name="bookingUpdates"
                             checked={preferences.notificationSettings.bookingUpdates}
-                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => 
-                              handlePreferenceChange('notificationSettings', {
-                                ...preferences.notificationSettings,
-                                bookingUpdates: e.target.checked
-                              })
-                            }
-                            className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+                            onChange={(e) => handlePreferenceChange('notificationSettings', {
+                              ...preferences.notificationSettings,
+                              bookingUpdates: e.target.checked
+                            })}
+                            className="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
+                            aria-label="Receive booking updates"
                           />
-                          <label htmlFor="bookingUpdates" className="ml-2 block text-sm text-gray-700 dark:text-gray-300">
-                            Booking Updates
-                          </label>
                         </div>
-                        <div className="flex items-center">
+
+                        <div>
+                          <FormLabel htmlFor="eventReminders">Event Reminders</FormLabel>
                           <input
                             type="checkbox"
                             id="eventReminders"
+                            name="eventReminders"
                             checked={preferences.notificationSettings.eventReminders}
-                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => 
-                              handlePreferenceChange('notificationSettings', {
-                                ...preferences.notificationSettings,
-                                eventReminders: e.target.checked
-                              })
-                            }
-                            className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+                            onChange={(e) => handlePreferenceChange('notificationSettings', {
+                              ...preferences.notificationSettings,
+                              eventReminders: e.target.checked
+                            })}
+                            className="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
+                            aria-label="Receive event reminders"
                           />
-                          <label htmlFor="eventReminders" className="ml-2 block text-sm text-gray-700 dark:text-gray-300">
-                            Event Reminders
-                          </label>
                         </div>
-                        <div className="flex items-center">
+
+                        <div>
+                          <FormLabel htmlFor="newMessages">New Messages</FormLabel>
                           <input
                             type="checkbox"
                             id="newMessages"
+                            name="newMessages"
                             checked={preferences.notificationSettings.newMessages}
-                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => 
-                              handlePreferenceChange('notificationSettings', {
-                                ...preferences.notificationSettings,
-                                newMessages: e.target.checked
-                              })
-                            }
-                            className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+                            onChange={(e) => handlePreferenceChange('notificationSettings', {
+                              ...preferences.notificationSettings,
+                              newMessages: e.target.checked
+                            })}
+                            className="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
+                            aria-label="Receive new message notifications"
                           />
-                          <label htmlFor="newMessages" className="ml-2 block text-sm text-gray-700 dark:text-gray-300">
-                            New Messages
-                          </label>
                         </div>
-                        <div className="flex items-center">
+
+                        <div>
+                          <FormLabel htmlFor="specialOffers">Special Offers</FormLabel>
                           <input
                             type="checkbox"
                             id="specialOffers"
+                            name="specialOffers"
                             checked={preferences.notificationSettings.specialOffers}
-                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => 
-                              handlePreferenceChange('notificationSettings', {
-                                ...preferences.notificationSettings,
-                                specialOffers: e.target.checked
-                              })
-                            }
-                            className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+                            onChange={(e) => handlePreferenceChange('notificationSettings', {
+                              ...preferences.notificationSettings,
+                              specialOffers: e.target.checked
+                            })}
+                            className="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
+                            aria-label="Receive special offers"
                           />
-                          <label htmlFor="specialOffers" className="ml-2 block text-sm text-gray-700 dark:text-gray-300">
-                            Special Offers
-                          </label>
                         </div>
-                        <div className="flex items-center">
+
+                        <div>
+                          <FormLabel htmlFor="systemUpdates">System Updates</FormLabel>
                           <input
                             type="checkbox"
                             id="systemUpdates"
+                            name="systemUpdates"
                             checked={preferences.notificationSettings.systemUpdates}
-                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => 
-                              handlePreferenceChange('notificationSettings', {
-                                ...preferences.notificationSettings,
-                                systemUpdates: e.target.checked
-                              })
-                            }
-                            className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+                            onChange={(e) => handlePreferenceChange('notificationSettings', {
+                              ...preferences.notificationSettings,
+                              systemUpdates: e.target.checked
+                            })}
+                            className="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
+                            aria-label="Receive system update notifications"
                           />
-                          <label htmlFor="systemUpdates" className="ml-2 block text-sm text-gray-700 dark:text-gray-300">
-                            System Updates
-                          </label>
                         </div>
                       </div>
                     </div>
@@ -829,11 +851,10 @@ export default function EditProfileModal({ isOpen, onCloseAction }: EditProfileM
                           <button
                             type="button"
                             onClick={() => setShow2FASetup(true)}
-                            className={`px-4 py-2 rounded-md text-sm font-medium ${
-                              preferences.securitySettings.twoFactorEnabled
-                                ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
-                                : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200'
-                            }`}
+                            className={`px-4 py-2 rounded-md text-sm font-medium ${preferences.securitySettings.twoFactorEnabled
+                              ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+                              : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200'
+                              }`}
                           >
                             {preferences.securitySettings.twoFactorEnabled ? 'Enabled' : 'Enable'}
                           </button>
@@ -851,18 +872,14 @@ export default function EditProfileModal({ isOpen, onCloseAction }: EditProfileM
                       </h4>
                       <div className="space-y-3">
                         <div>
-                          <label className="block text-sm text-gray-700 dark:text-gray-300">
-                            Profile Visibility
-                          </label>
+                          <FormLabel htmlFor="profileVisibility">Profile Visibility</FormLabel>
                           <select
+                            id="profileVisibility"
+                            name="profileVisibility"
                             value={preferences.privacySettings.profileVisibility}
-                            onChange={(e: React.ChangeEvent<HTMLSelectElement>) => 
-                              handlePreferenceChange('privacySettings', {
-                                ...preferences.privacySettings,
-                                profileVisibility: e.target.value as 'public' | 'private' | 'connections'
-                              })
-                            }
-                            className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-700 dark:text-white sm:text-sm"
+                            onChange={(e) => handlePreferenceChange('privacySettings', { ...preferences.privacySettings, profileVisibility: e.target.value })}
+                            className="w-full px-3 py-2 border rounded-md"
+                            aria-label="Select your profile visibility"
                           >
                             {PROFILE_VISIBILITY_OPTIONS.map((option) => (
                               <option key={option.value} value={option.value}>
@@ -872,89 +889,78 @@ export default function EditProfileModal({ isOpen, onCloseAction }: EditProfileM
                           </select>
                         </div>
 
-                        <div className="flex items-center">
-                          <input
-                            type="checkbox"
-                            id="activityLogs"
-                            checked={preferences.privacySettings.activityLogs}
-                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => 
-                              handlePreferenceChange('privacySettings', {
+                        <div className="space-y-4">
+                          <div>
+                            <FormLabel htmlFor="activityLogs">Activity Logs</FormLabel>
+                            <input
+                              type="checkbox"
+                              id="activityLogs"
+                              name="activityLogs"
+                              checked={preferences.privacySettings.activityLogs}
+                              onChange={(e) => handlePreferenceChange('privacySettings', {
                                 ...preferences.privacySettings,
                                 activityLogs: e.target.checked
-                              })
-                            }
-                            className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
-                          />
-                          <label htmlFor="activityLogs" className="ml-2 block text-sm text-gray-700 dark:text-gray-300">
-                            Enable Activity Logs
-                          </label>
-                        </div>
+                              })}
+                              className="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
+                              aria-label="Enable activity logs"
+                            />
+                          </div>
 
-                        <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
-                          <h5 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                            Data Sharing Preferences
-                          </h5>
-                          <div className="space-y-3">
-                            <div className="flex items-center">
-                              <input
-                                type="checkbox"
-                                id="analytics"
-                                checked={preferences.privacySettings.dataSharing.analytics}
-                                onChange={(e: React.ChangeEvent<HTMLInputElement>) => 
-                                  handlePreferenceChange('privacySettings', {
-                                    ...preferences.privacySettings,
-                                    dataSharing: {
-                                      ...preferences.privacySettings.dataSharing,
-                                      analytics: e.target.checked
-                                    }
-                                  })
+                          <div>
+                            <FormLabel htmlFor="analytics">Analytics Data Sharing</FormLabel>
+                            <input
+                              type="checkbox"
+                              id="analytics"
+                              name="analytics"
+                              checked={preferences.privacySettings.dataSharing.analytics}
+                              onChange={(e) => handlePreferenceChange('privacySettings', {
+                                ...preferences.privacySettings,
+                                dataSharing: {
+                                  ...preferences.privacySettings.dataSharing,
+                                  analytics: e.target.checked
                                 }
-                                className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
-                              />
-                              <label htmlFor="analytics" className="ml-2 block text-sm text-gray-700 dark:text-gray-300">
-                                Share Analytics Data
-                              </label>
-                            </div>
-                            <div className="flex items-center">
-                              <input
-                                type="checkbox"
-                                id="marketing"
-                                checked={preferences.privacySettings.dataSharing.marketing}
-                                onChange={(e: React.ChangeEvent<HTMLInputElement>) => 
-                                  handlePreferenceChange('privacySettings', {
-                                    ...preferences.privacySettings,
-                                    dataSharing: {
-                                      ...preferences.privacySettings.dataSharing,
-                                      marketing: e.target.checked
-                                    }
-                                  })
+                              })}
+                              className="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
+                              aria-label="Share analytics data"
+                            />
+                          </div>
+
+                          <div>
+                            <FormLabel htmlFor="marketing">Marketing Data Sharing</FormLabel>
+                            <input
+                              type="checkbox"
+                              id="marketing"
+                              name="marketing"
+                              checked={preferences.privacySettings.dataSharing.marketing}
+                              onChange={(e) => handlePreferenceChange('privacySettings', {
+                                ...preferences.privacySettings,
+                                dataSharing: {
+                                  ...preferences.privacySettings.dataSharing,
+                                  marketing: e.target.checked
                                 }
-                                className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
-                              />
-                              <label htmlFor="marketing" className="ml-2 block text-sm text-gray-700 dark:text-gray-300">
-                                Share Data for Marketing
-                              </label>
-                            </div>
-                            <div className="flex items-center">
-                              <input
-                                type="checkbox"
-                                id="thirdParty"
-                                checked={preferences.privacySettings.dataSharing.thirdParty}
-                                onChange={(e: React.ChangeEvent<HTMLInputElement>) => 
-                                  handlePreferenceChange('privacySettings', {
-                                    ...preferences.privacySettings,
-                                    dataSharing: {
-                                      ...preferences.privacySettings.dataSharing,
-                                      thirdParty: e.target.checked
-                                    }
-                                  })
+                              })}
+                              className="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
+                              aria-label="Share marketing data"
+                            />
+                          </div>
+
+                          <div>
+                            <FormLabel htmlFor="thirdParty">Third-Party Data Sharing</FormLabel>
+                            <input
+                              type="checkbox"
+                              id="thirdParty"
+                              name="thirdParty"
+                              checked={preferences.privacySettings.dataSharing.thirdParty}
+                              onChange={(e) => handlePreferenceChange('privacySettings', {
+                                ...preferences.privacySettings,
+                                dataSharing: {
+                                  ...preferences.privacySettings.dataSharing,
+                                  thirdParty: e.target.checked
                                 }
-                                className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
-                              />
-                              <label htmlFor="thirdParty" className="ml-2 block text-sm text-gray-700 dark:text-gray-300">
-                                Share Data with Third Parties
-                              </label>
-                            </div>
+                              })}
+                              className="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
+                              aria-label="Share data with third parties"
+                            />
                           </div>
                         </div>
                       </div>

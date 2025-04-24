@@ -19,9 +19,6 @@ const nextConfig = {
     formats: ['image/avif', 'image/webp'],
   },
 
-  // Enable SWC minification and compilation
-  swcMinify: true,
-
   // Configure webpack
   webpack: (config, { isServer }) => {
     // Handle Node.js built-in modules

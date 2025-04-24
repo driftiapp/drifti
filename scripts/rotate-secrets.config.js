@@ -41,5 +41,18 @@ module.exports = {
         enabled: true,
         delay: 5000, // Delay in milliseconds before restart
         command: 'npm run start' // Command to restart the application
-    }
+    },
+
+    backupDir: './backups',
+    keyDir: './.backup-keys',
+    envFile: './.env',
+    masterKeyFile: './.backup-keys/master.key',
+    backupPattern: 'backup-*.env',
+    keyPattern: 'key-*.json',
+    encryptionAlgorithm: 'aes-256-gcm',
+    keyLength: 32,
+    ivLength: 16,
+    saltLength: 16,
+    iterations: 100000,
+    digest: 'sha256'
 }; 

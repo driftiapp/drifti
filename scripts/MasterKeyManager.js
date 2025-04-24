@@ -5,160 +5,96 @@ const path = require('path');
 class MasterKeyManager {
     constructor(config) {
         this.config = config;
-        this.masterKey = process.env.MASTER_BACKUP_KEY;
-        this.keyStorePath = path.join(process.cwd(), '.backup-keys');
+        this.ensureDirectories();
     }
 
-    async initialize() {
-        if (!this.masterKey) {
-            throw new Error('MASTER_BACKUP_KEY environment variable is not set');
-        }
-
-        // Create key store directory if it doesn't exist
-        await fs.mkdir(this.keyStorePath, { recursive: true });
+    async ensureDirectories() {
+        await fs.mkdir(this.config.keyDir, { recursive: true });
     }
 
-    async encryptBackupKey(backupKey, metadata = {}) {
-        await this.initialize();
+    async storeBackupKey(backupId, key, metadata = {}) {
+        const keyId = crypto.randomBytes(16).toString('hex');
+        const keyPath = path.join(this.config.keyDir, `key-${keyId}.json`);
 
-        // Generate a unique IV for this encryption
-        const iv = crypto.randomBytes(12);
-
-        // Create cipher with master key
-        const cipher = crypto.createCipheriv(
-            'aes-256-gcm',
-            Buffer.from(this.masterKey, 'hex'),
-            iv
-        );
-
-        // Add metadata to the key
         const keyData = {
-            key: backupKey,
-            metadata: {
-                ...metadata,
-                encryptedAt: new Date().toISOString()
-            }
+            id: keyId,
+            backupId,
+            key,
+            created: new Date().toISOString(),
+            metadata
         };
 
-        // Encrypt the key data
-        let encrypted = cipher.update(JSON.stringify(keyData), 'utf8', 'hex');
-        encrypted += cipher.final('hex');
-
-        // Get authentication tag
-        const authTag = cipher.getAuthTag();
-
-        return {
-            encrypted,
-            iv: iv.toString('hex'),
-            authTag: authTag.toString('hex')
-        };
-    }
-
-    async decryptBackupKey(encryptedData) {
-        await this.initialize();
-
-        const { encrypted, iv, authTag } = encryptedData;
-
-        // Create decipher
-        const decipher = crypto.createDecipheriv(
-            'aes-256-gcm',
-            Buffer.from(this.masterKey, 'hex'),
-            Buffer.from(iv, 'hex')
-        );
-
-        // Set authentication tag
-        decipher.setAuthTag(Buffer.from(authTag, 'hex'));
-
-        // Decrypt
-        let decrypted = decipher.update(encrypted, 'hex', 'utf8');
-        decrypted += decipher.final('utf8');
-
-        // Parse the decrypted data
-        const keyData = JSON.parse(decrypted);
-        return keyData;
-    }
-
-    async storeBackupKey(backupId, backupKey, metadata = {}) {
-        await this.initialize();
-
-        // Encrypt the backup key
-        const encryptedData = await this.encryptBackupKey(backupKey, metadata);
-
-        // Store the encrypted key
-        const keyPath = path.join(this.keyStorePath, `${backupId}.key`);
-        await fs.writeFile(keyPath, JSON.stringify(encryptedData));
-
-        return keyPath;
+        await fs.writeFile(keyPath, JSON.stringify(keyData, null, 2));
+        return keyId;
     }
 
     async retrieveBackupKey(backupId) {
-        await this.initialize();
+        const files = await fs.readdir(this.config.keyDir);
+        const keyFiles = files.filter(file => file.startsWith('key-') && file.endsWith('.json'));
 
-        const keyPath = path.join(this.keyStorePath, `${backupId}.key`);
+        for (const file of keyFiles) {
+            const keyPath = path.join(this.config.keyDir, file);
+            const keyData = JSON.parse(await fs.readFile(keyPath, 'utf8'));
 
-        try {
-            const encryptedData = JSON.parse(await fs.readFile(keyPath, 'utf8'));
-            const keyData = await this.decryptBackupKey(encryptedData);
-            return keyData;
-        } catch (error) {
-            throw new Error(`Failed to retrieve backup key: ${error.message}`);
-        }
-    }
-
-    async rotateMasterKey(newMasterKey) {
-        await this.initialize();
-
-        // Get all stored keys
-        const keyFiles = await fs.readdir(this.keyStorePath);
-
-        // Re-encrypt each key with the new master key
-        for (const keyFile of keyFiles) {
-            if (!keyFile.endsWith('.key')) continue;
-
-            const keyPath = path.join(this.keyStorePath, keyFile);
-            const encryptedData = JSON.parse(await fs.readFile(keyPath, 'utf8'));
-
-            // Decrypt with old master key
-            const keyData = await this.decryptBackupKey(encryptedData);
-
-            // Encrypt with new master key
-            const oldMasterKey = this.masterKey;
-            this.masterKey = newMasterKey;
-            const newEncryptedData = await this.encryptBackupKey(keyData.key, keyData.metadata);
-
-            // Store the re-encrypted key
-            await fs.writeFile(keyPath, JSON.stringify(newEncryptedData));
-
-            // Restore old master key
-            this.masterKey = oldMasterKey;
-        }
-    }
-
-    async listStoredKeys() {
-        await this.initialize();
-
-        const keyFiles = await fs.readdir(this.keyStorePath);
-        const keys = [];
-
-        for (const keyFile of keyFiles) {
-            if (!keyFile.endsWith('.key')) continue;
-
-            const keyPath = path.join(this.keyStorePath, keyFile);
-            const encryptedData = JSON.parse(await fs.readFile(keyPath, 'utf8'));
-
-            try {
-                const keyData = await this.decryptBackupKey(encryptedData);
-                keys.push({
-                    id: keyFile.replace('.key', ''),
-                    metadata: keyData.metadata,
-                    encryptedAt: keyData.metadata.encryptedAt
-                });
-            } catch (error) {
-                console.error(`Failed to decrypt key ${keyFile}: ${error.message}`);
+            if (keyData.backupId === backupId) {
+                return keyData;
             }
         }
 
-        return keys;
+        throw new Error(`No key found for backup: ${backupId}`);
+    }
+
+    async listStoredKeys() {
+        const files = await fs.readdir(this.config.keyDir);
+        const keyFiles = files.filter(file => file.startsWith('key-') && file.endsWith('.json'));
+        const keys = [];
+
+        for (const file of keyFiles) {
+            const keyPath = path.join(this.config.keyDir, file);
+            const keyData = JSON.parse(await fs.readFile(keyPath, 'utf8'));
+            keys.push({
+                id: keyData.id,
+                backupId: keyData.backupId,
+                created: new Date(keyData.created),
+                metadata: keyData.metadata
+            });
+        }
+
+        return keys.sort((a, b) => b.created - a.created);
+    }
+
+    async rotateMasterKey() {
+        const masterKeyPath = this.config.masterKeyFile;
+        const newKey = crypto.randomBytes(32).toString('hex');
+
+        // Read all key files
+        const files = await fs.readdir(this.config.keyDir);
+        const keyFiles = files.filter(file => file.startsWith('key-') && file.endsWith('.json'));
+
+        // Re-encrypt each key file with the new master key
+        for (const file of keyFiles) {
+            const keyPath = path.join(this.config.keyDir, file);
+            const keyData = JSON.parse(await fs.readFile(keyPath, 'utf8'));
+
+            // Re-encrypt the backup key
+            const iv = crypto.randomBytes(16);
+            const cipher = crypto.createCipheriv('aes-256-gcm', Buffer.from(newKey, 'hex'), iv);
+            const encrypted = Buffer.concat([
+                cipher.update(keyData.key),
+                cipher.final()
+            ]);
+
+            // Update the key file
+            keyData.key = encrypted.toString('hex');
+            keyData.iv = iv.toString('hex');
+            keyData.authTag = cipher.getAuthTag().toString('hex');
+
+            await fs.writeFile(keyPath, JSON.stringify(keyData, null, 2));
+        }
+
+        // Save the new master key
+        await fs.writeFile(masterKeyPath, newKey);
+        return newKey;
     }
 }
 

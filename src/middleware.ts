@@ -1,111 +1,70 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import createMiddleware from 'next-intl/middleware';
-import { getToken } from 'next-auth/jwt';
+import { auth } from '@/lib/auth';
 
-// Configure next-intl middleware
-const intlMiddleware = createMiddleware({
-    locales: ['en', 'fr', 'es', 'de', 'it', 'pt', 'nl'],
-    defaultLocale: 'en',
-    localePrefix: 'as-needed',
-    localeDetection: true,
-});
-
-// Define public routes that don't require authentication
-const publicRoutes = [
-    '/',
-    '/auth/signin',
-    '/auth/signup',
-    '/auth/forgot-password',
-    '/auth/reset-password',
-    '/api/auth',
+// Routes that require email verification
+const requireVerification = [
+    "/dashboard",
+    "/profile",
+    "/settings",
+    "/admin",
 ];
-
-// Define API routes that don't require authentication
-const publicApiRoutes = [
-    '/api/auth',
-    '/api/health',
-    '/api/public',
-];
-
-// Helper function to verify token
-async function verifyToken(request: NextRequest) {
-    try {
-        const token = await getToken({ req: request });
-        return token;
-    } catch (error) {
-        console.error('Token verification error:', error);
-        return null;
-    }
-}
 
 export async function middleware(request: NextRequest) {
-    const pathname = request.nextUrl.pathname;
+    const session = await auth();
 
-    // Skip middleware for static files and API routes
-    if (
-        pathname.startsWith('/_next') ||
-        pathname.startsWith('/static') ||
-        pathname.includes('.')
-    ) {
+    // Public paths that don't require authentication
+    const publicPaths = [
+        "/",
+        "/auth/signin",
+        "/auth/register",
+        "/auth/error",
+        "/auth/verify-request",
+        "/auth/verify",
+    ];
+
+    // Check if the path is public
+    const isPublicPath = publicPaths.some((path) =>
+        request.nextUrl.pathname.startsWith(path)
+    );
+
+    // If the path is public, allow access
+    if (isPublicPath) {
         return NextResponse.next();
     }
 
-    // Handle API routes
-    if (pathname.startsWith('/api')) {
-        // Check if it's a public API route
-        if (publicApiRoutes.some(route => pathname.startsWith(route))) {
-            return NextResponse.next();
-        }
-
-        // Verify authentication for protected API routes
-        const token = await verifyToken(request);
-        if (!token) {
-            return new NextResponse(
-                JSON.stringify({ message: 'Authentication required' }),
-                { status: 401, headers: { 'Content-Type': 'application/json' } }
-            );
-        }
-
-        return NextResponse.next();
-    }
-
-    // Handle page routes
-    if (pathname.startsWith('/auth')) {
-        // If user is already authenticated, redirect to dashboard
-        const token = await verifyToken(request);
-        if (token) {
-            return NextResponse.redirect(new URL('/dashboard', request.url));
-        }
-        return NextResponse.next();
-    }
-
-    // Check if the route is public
-    if (publicRoutes.includes(pathname)) {
-        return intlMiddleware(request);
-    }
-
-    // Verify authentication for protected routes
-    const token = await verifyToken(request);
-    if (!token) {
-        const signInUrl = new URL('/auth/signin', request.url);
-        signInUrl.searchParams.set('callbackUrl', pathname);
+    // If there's no session and the path is not public, redirect to sign in
+    if (!session) {
+        const signInUrl = new URL("/auth/signin", request.url);
+        signInUrl.searchParams.set("callbackUrl", request.url);
         return NextResponse.redirect(signInUrl);
     }
 
-    // Apply internationalization middleware
-    return intlMiddleware(request);
+    // Check if the route requires email verification
+    const requiresVerification = requireVerification.some((path) =>
+        request.nextUrl.pathname.startsWith(path)
+    );
+
+    if (requiresVerification && !session.user.emailVerified) {
+        const verifyUrl = new URL("/auth/verify-request", request.url);
+        verifyUrl.searchParams.set("callbackUrl", request.url);
+        return NextResponse.redirect(verifyUrl);
+    }
+
+    // Allow access to protected routes if authenticated and verified
+    return NextResponse.next();
 }
 
-// Update matcher to handle both API routes and page routes
 export const config = {
     matcher: [
-        // Match all pathnames except for
-        // - static files (e.g. /favicon.ico, /images/*)
-        // - api routes (e.g. /api/*)
-        // - _next internal routes (e.g. /_next/*)
-        '/((?!api|_next|.*\\..*).*)',
-        // Match all API routes except for public ones
-        '/api/((?!auth|health|public).*)',
+        /*
+         * Match all request paths except for the ones starting with:
+         * - api (API routes)
+         * - _next/static (static files)
+         * - _next/image (image optimization files)
+         * - favicon.ico (favicon file)
+         * - public folder
+         */
+        "/((?!api|_next/static|_next/image|favicon.ico|public).*)",
     ],
 }; 

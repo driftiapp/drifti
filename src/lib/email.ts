@@ -1,13 +1,14 @@
-import nodemailer from "nodemailer"
+import { createTransport } from "nodemailer"
+import { env } from "@/lib/env"
 
 // Create a transporter for sending emails
-const transporter = nodemailer.createTransport({
-  host: process.env.EMAIL_SERVER_HOST,
-  port: Number(process.env.EMAIL_SERVER_PORT),
-  secure: true,
+const transporter = createTransport({
+  host: env.SMTP_HOST,
+  port: env.SMTP_PORT,
+  secure: env.SMTP_SECURE,
   auth: {
-    user: process.env.EMAIL_SERVER_USER,
-    pass: process.env.EMAIL_SERVER_PASSWORD,
+    user: env.SMTP_USER,
+    pass: env.SMTP_PASSWORD,
   },
 })
 
@@ -22,10 +23,10 @@ export async function sendVerificationEmail({
   token,
   name,
 }: SendVerificationEmailParams) {
-  const verificationUrl = `${process.env.NEXTAUTH_URL}/auth/verify?token=${token}`
+  const verificationUrl = `${env.NEXT_PUBLIC_APP_URL}/auth/verify?token=${token}`
 
   await transporter.sendMail({
-    from: process.env.EMAIL_FROM,
+    from: env.SMTP_FROM,
     to: email,
     subject: "Verify your email address",
     html: `
@@ -57,10 +58,10 @@ export async function sendPasswordResetEmail({
   token,
   name,
 }: SendPasswordResetEmailParams) {
-  const resetUrl = `${process.env.NEXTAUTH_URL}/auth/reset-password?token=${token}`
+  const resetUrl = `${env.NEXT_PUBLIC_APP_URL}/auth/reset-password?token=${token}`
 
   await transporter.sendMail({
-    from: process.env.EMAIL_FROM,
+    from: env.SMTP_FROM,
     to: email,
     subject: "Reset your password",
     html: `
@@ -87,7 +88,7 @@ interface InvitationEmailProps {
 }
 
 export async function sendInvitationEmail({ to, token }: InvitationEmailProps) {
-  const invitationLink = `${process.env.NEXTAUTH_URL}/auth/register?token=${token}`;
+  const invitationLink = `${env.NEXT_PUBLIC_APP_URL}/auth/register?token=${token}`;
 
   const html = `
     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
@@ -104,7 +105,7 @@ export async function sendInvitationEmail({ to, token }: InvitationEmailProps) {
   `;
 
   await transporter.sendMail({
-    from: process.env.EMAIL_FROM,
+    from: env.SMTP_FROM,
     to,
     subject: "You've been invited to join Driftix",
     html,

@@ -22,7 +22,7 @@ model Data {
 model BlockedIP {
   id        String   @id @default(cuid())
   ip        String   @unique
-  blockedBy String
+  blockedBy String   @db.Uuid
   reason    String
   createdAt DateTime @default(now())
   expiresAt DateTime?
@@ -32,7 +32,7 @@ model BlockedIP {
 model WhitelistedIP {
   id            String   @id @default(cuid())
   ip            String   @unique
-  whitelistedBy String
+  whitelistedBy String   @db.Uuid
   reason        String
   createdAt     DateTime @default(now())
   user          User     @relation(fields: [whitelistedBy], references: [id], onDelete: Cascade)
@@ -45,7 +45,7 @@ model ipHistory {
   details   String?
   severity  String
   timestamp DateTime @default(now())
-  userId    String?
+  userId    String?  @db.Uuid
   user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
 }
 
@@ -54,7 +54,7 @@ model IPNote {
   content     String
   category    String            @default("general")
   ipAddress   String
-  userId      String
+  userId      String            @db.Uuid
   createdAt   DateTime          @default(now())
   updatedAt   DateTime          @updatedAt
   user        User              @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -81,7 +81,7 @@ model CustomTheme {
   id        String   @id @default(cuid())
   name      String
   colors    Json
-  userId    String
+  userId    String   @db.Uuid
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -95,7 +95,7 @@ model SharedTheme {
   colors    Json
   isPublic  Boolean  @default(true)
   shareCode String   @unique
-  userId    String
+  userId    String   @db.Uuid
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -108,15 +108,15 @@ model Theme {
   id          String         @id @default(cuid())
   name        String
   description String?
-  colors      Json     // Stores the custom colors as JSON
-  userId      String
+  colors      Json
+  userId      String         @db.Uuid
   user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
   isPublic    Boolean       @default(false)
   likes       Int          @default(0)
   downloads   Int          @default(0)
-  category    String?      // e.g., "dark", "light", "pastel", etc.
+  category    String?
   ratings     ThemeRating[]
   comments    ThemeComment[]
 
@@ -126,14 +126,14 @@ model Theme {
 
 model ThemeRating {
   id        String   @id @default(cuid())
-  rating    Int      // 1-5 stars
+  rating    Int
   themeId   String
-  userId    String
+  userId    String   @db.Uuid
   createdAt DateTime @default(now())
   theme     Theme    @relation(fields: [themeId], references: [id], onDelete: Cascade)
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@unique([themeId, userId]) // One rating per user per theme
+  @@unique([themeId, userId])
   @@index([themeId])
   @@index([userId])
 }
@@ -142,7 +142,7 @@ model ThemeComment {
   id        String   @id @default(cuid())
   content   String
   themeId   String
-  userId    String
+  userId    String   @db.Uuid
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   theme     Theme    @relation(fields: [themeId], references: [id], onDelete: Cascade)
@@ -184,7 +184,7 @@ model User {
 
 model Account {
   id                String  @id @default(cuid())
-  userId            String
+  userId            String  @db.Uuid
   type              String
   provider          String
   providerAccountId String
@@ -204,7 +204,7 @@ model Account {
 model Session {
   id           String   @id @default(cuid())
   sessionToken String   @unique
-  userId       String
+  userId       String   @db.Uuid
   expires      DateTime
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
@@ -240,7 +240,7 @@ model Invitation {
   expiresAt DateTime
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  invitedBy String
+  invitedBy String   @db.Uuid
   inviter   User     @relation(fields: [invitedBy], references: [id], onDelete: Cascade)
 
   @@index([invitedBy])
@@ -277,7 +277,7 @@ enum PaymentStatus {
 
 model Transaction {
   id              String          @id @default(cuid())
-  userId          String
+  userId          String          @db.Uuid
   orderId         String?
   amount          Float
   currency        String          @default("USD")
@@ -287,7 +287,7 @@ model Transaction {
   metadata        Json?
   refundedAmount  Float?          @default(0)
   invoiceUrl      String?
-  paypalOrderId   String?         // PayPal-specific fields
+  paypalOrderId   String?
   paypalPayerId   String?
   paypalCaptureId String?
   createdAt       DateTime        @default(now())
@@ -307,9 +307,9 @@ model Transaction {
 
 model Order {
   id              String         @id @default(cuid())
-  userId          String
+  userId          String         @db.Uuid
   storeId         String?
-  driverId        String?
+  driverId        String?        @db.Uuid
   status          OrderStatus    @default(PENDING)
   totalAmount     Float
   currency        String         @default("USD")
@@ -395,7 +395,7 @@ model Store {
   id              String            @id @default(cuid())
   name            String
   description     String?
-  userId          String
+  userId          String            @db.Uuid
   createdAt       DateTime          @default(now())
   updatedAt       DateTime          @updatedAt
   user            User              @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -408,7 +408,7 @@ model Store {
 
 model ActivityLog {
   id        String   @id @default(cuid())
-  userId    String
+  userId    String   @db.Uuid
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   action    String
   entityType String
@@ -434,7 +434,7 @@ enum ActivityType {
 
 model DownloadLog {
   id          String   @id @default(cuid())
-  userId      String
+  userId      String   @db.Uuid
   user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   filename    String
   fileSize    Int

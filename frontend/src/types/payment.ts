@@ -1,0 +1,23 @@
+export enum PaymentStatus {
+    PENDING = "PENDING",
+    COMPLETED = "COMPLETED",
+    FAILED = "FAILED",
+    REFUNDED = "REFUNDED",
+    PARTIALLY_REFUNDED = "PARTIALLY_REFUNDED",
+    CANCELLED = "CANCELLED"
+}
+
+export enum PaymentMethod {
+    CREDIT_CARD = "CREDIT_CARD",
+    DEBIT_CARD = "DEBIT_CARD",
+    PAYPAL = "PAYPAL",
+    BANK_TRANSFER = "BANK_TRANSFER",
+    WALLET = "WALLET",
+    GOOGLE_PAY = "GOOGLE_PAY"
+}
+
+export enum PaymentProvider {
+    STRIPE = "STRIPE",
+    PAYPAL = "PAYPAL",
+    GOOGLE_PAY = "GOOGLE_PAY"
+} 
